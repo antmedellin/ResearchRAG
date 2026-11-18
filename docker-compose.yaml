@@ -1,0 +1,147 @@
+
+
+
+name: research-rag
+
+networks:
+  backend:
+    
+volumes:
+  qdrant_data:
+  neo4j_data:
+
+x-init-ollama: &init-ollama
+  image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
+  container_name: ollama-pull
+  networks:
+    - backend
+  volumes:
+    - ./ollama_storage:/root/.ollama
+  entrypoint: ["/bin/sh", "-c"]
+  environment:
+    CHAT_PLATFORM: ${CHAT_PLATFORM}
+    CHAT_MODEL: ${CHAT_MODEL}
+    DECISION_PLATFORM: ${DECISION_PLATFORM}
+    DECISION_MODEL: ${DECISION_MODEL}
+    DENSE_EMBED_PLATFORM: ${DENSE_EMBED_PLATFORM}
+    DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL}
+    RERANK_PLATFORM: ${RERANK_PLATFORM}
+    RERANK_MODEL: ${RERANK_MODEL}
+  command:
+      - |
+        ollama serve &
+        sleep 10
+
+        [ "$$DENSE_EMBED_PLATFORM" = "ollama" ] && ollama pull "$$DENSE_EMBEDDING_MODEL"
+        [ "$$RERANK_PLATFORM" = "ollama" ] && ollama pull "$$RERANK_MODEL"
+        [ "$$DECISION_PLATFORM" = "ollama" ] && ollama pull "$$DECISION_MODEL"
+        [ "$$CHAT_PLATFORM" = "ollama" ] && ollama pull "$$CHAT_MODEL"
+
+
+x-ollama: &service-ollama
+  image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
+  container_name: ollama
+  networks:
+    - backend
+  restart: unless-stopped
+  ports:
+    - "11434:11434"
+  volumes:
+    - ./ollama_storage:/root/.ollama
+  healthcheck:
+    test: ["CMD-SHELL", "[ $(ollama list | wc -l) -gt 1 ]"]
+    interval: 10s
+    timeout: 10s
+    retries: 10
+    start_period: 60s
+
+services:
+  
+
+  qdrant:
+    image: ${QDRANT_IMAGE:-qdrant/qdrant:v1.20.2}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${QDRANT_PORT:-6333}:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/6333 && echo -e 'GET /readyz HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q 'HTTP/1.1 200' <&3"]
+      interval: 5s
+      timeout: 3s
+      retries: 4
+
+  qdrant-init:
+    image: curlimages/curl:8.12.1
+    networks:
+      - backend
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        until curl -fsS http://qdrant:6333/readyz >/dev/null; do
+          echo "Waiting for Qdrant..."
+          sleep 2
+        done
+
+        if curl -fsS http://qdrant:6333/collections/${QDRANT_COLLECTION} >/dev/null; then
+          echo "Collection ${QDRANT_COLLECTION} already exists"
+        else
+          echo "Creating collection ${QDRANT_COLLECTION}"
+          curl -fsS -X PUT http://qdrant:6333/collections/${QDRANT_COLLECTION} \
+            -H "Content-Type: application/json" \
+            -d '{"vectors":{"default":{"distance":"Dot","size":${DENSE_EMBED_DIMENSION:?Set DENSE_EMBED_DIMENSION in .env}}},"sparse_vectors":{"bm42":{"modifier":"idf"}}}'
+          echo
+        fi
+  ollama:
+    <<: *service-ollama
+    gpus: all
+
+  ollama-init:
+    <<: *init-ollama
+    restart: "no"
+
+  user_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "1000:1000"
+    networks:
+      - backend
+    environment:
+      DENSE_EMBEDDING_URL: ${DENSE_EMBEDDING_URL:-http://ollama:11434/api/embeddings}
+      DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL:-mxbai-embed-large:335m}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      QDRANT_TEST_COLLECTION: ${QDRANT_TEST_COLLECTION:-researcher_rag_smoke_test}
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+
+  neo4j:
+    image: ${NEO4J_IMAGE:-neo4j:2026.10.2-community-ubi10}
+    container_name: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'PORT_HEX="$(printf ''%04X'' 7687)"; cat /proc/net/tcp /proc/net/tcp6 2>/dev/null | grep -q ":$${PORT_HEX} "'
+      interval: 10s
+      timeout: 3s
+      retries: 120
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - backend
+    environment:
+      NEO4J_AUTH: ${NEO4J_USERNAME:?missing}/${NEO4J_PASSWORD:?missing}
+      NEO4J_dbms_default__database: "neo4j"

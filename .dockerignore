@@ -1,0 +1,12 @@
+.env
+.git
+.venv
+__pycache__
+**/__pycache__
+*.pyc
+**/*.pyc
+data
+ollama_storage
+.state
+.model_state
+*.zip
