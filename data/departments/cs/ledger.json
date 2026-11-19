@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "stage": "build_ledger",
-  "generated_at": "2026-11-19T00:19:13.116286+00:00",
+  "generated_at": "2026-11-19T16:38:11.234578+00:00",
   "institution": "University of Texas Rio Grande Valley",
   "department": {
     "slug": "cs",
@@ -9,7 +9,7 @@
     "aliases": []
   },
   "inputs": {
-    "roster_retrieved_at": "2026-11-19T00:18:50.197999+00:00",
+    "roster_retrieved_at": "2026-11-19T16:38:11.084672+00:00",
     "profiles": {
       "dm:2462718": "bdd55f9eee31640c0b11154b4767a9233a9dcb5c003ddf0a68bb2a5d637ee808",
       "dm:2109032": "61fe9596791ff59aa3019a655ebb187d9bfdd7a70b1979184d34c30a29b14006",

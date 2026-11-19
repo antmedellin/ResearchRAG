@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "stage": "build_ledger",
-  "generated_at": "2026-11-18T22:34:32.587082+00:00",
+  "generated_at": "2026-11-19T15:20:27.438680+00:00",
   "institution": "University of Texas Rio Grande Valley",
   "department": {
     "slug": "ies",
@@ -9,7 +9,7 @@
     "aliases": []
   },
   "inputs": {
-    "roster_retrieved_at": "2026-11-18T21:44:50.644405+00:00",
+    "roster_retrieved_at": "2026-11-19T15:20:27.355588+00:00",
     "profiles": {
       "dm:1811220": "59f2a99b15cc0cfb6399a0af4f5cef8418d203b9b2dc09b3c13d8cdbdcd27867",
       "dm:2710015": "100320b4d1d827d2983da46729867d047371cd4e79d7a0a72d0cd6450c4416fd",
