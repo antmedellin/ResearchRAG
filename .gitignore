@@ -13,3 +13,5 @@ ollama_storage/
 tei_data/
 
 *Zone.Identifier
+
+*validation.json
