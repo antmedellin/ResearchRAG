@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="data:,">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knowledge Graph · ResearchRAG</title>
+<style>
+:root{
+  --bg:#f7f8fa;--panel:#ffffff;--panel2:#f1f3f6;--text:#1f2937;--muted:#6b7280;--border:#e2e6eb;
+  --edge:rgba(148,160,176,.55);--edge-dim:rgba(148,160,176,.12);--accent:#f97316;--accent2:#0b2d5b;
+  --label:#111827;--label-bg:rgba(255,255,255,.85);--shadow:0 4px 18px rgba(15,23,42,.10);
+}
+:root[data-theme=dark]{
+  --bg:#0f1115;--panel:#181b21;--panel2:#20242c;--text:#e5e7eb;--muted:#9aa3af;--border:#2a2f38;
+  --edge:rgba(120,132,150,.45);--edge-dim:rgba(120,132,150,.08);--label:#e5e7eb;--label-bg:rgba(15,17,21,.8);
+  --shadow:0 4px 18px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:13px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#kg{position:relative;width:100%;height:100%}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+canvas.drag{cursor:grabbing}canvas.hover{cursor:pointer}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{background:var(--panel2);border:1px solid var(--border);border-radius:7px;padding:5px 10px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.btn.small{padding:2px 8px;font-size:12px}
+select,input[type=text],input[type=search]{background:var(--panel2);border:1px solid var(--border);border-radius:7px;padding:5px 8px;min-width:0}
+
+/* top-left search bar */
+#top{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none;z-index:5}
+#top>*{pointer-events:auto}
+#searchWrap{position:relative;width:min(340px,100%)}
+#search{width:100%;padding:7px 10px 7px 30px}
+#searchWrap svg{position:absolute;left:9px;top:9px;opacity:.6}
+#sugg{position:absolute;top:calc(100% + 4px);left:0;right:0;max-height:340px;overflow:auto;display:none;z-index:20}
+#sugg .it{display:flex;gap:8px;align-items:center;padding:6px 10px;cursor:pointer}
+#sugg .it:hover,#sugg .it.on{background:var(--panel2)}
+#sugg .dot{width:10px;height:10px;border-radius:50%;flex:none}
+#sugg .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sugg .lb{color:var(--muted);font-size:11px}
+.ctl{display:flex;gap:6px;align-items:center;padding:4px 6px}
+.ctl label{color:var(--muted);font-size:12px}
+
+/* left toolbar */
+#tools{position:absolute;left:12px;bottom:12px;display:flex;flex-direction:column;gap:4px;padding:4px;z-index:5}
+#tools button{width:32px;height:32px;border:0;background:transparent;border-radius:7px;display:grid;place-items:center}
+#tools button:hover{background:var(--panel2)}
+#tools button.on{color:var(--accent)}
+#tools hr{border:0;border-top:1px solid var(--border);margin:2px 4px}
+.pop{position:absolute;left:56px;bottom:12px;padding:10px;z-index:6;display:none;min-width:220px;max-height:calc(100% - 90px);overflow:auto}
+.pop h4{margin:4px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.pop .row{display:flex;align-items:center;gap:8px;padding:3px 0}
+.pop .row span.c{margin-left:auto;color:var(--muted);font-size:11px}
+.pop .row.dis{opacity:.4}
+.pop .acts{display:flex;gap:6px;margin:4px 0 8px}
+.lay button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:6px 8px;border-radius:6px}
+.lay button:hover{background:var(--panel2)}
+
+/* legend */
+#legend{position:absolute;left:60px;bottom:12px;padding:8px 10px;z-index:4;max-width:min(560px,calc(100% - 420px));display:flex;flex-wrap:wrap;gap:4px 12px}
+#legend .lg{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;white-space:nowrap}
+#legend .lg.off{opacity:.35;text-decoration:line-through}
+#legend .dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--panel)}
+#legend .n{color:var(--muted);font-size:11px}
+
+/* status */
+#status{position:absolute;right:12px;bottom:12px;padding:6px 10px;z-index:4;display:flex;gap:10px;align-items:center;color:var(--muted)}
+#status b{color:var(--text)}
+
+/* right panel */
+#panel{position:absolute;top:60px;right:12px;bottom:56px;width:340px;max-width:calc(100% - 24px);z-index:6;display:flex;flex-direction:column;overflow:hidden;transition:transform .18s ease}
+#panel.hidden{transform:translateX(calc(100% + 16px))}
+#panelHead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border)}
+#panelHead .chip{color:#fff;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600}
+#panelHead h3{margin:0;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#panelBody{padding:10px 12px;overflow:auto;flex:1}
+#panelBody .acts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 8px;margin-bottom:12px}
+.kv .k{color:var(--muted);word-break:break-word}
+.kv .v{word-break:break-word;white-space:pre-wrap}
+.kv .v.long{max-height:7.5em;overflow:hidden;position:relative;cursor:pointer}
+.kv .v.long.open{max-height:none}
+.kv .v.long:not(.open)::after{content:"… more";position:absolute;right:0;bottom:0;background:var(--panel);color:var(--accent);padding-left:6px}
+.sec{margin:10px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.rel{display:flex;gap:6px;align-items:center;padding:3px 4px;border-radius:6px;cursor:pointer}
+.rel:hover{background:var(--panel2)}
+.rel .t{font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:0 4px;white-space:nowrap}
+.rel .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.rel .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#panelToggle{position:absolute;top:12px;right:12px;z-index:7}
+.empty{color:var(--muted);padding:8px 0}
+#toast{position:absolute;top:60px;left:50%;transform:translateX(-50%);padding:8px 14px;z-index:9;display:none;max-width:80%}
+#toast.err{border-color:#dc2626;color:#dc2626}
+#loading{position:absolute;inset:0;display:none;place-items:center;z-index:8;background:rgba(0,0,0,.04);pointer-events:none}
+#loading div{padding:8px 14px}
+@media (max-width:700px){#panel{top:auto;height:55%;width:auto;left:12px}#legend{display:none}}
+</style>
+</head>
+<body>
+<div id="kg">
+  <canvas id="cv" aria-label="Knowledge graph" role="img"></canvas>
+
+  <div id="top">
+    <div id="searchWrap" class="card">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="search" type="search" placeholder="Search entities…  ( / )" autocomplete="off" aria-label="Search entities">
+      <div id="sugg" class="card" role="listbox"></div>
+    </div>
+    <div class="card ctl">
+      <label for="dept">Dept</label>
+      <select id="dept"><option value="">All of UTRGV</option></select>
+    </div>
+    <div class="card ctl">
+      <label for="depth">Depth</label>
+      <select id="depth"><option>1</option><option>2</option><option>3</option></select>
+      <label for="maxn">Max nodes</label>
+      <select id="maxn"><option>100</option><option>200</option><option selected>300</option><option>500</option><option>1000</option><option>2000</option></select>
+    </div>
+    <button id="overviewBtn" class="btn primary card" type="button">Overview</button>
+  </div>
+
+  <button id="panelToggle" class="btn card" type="button" aria-expanded="true" title="Hide/show properties (P)">Properties ▸</button>
+
+  <div id="tools" class="card">
+    <button type="button" id="tLayout" title="Layout">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="7" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l8 0M7.5 8l3.5 8M17 9l-4 7"/></svg></button>
+    <button type="button" id="tPlay" title="Run / pause layout (Space)">
+      <svg id="playIco" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l11-7z"/></svg></button>
+    <button type="button" id="tFilter" title="Filters">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg></button>
+    <button type="button" id="tSettings" title="Display settings">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    <hr>
+    <button type="button" id="tZin" title="Zoom in (+)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button type="button" id="tZout" title="Zoom out (-)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/></svg></button>
+    <button type="button" id="tFit" title="Fit to screen (F)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button type="button" id="tFull" title="Fullscreen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
+    <button type="button" id="tTheme" title="Light / dark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  </div>
+
+  <div id="popLayout" class="pop card lay">
+    <h4>Layout</h4>
+    <button type="button" data-layout="forceatlas">Force Atlas</button>
+    <button type="button" data-layout="force">Force Directed</button>
+    <button type="button" data-layout="circular">Circular</button>
+    <button type="button" data-layout="circlepack">Circle Pack (by type)</button>
+    <button type="button" data-layout="random">Random</button>
+    <button type="button" data-layout="noverlap">No Overlap</button>
+    <h4 style="margin-top:8px">Pinned nodes</h4>
+    <button type="button" id="unpinAll">Unpin all</button>
+  </div>
+
+  <div id="popFilter" class="pop card">
+    <h4>Node types</h4>
+    <div class="acts"><button class="btn small" type="button" data-all="labels">Select all</button><button class="btn small" type="button" data-none="labels">Deselect all</button></div>
+    <div id="fLabels"></div>
+    <h4 style="margin-top:10px">Relationship types</h4>
+    <div class="acts"><button class="btn small" type="button" data-all="rels">Select all</button><button class="btn small" type="button" data-none="rels">Deselect all</button></div>
+    <div id="fRels"></div>
+    <div class="acts" style="margin-top:10px"><button id="applyFilters" class="btn primary" type="button">Apply</button><button id="resetFilters" class="btn" type="button">Reset</button></div>
+  </div>
+
+  <div id="popSettings" class="pop card">
+    <h4>Display</h4>
+    <label class="row"><input type="checkbox" id="sLabels" checked> Node labels</label>
+    <label class="row"><input type="checkbox" id="sEdgeLabels"> Edge labels (all)</label>
+    <label class="row"><input type="checkbox" id="sSelEdgeLabels" checked> Edge labels of selection</label>
+    <label class="row"><input type="checkbox" id="sArrows" checked> Edge arrows</label>
+    <label class="row"><input type="checkbox" id="sCurved"> Curved edges</label>
+    <label class="row"><input type="checkbox" id="sHideUnsel"> Hide edges not on selection</label>
+    <label class="row"><input type="checkbox" id="sDeg" checked> Size nodes by degree</label>
+    <label class="row">Label density <input type="range" id="sDensity" min="1" max="10" value="4" style="flex:1"></label>
+    <label class="row">Node size <input type="range" id="sSize" min="5" max="20" value="10" style="flex:1"></label>
+    <h4 style="margin-top:8px">Interaction</h4>
+    <label class="row"><input type="checkbox" id="sDblExpand" checked> Double-click expands (merge)</label>
+    <label class="row"><input type="checkbox" id="sAutoFit" checked> Fit after loading</label>
+  </div>
+
+  <div id="legend" class="card"></div>
+  <div id="status" class="card"><span id="stTxt">Loading…</span><button id="moreBtn" class="btn small" type="button" style="display:none">Load more</button></div>
+
+  <aside id="panel" class="card" aria-label="Properties">
+    <div id="panelHead"><span class="chip" id="pChip" style="display:none"></span><h3 id="pTitle">Properties</h3></div>
+    <div id="panelBody"><div class="empty">Click a node to see its properties and relations.<br><br>
+      <b>Click</b> select · <b>Double-click</b> expand · <b>Drag</b> move/pin · <b>Wheel</b> zoom · <b>Esc</b> clear</div></div>
+  </aside>
+
+  <div id="toast" class="card" role="status" aria-live="polite"></div>
+  <div id="loading"><div class="card">Loading graph…</div></div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const API = "";
+const cv = $("#cv"), ctx = cv.getContext("2d");
+const root = document.documentElement;
+
+/* ------------------------------------------------------------ state */
+const nodes = new Map(), edges = new Map(), adj = new Map();
+let meta = {labels: [], relationships: [], departments: []};
+let view = {x: 0, y: 0, k: 1};
+let W = 0, H = 0, DPR = 1;
+let hover = null, selected = null, dragNode = null, panning = null, moved = false;
+let pendingFit = false, alpha = 0, running = false, layoutKind = "forceatlas";
+let hiddenLabels = new Set();             // legend toggles (client-side)
+let filt = {labels: new Set(), rels: new Set()}; // empty = all
+let ctxView = {mode: "overview", id: null, skip: 0, total: 0, returned: 0};
+const S = {labels: true, edgeLabels: false, selEdgeLabels: true, arrows: true, curved: false,
+           hideUnsel: false, degSize: true, density: 4, size: 10, dblExpand: true, autoFit: true};
+
+/* ------------------------------------------------------------ colors */
+const FIXED = {Person: "#4e79f6", Faculty: "#4e79f6", Publication: "#9b6bdf", Grant: "#36b37e",
+  Presentation: "#f5a524", Department: "#64748b", College: "#475569", School: "#475569",
+  Topic: "#ec5f9e", Keyword: "#ec5f9e", Sponsor: "#14b8a6", Organization: "#0ea5e9",
+  Chunk: "#a3a3a3", Document: "#a3a3a3"};
+const PAL = ["#e8684a","#5ad8a6","#6dc8ec","#9270ca","#ff9d4d","#269a99","#ff99c3","#5d7092","#c2a04c","#7cb305"];
+const colorCache = {};
+function colorOf(label) {
+  if (FIXED[label]) return FIXED[label];
+  if (!colorCache[label]) { let h = 0; for (const c of label) h = (h * 31 + c.charCodeAt(0)) >>> 0; colorCache[label] = PAL[h % PAL.length]; }
+  return colorCache[label];
+}
+const css = v => getComputedStyle(root).getPropertyValue(v).trim();
+
+/* ------------------------------------------------------------ helpers */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg, err) {
+  const t = $("#toast"); t.textContent = msg; t.className = "card" + (err ? " err" : "");
+  t.style.display = "block"; clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = "none", err ? 7000 : 3500);
+}
+function loading(on) { $("#loading").style.display = on ? "grid" : "none"; }
+function qs(o) { return Object.entries(o).filter(([, v]) => v !== "" && v != null).map(([k, v]) => k + "=" + encodeURIComponent(v)).join("&"); }
+function filterParams() { return {labels: [...filt.labels].join(","), rels: [...filt.rels].join(",")}; }
+async function getJSON(path, params) {
+  const r = await fetch(API + path + (params ? "?" + qs(params) : ""));
+  if (!r.ok) { let d = ""; try { d = (await r.json()).detail; } catch (e) {} throw new Error(d || r.status + " " + r.statusText); }
+  return r.json();
+}
+
+/* ------------------------------------------------------------ graph model */
+function radius(n) {
+  const base = S.size * 0.75;
+  return S.degSize ? Math.min(base + 2.4 * Math.sqrt(n.degree || 0), base * 4) : base;
+}
+function addNode(d, near) {
+  let n = nodes.get(d.id);
+  if (n) { Object.assign(n, {degree: d.degree ?? n.degree, props: d.props || n.props, name: d.name || n.name}); return n; }
+  const a = Math.random() * Math.PI * 2, r = near ? 30 + Math.random() * 40 : 200 * Math.sqrt(Math.random());
+  n = {...d, x: (near ? near.x : 0) + Math.cos(a) * r, y: (near ? near.y : 0) + Math.sin(a) * r, vx: 0, vy: 0, fixed: false};
+  nodes.set(d.id, n); adj.set(d.id, new Set());
+  return n;
+}
+function addEdge(e) {
+  if (edges.has(e.id) || !nodes.has(e.source) || !nodes.has(e.target)) return;
+  edges.set(e.id, e); adj.get(e.source).add(e.target); adj.get(e.target).add(e.source);
+}
+function removeNode(id) {
+  for (const [eid, e] of edges) if (e.source === id || e.target === id) {
+    edges.delete(eid); adj.get(e.source)?.delete(e.target); adj.get(e.target)?.delete(e.source);
+  }
+  nodes.delete(id); adj.delete(id);
+  if (selected === id) select(null);
+}
+function clearGraph() { nodes.clear(); edges.clear(); adj.clear(); hover = null; selected = null; }
+function merge(g, nearId) {
+  const near = nearId ? nodes.get(nearId) : null;
+  g.nodes.forEach(d => addNode(d, near));
+  g.edges.forEach(addEdge);
+}
+function visible(n) { return !hiddenLabels.has(n.label); }
+
+/* ------------------------------------------------------------ loading views */
+async function loadOverview() {
+  loading(true);
+  try {
+    const dept = $("#dept").value;
+    const g = await getJSON("/api/kg/overview", {limit: $("#maxn").value, dept, ...filterParams()});
+    clearGraph(); merge(g);
+    ctxView = {mode: dept ? "department" : "overview", id: null, dept, total: g.total, returned: g.nodes.length};
+    afterLoad(true);
+  } catch (e) { toast("Could not load graph: " + e.message, true); }
+  finally { loading(false); }
+}
+async function loadFocus(id, keep) {
+  loading(true);
+  try {
+    const g = await getJSON("/api/kg/neighbors", {id, depth: $("#depth").value, limit: $("#maxn").value, ...filterParams()});
+    const prev = nodes.get(id);
+    if (!keep) clearGraph();
+    merge(g, keep ? id : null);
+    if (!keep) { const c = nodes.get(id); if (c) { c.x = 0; c.y = 0; } }
+    else if (prev) { /* keep position */ }
+    ctxView = {mode: keep ? ctxView.mode : "focus", id, skip: 0, total: g.total, returned: g.returned, has_more: g.has_more};
+    afterLoad(!keep);
+    select(id);
+    if (g.has_more) toast(`Showing ${g.returned} of ${g.total} connections — use “Load more”.`);
+  } catch (e) { toast("Could not load neighborhood: " + e.message, true); }
+  finally { loading(false); }
+}
+async function loadMore() {
+  if (!ctxView.id) { $("#maxn").value = String(Math.min(2000, +$("#maxn").value * 2)); return loadOverview(); }
+  loading(true);
+  try {
+    const skip = (ctxView.skip || 0) + (ctxView.returned || 0);
+    const g = await getJSON("/api/kg/neighbors", {id: ctxView.id, depth: $("#depth").value, limit: $("#maxn").value, skip, ...filterParams()});
+    merge(g, ctxView.id);
+    ctxView = {...ctxView, skip, returned: g.returned, has_more: g.has_more, total: g.total};
+    afterLoad(false);
+  } catch (e) { toast(e.message, true); }
+  finally { loading(false); }
+}
+function afterLoad(fresh) {
+  if (fresh) {
+    runLayout(layoutKind === "forceatlas" || layoutKind === "force" ? layoutKind : "forceatlas", true);
+    const t0 = performance.now();                 // pre-settle off-screen, then animate the rest
+    while (alpha > 0.15 && performance.now() - t0 < 350) tick();
+    if (S.autoFit) fit(null, true);
+    pendingFit = S.autoFit;
+  } else reheat(0.5);
+  renderLegend(); updateStatus();
+}
+function updateStatus() {
+  let shown = 0; nodes.forEach(n => visible(n) && shown++);
+  const scope = ctxView.mode === "focus" ? "Neighborhood" : ctxView.mode === "department" ? "Department" : "Overview";
+  let txt = `${scope}: <b>${shown}</b> nodes · <b>${edges.size}</b> edges`;
+  let more = false;
+  if (ctxView.mode === "focus" && ctxView.has_more) { txt += ` · ${ctxView.skip + ctxView.returned}/${ctxView.total} connections`; more = true; }
+  else if (ctxView.mode !== "focus" && ctxView.total > nodes.size) { txt += ` · of ${ctxView.total}`; more = +$("#maxn").value < 2000; }
+  $("#stTxt").innerHTML = txt; $("#moreBtn").style.display = more ? "" : "none";
+}
+
+/* ------------------------------------------------------------ layout */
+function reheat(a) { alpha = Math.max(alpha, a); if (!running) start(); }
+function start() { running = true; setPlayIcon(); }
+function stop() { running = false; setPlayIcon(); }
+function setPlayIcon() {
+  $("#playIco").innerHTML = running ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M7 5v14l11-7z"/>';
+  $("#tPlay").classList.toggle("on", running);
+}
+function runLayout(kind, fresh) {
+  layoutKind = kind;
+  const arr = [...nodes.values()].filter(n => !n.fixed);
+  const N = arr.length || 1, R = 40 + 18 * Math.sqrt(N) * (S.size / 10);
+  if (kind === "circular") {
+    arr.sort((a, b) => a.label.localeCompare(b.label) || b.degree - a.degree);
+    arr.forEach((n, i) => { const t = 2 * Math.PI * i / N; n.x = R * 2 * Math.cos(t); n.y = R * 2 * Math.sin(t); });
+    alpha = 0; stop(); fit(); return;
+  }
+  if (kind === "random") { arr.forEach(n => { n.x = (Math.random() - .5) * R * 4; n.y = (Math.random() - .5) * R * 4; }); alpha = 0; stop(); fit(); return; }
+  if (kind === "circlepack") {
+    const groups = {}; arr.forEach(n => (groups[n.label] ||= []).push(n));
+    const keys = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+    let ring = 0, placed = 0, cx = 0, cy = 0;
+    keys.forEach((k, gi) => {
+      const g = groups[k].sort((a, b) => b.degree - a.degree);
+      const gr = 14 * Math.sqrt(g.length) * (S.size / 10) + 20;
+      if (gi > 0) { const t = gi * 2.4; ring += gr * 0.9; cx = Math.cos(t) * (ring + 60); cy = Math.sin(t) * (ring + 60); }
+      g.forEach((n, i) => { const rr = gr * Math.sqrt((i + .5) / g.length), t = i * 2.39996; n.x = cx + rr * Math.cos(t); n.y = cy + rr * Math.sin(t); });
+      placed += g.length;
+    });
+    noverlap(60); alpha = 0; stop(); fit(); return;
+  }
+  if (kind === "noverlap") { noverlap(120); alpha = 0; stop(); return; }
+  alpha = fresh ? 1 : Math.max(alpha, 0.8); start();
+}
+function noverlap(iter) {
+  const arr = [...nodes.values()];
+  for (let it = 0; it < iter; it++) {
+    let movedAny = false;
+    for (let i = 0; i < arr.length; i++) for (let j = i + 1; j < arr.length; j++) {
+      const a = arr[i], b = arr[j]; let dx = b.x - a.x, dy = b.y - a.y; let d = Math.hypot(dx, dy) || .01;
+      const min = radius(a) + radius(b) + 6;
+      if (d < min) { const p = (min - d) / 2; dx /= d; dy /= d;
+        if (!a.fixed) { a.x -= dx * p; a.y -= dy * p; } if (!b.fixed) { b.x += dx * p; b.y += dy * p; } movedAny = true; }
+    }
+    if (!movedAny) break;
+  }
+}
+function tick() {
+  const arr = [...nodes.values()], N = arr.length;
+  if (!N) { alpha = 0; return; }
+  const fa = layoutKind === "forceatlas";
+  const kRep = fa ? 900 : 1400, kAtt = fa ? 0.02 : 0.05, rest = fa ? 0 : 60, grav = fa ? 0.012 : 0.02;
+  // repulsion (grid-bucketed for large graphs)
+  const cell = 220, grid = new Map();
+  if (N > 700) arr.forEach((n, i) => { const k = ((n.x / cell) | 0) + "," + ((n.y / cell) | 0); (grid.get(k) || grid.set(k, []).get(k)).push(i); });
+  for (let i = 0; i < N; i++) {
+    const a = arr[i];
+    let others;
+    if (N > 700) { others = []; const gx = (a.x / cell) | 0, gy = (a.y / cell) | 0;
+      for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) { const c = grid.get((gx + ox) + "," + (gy + oy)); if (c) others.push(...c); } }
+    const loop = others || null, len = loop ? loop.length : N;
+    for (let q = 0; q < len; q++) {
+      const j = loop ? loop[q] : q; if (j <= i && !loop) continue; if (loop && j === i) continue;
+      const b = arr[j]; let dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
+      if (d2 < 0.01) { dx = Math.random() - .5; dy = Math.random() - .5; d2 = .5; }
+      const m = fa ? (a.degree + 1) * (b.degree + 1) / 4 + 1 : 1;
+      const f = kRep * Math.min(m, 40) / d2, d = Math.sqrt(d2);
+      const fx = dx / d * f, fy = dy / d * f;
+      a.vx += fx; a.vy += fy; if (!loop) { b.vx -= fx; b.vy -= fy; }
+    }
+  }
+  // attraction
+  edges.forEach(e => {
+    const a = nodes.get(e.source), b = nodes.get(e.target); if (!a || !b) return;
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .01;
+    const f = fa ? kAtt * Math.log(1 + d) * 6 : kAtt * (d - rest);
+    const fx = dx / d * f, fy = dy / d * f;
+    const wa = 1 / Math.sqrt(a.degree + 1), wb = 1 / Math.sqrt(b.degree + 1);
+    a.vx += fx * wa * 2; a.vy += fy * wa * 2; b.vx -= fx * wb * 2; b.vy -= fy * wb * 2;
+  });
+  // gravity + integrate
+  let energy = 0;
+  for (const n of arr) {
+    n.vx -= n.x * grav; n.vy -= n.y * grav;
+    if (n.fixed || n === dragNode) { n.vx = n.vy = 0; continue; }
+    const sp = Math.hypot(n.vx, n.vy), cap = 40 * alpha + 2;
+    if (sp > cap) { n.vx *= cap / sp; n.vy *= cap / sp; }
+    n.x += n.vx * alpha; n.y += n.vy * alpha; energy += sp;
+    n.vx *= 0.55; n.vy *= 0.55;
+  }
+  alpha *= 0.985;
+  if (alpha < 0.02) { alpha = 0; noverlap(8); stop(); if (pendingFit) { pendingFit = false; fit(); } }
+}
+
+/* ------------------------------------------------------------ view transforms */
+function resize() {
+  const r = cv.getBoundingClientRect(); DPR = window.devicePixelRatio || 1;
+  W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR;
+  if (!resize.done) { view.x = W / 2; view.y = H / 2; resize.done = true; }
+}
+const toScreen = (x, y) => [x * view.k + view.x, y * view.k + view.y];
+const toWorld = (sx, sy) => [(sx - view.x) / view.k, (sy - view.y) / view.k];
+function fit(ids, instant) {
+  const arr = ids ? ids.map(i => nodes.get(i)).filter(Boolean) : [...nodes.values()].filter(visible);
+  if (!arr.length) return;
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  arr.forEach(n => { x0 = Math.min(x0, n.x); y0 = Math.min(y0, n.y); x1 = Math.max(x1, n.x); y1 = Math.max(y1, n.y); });
+  const panelW = $("#panel").classList.contains("hidden") || W < 700 ? 0 : 360;
+  const pad = 70, w = Math.max(x1 - x0, 50), h = Math.max(y1 - y0, 50);
+  const k = Math.min((W - panelW - pad * 2) / w, (H - pad * 2 - 50) / h, 2.5);
+  const kk = Math.max(k, 0.05), nx = (W - panelW) / 2 - (x0 + x1) / 2 * kk, ny = H / 2 + 10 - (y0 + y1) / 2 * kk;
+  if (instant) { view.k = kk; view.x = nx; view.y = ny; } else animateView(kk, nx, ny);
+}
+function animateView(k, x, y) {
+  const s = {...view}, t0 = performance.now(), D = 280;
+  (function step(t) { const p = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - p, 3);
+    view.k = s.k + (k - s.k) * e; view.x = s.x + (x - s.x) * e; view.y = s.y + (y - s.y) * e;
+    if (p < 1) requestAnimationFrame(step); })(t0);
+}
+function zoomAt(f, sx = W / 2, sy = H / 2) {
+  const k = Math.min(8, Math.max(0.03, view.k * f));
+  const [wx, wy] = toWorld(sx, sy); view.k = k; view.x = sx - wx * k; view.y = sy - wy * k;
+}
+function centerOn(id) { const n = nodes.get(id); if (!n) return;
+  const panelW = $("#panel").classList.contains("hidden") || W < 700 ? 0 : 360;
+  const k = Math.max(view.k, 0.9); animateView(k, (W - panelW) / 2 - n.x * k, H / 2 - n.y * k); }
+
+/* ------------------------------------------------------------ rendering */
+function draw() {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const focus = hover || selected;
+  const hl = focus ? new Set([focus, ...(adj.get(focus) || [])]) : null;
+  const edgeC = css("--edge"), edgeDim = css("--edge-dim"), accent = css("--accent");
+  const labelC = css("--label"), labelBg = css("--label-bg"), panelC = css("--panel");
+  const kscale = Math.max(0.55, Math.min(1.6, Math.sqrt(view.k)));
+
+  // edges
+  ctx.lineCap = "round";
+  const edgeLabelsToDraw = [];
+  edges.forEach(e => {
+    const a = nodes.get(e.source), b = nodes.get(e.target);
+    if (!a || !b || !visible(a) || !visible(b)) return;
+    const onFocus = focus && (e.source === focus || e.target === focus);
+    if (S.hideUnsel && focus && !onFocus) return;
+    const [ax, ay] = toScreen(a.x, a.y), [bx, by] = toScreen(b.x, b.y);
+    if ((ax < -50 && bx < -50) || (ax > W + 50 && bx > W + 50) || (ay < -50 && by < -50) || (ay > H + 50 && by > H + 50)) return;
+    ctx.strokeStyle = onFocus ? accent : (hl ? edgeDim : edgeC);
+    ctx.lineWidth = onFocus ? 1.8 : 1;
+    const ra = radius(a) * kscale, rb = radius(b) * kscale;
+    const dx = bx - ax, dy = by - ay, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+    const sx = ax + ux * ra, sy = ay + uy * ra, ex = bx - ux * (rb + 1), ey = by - uy * (rb + 1);
+    let mx = (sx + ex) / 2, my = (sy + ey) / 2, cx, cy;
+    ctx.beginPath(); ctx.moveTo(sx, sy);
+    if (S.curved) { cx = mx - uy * d * 0.15; cy = my + ux * d * 0.15; ctx.quadraticCurveTo(cx, cy, ex, ey); mx = (mx + cx) / 2; my = (my + cy) / 2; }
+    else ctx.lineTo(ex, ey);
+    ctx.stroke();
+    if (S.arrows && d > ra + rb + 8 && view.k > 0.25) {
+      const tx = S.curved ? ex - cx : ux, ty = S.curved ? ey - cy : uy, tl = Math.hypot(tx, ty) || 1, vx = tx / tl, vy = ty / tl;
+      const al = onFocus ? 8 : 6;
+      ctx.fillStyle = ctx.strokeStyle; ctx.beginPath(); ctx.moveTo(ex, ey);
+      ctx.lineTo(ex - vx * al - vy * al * .5, ey - vy * al + vx * al * .5);
+      ctx.lineTo(ex - vx * al + vy * al * .5, ey - vy * al - vx * al * .5); ctx.closePath(); ctx.fill();
+    }
+    if ((S.edgeLabels && view.k > 0.5 && (!hl || onFocus)) || (S.selEdgeLabels && onFocus))
+      edgeLabelsToDraw.push([e.type, mx, my, Math.atan2(dy, dx), onFocus]);
+  });
+
+  // nodes
+  const order = [...nodes.values()].filter(visible);
+  if (hl) order.sort((a, b) => (hl.has(a.id) ? 1 : 0) - (hl.has(b.id) ? 1 : 0));
+  for (const n of order) {
+    const [x, y] = toScreen(n.x, n.y), r = radius(n) * kscale;
+    if (x < -r - 60 || x > W + r + 60 || y < -r - 60 || y > H + r + 60) continue;
+    const dim = hl && !hl.has(n.id);
+    ctx.globalAlpha = dim ? 0.18 : 1;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = colorOf(n.label); ctx.fill();
+    ctx.lineWidth = n.id === selected ? 3 : 1.5;
+    ctx.strokeStyle = n.id === selected ? accent : (n.id === hover ? labelC : panelC); ctx.stroke();
+    if (n.fixed) { ctx.beginPath(); ctx.arc(x + r * .7, y - r * .7, 2.5, 0, Math.PI * 2); ctx.fillStyle = labelC; ctx.fill(); }
+    ctx.globalAlpha = 1;
+  }
+
+  // edge labels
+  ctx.font = "10px system-ui,sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (const [t, x, y, ang, on] of edgeLabelsToDraw) {
+    ctx.save(); ctx.translate(x, y); let a = ang; if (a > Math.PI / 2 || a < -Math.PI / 2) a += Math.PI; ctx.rotate(a);
+    const w = ctx.measureText(t).width + 6; ctx.fillStyle = labelBg; ctx.fillRect(-w / 2, -7, w, 13);
+    ctx.fillStyle = on ? accent : css("--muted"); ctx.fillText(t, 0, 0); ctx.restore();
+  }
+
+  // node labels with collision grid (sigma-style)
+  if (S.labels) {
+    const occupied = new Set(), cw = 150 - S.density * 10, ch = 30 - S.density * 1.5;
+    let budget = Math.round(S.density * 10 * Math.max(1, view.k * view.k));
+    const cand = [...order].sort((a, b) => {
+      const pa = (a.id === selected || a.id === hover) ? 2 : (hl && hl.has(a.id) ? 1 : 0);
+      const pb = (b.id === selected || b.id === hover) ? 2 : (hl && hl.has(b.id) ? 1 : 0);
+      return pb - pa || b.degree - a.degree;
+    });
+    const minPx = 11 - S.density;
+    for (const n of cand) {
+      const [x, y] = toScreen(n.x, n.y), r = radius(n) * kscale;
+      if (x < -20 || x > W + 20 || y < -20 || y > H + 20) continue;
+      const pri = n.id === selected || n.id === hover || (hl && hl.has(n.id));
+      if (hl && !hl.has(n.id)) continue;
+      if (!pri && r < minPx && view.k < 1.2) continue;
+      const gx = Math.floor(x / cw), gy = Math.floor((y + r + 8) / ch), key = gx + "," + gy;
+      if (!pri && (budget <= 0 || occupied.has(key) || occupied.has((gx + 1) + "," + gy) || occupied.has((gx - 1) + "," + gy))) continue;
+      occupied.add(key); budget--;
+      let t = n.name || ""; if (t.length > 38 && !pri) t = t.slice(0, 36) + "…";
+      ctx.font = (pri ? "600 " : "") + (n.id === selected ? 13 : 12) + "px system-ui,sans-serif";
+      const w = ctx.measureText(t).width;
+      ctx.fillStyle = labelBg; ctx.fillRect(x - w / 2 - 3, y + r + 3, w + 6, 15);
+      ctx.fillStyle = labelC; ctx.textBaseline = "top"; ctx.fillText(t, x, y + r + 4);
+    }
+  }
+}
+function frame() { if (running && alpha > 0) for (let i = 0; i < (nodes.size > 800 ? 1 : 2); i++) tick(); draw(); requestAnimationFrame(frame); }
+
+/* ------------------------------------------------------------ hit testing & input */
+function nodeAt(sx, sy) {
+  const kscale = Math.max(0.55, Math.min(1.6, Math.sqrt(view.k)));
+  let best = null, bd = Infinity;
+  for (const n of nodes.values()) { if (!visible(n)) continue;
+    const [x, y] = toScreen(n.x, n.y), r = radius(n) * kscale + 3, d = Math.hypot(x - sx, y - sy);
+    if (d < r && d < bd) { best = n; bd = d; } }
+  return best;
+}
+function pos(ev) { const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; }
+cv.addEventListener("pointerdown", ev => {
+  cv.setPointerCapture(ev.pointerId); closePops();
+  const [sx, sy] = pos(ev), n = nodeAt(sx, sy); moved = false;
+  pendingFit = false;
+  if (n) { dragNode = n; } else panning = {sx, sy, vx: view.x, vy: view.y};
+  cv.classList.add("drag");
+});
+cv.addEventListener("pointermove", ev => {
+  const [sx, sy] = pos(ev);
+  if (dragNode) { const [wx, wy] = toWorld(sx, sy); if (Math.hypot(wx - dragNode.x, wy - dragNode.y) * view.k > 2) moved = true;
+    dragNode.x = wx; dragNode.y = wy; if (moved) { dragNode.fixed = true; reheat(0.15); } return; }
+  if (panning) { if (Math.hypot(sx - panning.sx, sy - panning.sy) > 3) moved = true; view.x = panning.vx + sx - panning.sx; view.y = panning.vy + sy - panning.sy; return; }
+  const n = nodeAt(sx, sy); const id = n ? n.id : null;
+  if (id !== hover) { hover = id; cv.classList.toggle("hover", !!id); }
+});
+cv.addEventListener("pointerup", ev => {
+  cv.classList.remove("drag");
+  if (dragNode && !moved) select(dragNode.id);
+  if (panning && !moved) select(null);
+  dragNode = null; panning = null;
+});
+cv.addEventListener("pointerleave", () => { if (!dragNode && !panning) hover = null; });
+cv.addEventListener("dblclick", ev => {
+  const n = nodeAt(...pos(ev)); if (!n) { fit(); return; }
+  if (S.dblExpand) loadFocus(n.id, true); else loadFocus(n.id, false);
+});
+cv.addEventListener("wheel", ev => { ev.preventDefault(); pendingFit = false; const [sx, sy] = pos(ev); zoomAt(Math.exp(-ev.deltaY * 0.0015), sx, sy); }, {passive: false});
+window.addEventListener("resize", resize);
+document.addEventListener("keydown", ev => {
+  if (ev.target.matches("input,select,textarea")) { if (ev.key === "Escape") ev.target.blur(); return; }
+  if (ev.key === "/") { ev.preventDefault(); $("#search").focus(); }
+  else if (ev.key === "Escape") { select(null); closePops(); }
+  else if (ev.key === "f" || ev.key === "F") fit();
+  else if (ev.key === "+" || ev.key === "=") zoomAt(1.25);
+  else if (ev.key === "-") zoomAt(0.8);
+  else if (ev.key === " ") { ev.preventDefault(); running ? stop() : reheat(0.6); }
+  else if (ev.key === "p" || ev.key === "P") togglePanel();
+  else if ((ev.key === "Delete" || ev.key === "Backspace") && selected) { removeNode(selected); updateStatus(); renderLegend(); }
+});
+
+/* ------------------------------------------------------------ properties panel */
+async function select(id) {
+  selected = id;
+  const body = $("#panelBody"), chip = $("#pChip");
+  if (!id) { chip.style.display = "none"; $("#pTitle").textContent = "Properties";
+    body.innerHTML = '<div class="empty">Click a node to see its properties and relations.</div>'; return; }
+  const n = nodes.get(id); if (!n) return;
+  chip.style.display = ""; chip.style.background = colorOf(n.label); chip.textContent = n.label;
+  $("#pTitle").textContent = n.name; $("#pTitle").title = n.name;
+  if ($("#panel").classList.contains("hidden")) togglePanel(true);
+  body.innerHTML = actionsHTML(n) + '<div class="empty">Loading…</div>';
+  bindActions(n);
+  let d;
+  try { d = await getJSON("/api/kg/node", {id}); } catch (e) { body.innerHTML = actionsHTML(n) + `<div class="empty">${esc(e.message)}</div>`; bindActions(n); return; }
+  if (selected !== id) return;
+  const props = Object.entries(d.props || {}).sort(([a], [b]) => a.localeCompare(b));
+  let html = actionsHTML(n);
+  html += `<div class="kv"><div class="k">id</div><div class="v">${esc(id)}</div>
+           <div class="k">labels</div><div class="v">${esc((d.labels || []).join(", "))}</div>
+           <div class="k">degree</div><div class="v">${d.degree}</div>`;
+  for (const [k, v] of props) {
+    const s = typeof v === "object" ? JSON.stringify(v, null, 1) : String(v);
+    html += `<div class="k">${esc(k)}</div><div class="v${s.length > 260 ? " long" : ""}">${esc(s)}</div>`;
+  }
+  html += "</div>";
+  const rel = d.relations || [];
+  html += `<div class="sec">Relations (${rel.length}${rel.length >= 500 ? "+" : ""})</div>`;
+  const groups = {}; rel.forEach(r => (groups[r.type + "|" + r.dir] ||= []).push(r));
+  for (const [k, arr] of Object.entries(groups)) {
+    const [t, dir] = k.split("|");
+    html += `<div class="sec" style="text-transform:none;margin-top:8px">${dir === "out" ? "→" : "←"} ${esc(t)} · ${arr.length}</div>`;
+    html += arr.slice(0, 60).map(r => `<div class="rel" data-id="${esc(r.id)}" title="${nodes.has(r.id) ? "Select" : "Add to graph"}">
+      <span class="dot" style="background:${colorOf(r.label || "")}"></span><span class="nm">${esc(r.name || r.id)}</span>
+      ${nodes.has(r.id) ? "" : '<span class="t">+ add</span>'}</div>`).join("");
+    if (arr.length > 60) html += `<div class="empty">…${arr.length - 60} more (use Expand)</div>`;
+  }
+  body.innerHTML = html;
+  bindActions(n);
+  body.querySelectorAll(".v.long").forEach(el => el.addEventListener("click", () => el.classList.toggle("open")));
+  body.querySelectorAll(".rel").forEach(el => el.addEventListener("click", async () => {
+    const rid = el.dataset.id;
+    if (!nodes.has(rid)) {
+      try { const g = await getJSON("/api/kg/neighbors", {id: rid, depth: 1, limit: 1, ...filterParams()});
+        const c = g.nodes.find(x => x.id === rid); if (c) { addNode(c, nodes.get(id)); g.edges.forEach(addEdge); }
+        const e2 = await getJSON("/api/kg/neighbors", {id, depth: 1, limit: 5000});
+        e2.edges.forEach(addEdge); reheat(0.3); renderLegend(); updateStatus();
+      } catch (e) { toast(e.message, true); return; }
+    }
+    select(rid); centerOn(rid);
+  }));
+}
+function actionsHTML(n) {
+  return `<div class="acts">
+    <button class="btn small" type="button" data-a="expand" title="Add all connections to the current graph">Expand</button>
+    <button class="btn small" type="button" data-a="focus" title="Show only this node and its connections">Focus</button>
+    <button class="btn small" type="button" data-a="center">Center</button>
+    <button class="btn small" type="button" data-a="pin">${n.fixed ? "Unpin" : "Pin"}</button>
+    <button class="btn small" type="button" data-a="prune" title="Remove from view (Del)">Prune</button></div>`;
+}
+function bindActions(n) {
+  $("#panelBody").querySelectorAll("[data-a]").forEach(b => b.addEventListener("click", () => {
+    const a = b.dataset.a;
+    if (a === "expand") loadFocus(n.id, true);
+    else if (a === "focus") loadFocus(n.id, false);
+    else if (a === "center") centerOn(n.id);
+    else if (a === "pin") { n.fixed = !n.fixed; b.textContent = n.fixed ? "Unpin" : "Pin"; if (!n.fixed) reheat(0.2); }
+    else if (a === "prune") { removeNode(n.id); updateStatus(); renderLegend(); }
+  }));
+}
+function togglePanel(force) {
+  const p = $("#panel"), hide = force === true ? false : !p.classList.contains("hidden");
+  p.classList.toggle("hidden", hide);
+  $("#panelToggle").textContent = hide ? "◂ Properties" : "Properties ▸";
+  $("#panelToggle").setAttribute("aria-expanded", String(!hide));
+  $("#panelToggle").style.right = hide ? "12px" : "12px";
+}
+$("#panelToggle").addEventListener("click", () => togglePanel());
+
+/* ------------------------------------------------------------ legend */
+function renderLegend() {
+  const counts = {}; nodes.forEach(n => counts[n.label] = (counts[n.label] || 0) + 1);
+  const keys = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+  $("#legend").style.display = keys.length ? "" : "none";
+  $("#legend").innerHTML = keys.map(k => `<span class="lg${hiddenLabels.has(k) ? " off" : ""}" data-k="${esc(k)}" role="button" tabindex="0" title="Show/hide ${esc(k)}">
+    <span class="dot" style="background:${colorOf(k)}"></span>${esc(k)} <span class="n">${counts[k]}</span></span>`).join("");
+  $("#legend").querySelectorAll(".lg").forEach(el => {
+    const tog = () => { const k = el.dataset.k; hiddenLabels.has(k) ? hiddenLabels.delete(k) : hiddenLabels.add(k); renderLegend(); updateStatus(); };
+    el.addEventListener("click", tog); el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tog(); } });
+  });
+}
+
+/* ------------------------------------------------------------ search */
+let sTimer = null, sItems = [], sIdx = -1;
+$("#search").addEventListener("input", () => {
+  clearTimeout(sTimer); const q = $("#search").value.trim();
+  if (q.length < 2) { $("#sugg").style.display = "none"; return; }
+  sTimer = setTimeout(async () => {
+    try { sItems = await getJSON("/api/kg/search", {q, limit: 15, labels: [...filt.labels].join(",")}); }
+    catch (e) { sItems = []; }
+    sIdx = -1; renderSugg();
+  }, 220);
+});
+function renderSugg() {
+  const box = $("#sugg");
+  if (!sItems.length) { box.innerHTML = '<div class="it"><span class="nm" style="color:var(--muted)">No matches</span></div>'; box.style.display = "block"; return; }
+  box.innerHTML = sItems.map((s, i) => `<div class="it${i === sIdx ? " on" : ""}" data-i="${i}" role="option">
+     <span class="dot" style="background:${colorOf(s.label)}"></span><span class="nm">${esc(s.name)}</span>
+     <span class="lb">${esc(s.label)} · ${s.degree}</span></div>`).join("");
+  box.style.display = "block";
+  box.querySelectorAll(".it[data-i]").forEach(el => el.addEventListener("mousedown", e => { e.preventDefault(); pick(+el.dataset.i); }));
+}
+function pick(i) { const s = sItems[i]; if (!s) return; $("#sugg").style.display = "none"; $("#search").value = s.name; $("#search").blur(); loadFocus(s.id, false); }
+$("#search").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { sIdx = Math.min(sItems.length - 1, sIdx + 1); renderSugg(); e.preventDefault(); }
+  else if (e.key === "ArrowUp") { sIdx = Math.max(0, sIdx - 1); renderSugg(); e.preventDefault(); }
+  else if (e.key === "Enter") { pick(sIdx < 0 ? 0 : sIdx); }
+});
+$("#search").addEventListener("blur", () => setTimeout(() => $("#sugg").style.display = "none", 150));
+
+/* ------------------------------------------------------------ toolbar & popovers */
+function closePops() { document.querySelectorAll(".pop").forEach(p => p.style.display = "none"); ["#tLayout","#tFilter","#tSettings"].forEach(s => $(s).classList.remove("on")); }
+function togglePop(btn, pop) { const open = $(pop).style.display === "block"; closePops(); if (!open) { $(pop).style.display = "block"; $(btn).classList.add("on"); } }
+$("#tLayout").addEventListener("click", () => togglePop("#tLayout", "#popLayout"));
+$("#tFilter").addEventListener("click", () => { renderFilters(); togglePop("#tFilter", "#popFilter"); });
+$("#tSettings").addEventListener("click", () => togglePop("#tSettings", "#popSettings"));
+$("#tPlay").addEventListener("click", () => running ? stop() : reheat(0.7));
+$("#tZin").addEventListener("click", () => zoomAt(1.3));
+$("#tZout").addEventListener("click", () => zoomAt(1 / 1.3));
+$("#tFit").addEventListener("click", () => fit());
+$("#tFull").addEventListener("click", () => { const el = $("#kg"); document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen?.(); });
+$("#tTheme").addEventListener("click", () => { const d = root.dataset.theme === "dark" ? "light" : "dark"; root.dataset.theme = d; try { localStorage.setItem("kgTheme", d); } catch (e) {} });
+document.querySelectorAll("[data-layout]").forEach(b => b.addEventListener("click", () => { runLayout(b.dataset.layout, false); closePops(); }));
+$("#unpinAll").addEventListener("click", () => { nodes.forEach(n => n.fixed = false); reheat(0.4); closePops(); });
+$("#overviewBtn").addEventListener("click", () => { $("#search").value = ""; loadOverview(); });
+$("#dept").addEventListener("change", loadOverview);
+$("#moreBtn").addEventListener("click", loadMore);
+
+const bindS = (id, key, num) => $(id).addEventListener(num ? "input" : "change", e => { S[key] = num ? +e.target.value : e.target.checked; if (key === "size" || key === "degSize") noverlap(20); });
+bindS("#sLabels", "labels"); bindS("#sEdgeLabels", "edgeLabels"); bindS("#sSelEdgeLabels", "selEdgeLabels");
+bindS("#sArrows", "arrows"); bindS("#sCurved", "curved"); bindS("#sHideUnsel", "hideUnsel"); bindS("#sDeg", "degSize");
+bindS("#sDensity", "density", 1); bindS("#sSize", "size", 1); bindS("#sDblExpand", "dblExpand"); bindS("#sAutoFit", "autoFit");
+
+/* ------------------------------------------------------------ filters (dynamic from meta) */
+let draft = null;
+function renderFilters() {
+  if (!draft) draft = {labels: new Set(filt.labels.size ? filt.labels : meta.labels.map(l => l.name)),
+                       rels: new Set(filt.rels.size ? filt.rels : meta.relationships.map(r => r.name))};
+  const row = (kind, it) => {
+    const on = draft[kind].has(it.name), dis = it.count === 0;
+    return `<label class="row${dis ? " dis" : ""}"><input type="checkbox" data-k="${kind}" value="${esc(it.name)}" ${on ? "checked" : ""} ${dis ? "disabled" : ""}>
+      ${kind === "labels" ? `<span class="dot" style="width:10px;height:10px;border-radius:50%;background:${colorOf(it.name)}"></span>` : ""}
+      ${esc(it.name)}<span class="c">${it.count}</span></label>`;
+  };
+  $("#fLabels").innerHTML = meta.labels.map(l => row("labels", l)).join("") || '<div class="empty">No node types</div>';
+  $("#fRels").innerHTML = meta.relationships.map(r => row("rels", r)).join("") || '<div class="empty">No relationships</div>';
+  $("#popFilter").querySelectorAll("input[data-k]").forEach(cb => cb.addEventListener("change", () => {
+    cb.checked ? draft[cb.dataset.k].add(cb.value) : draft[cb.dataset.k].delete(cb.value); }));
+}
+document.querySelectorAll("[data-all]").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.all; draft[k] = new Set((k === "labels" ? meta.labels : meta.relationships).map(x => x.name)); renderFilters(); }));
+document.querySelectorAll("[data-none]").forEach(b => b.addEventListener("click", () => { draft[b.dataset.none] = new Set(); renderFilters(); }));
+$("#applyFilters").addEventListener("click", () => {
+  if (!draft.labels.size) { toast("Select at least one node type.", true); return; }
+  const allL = draft.labels.size === meta.labels.length, allR = draft.rels.size === meta.relationships.length;
+  if (!draft.rels.size) { toast("Select at least one relationship type.", true); return; }
+  filt = {labels: allL ? new Set() : new Set(draft.labels), rels: allR ? new Set() : new Set(draft.rels)};
+  $("#tFilter").style.color = (filt.labels.size || filt.rels.size) ? "var(--accent)" : "";
+  closePops(); draft = null;
+  if (ctxView.mode === "focus" && ctxView.id) loadFocus(ctxView.id, false); else loadOverview();
+});
+$("#resetFilters").addEventListener("click", () => { draft = null; filt = {labels: new Set(), rels: new Set()}; $("#tFilter").style.color = ""; renderFilters(); });
+
+/* ------------------------------------------------------------ boot */
+(function init() {
+  let th = null; try { th = localStorage.getItem("kgTheme"); } catch (e) {}
+  root.dataset.theme = th || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  if (W === 0) resize();
+  requestAnimationFrame(frame);
+  getJSON("/api/kg/meta").then(m => {
+    meta = m;
+    $("#dept").innerHTML = '<option value="">All of UTRGV</option>' + (m.departments || []).map(d =>
+      `<option value="${esc(d.slug)}">${esc(d.name)}${d.members ? " (" + d.members + ")" : ""}</option>`).join("");
+    const p = new URLSearchParams(location.search);
+    if (p.get("dept")) $("#dept").value = p.get("dept");
+    if (p.get("focus")) return loadFocus(p.get("focus"), false);
+    if (p.get("q")) return getJSON("/api/kg/search", {q: p.get("q"), limit: 1}).then(r => r[0] ? loadFocus(r[0].id, false) : loadOverview());
+    return loadOverview();
+  }).catch(e => { toast("Graph API unavailable: " + e.message, true); $("#stTxt").textContent = "Graph API unavailable"; });
+})();
+})();
+</script>
+</body>
+</html>

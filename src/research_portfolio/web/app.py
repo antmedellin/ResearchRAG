@@ -17,6 +17,16 @@ from research_portfolio.answer_guard import guard_query_sync, guard_query_async 
 ROOT=Path(os.getenv("RAG_REPO_ROOT","/app")).resolve();CONFIG_DIR=ROOT/"config"/"departments";DATA_DIR=ROOT/"data"/"departments";STATIC=Path(__file__).parent/"static"
 DM_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList";PROFILE_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMuser?username=";SLUG=re.compile(r"^[a-z0-9][a-z0-9_-]{1,40}$")
 TYPES=("bio","interests","education","experience","award","license","publication","grant","presentation");JOBS={};CACHE={"rows":None};app=FastAPI(title="UTRGV Research Portfolio",version="1.5")
+
+# GRAPH_LR_V1: LightRAG-style knowledge graph (/graph-view, /api/kg/*)
+import importlib.util as _kg_ilu
+from pathlib import Path as _KgPath
+_kg_spec = _kg_ilu.spec_from_file_location(
+    "rr_graph_kg", _KgPath(__file__).with_name("graph_kg.py"))
+_graph_kg = _kg_ilu.module_from_spec(_kg_spec)
+_kg_spec.loader.exec_module(_graph_kg)
+app.include_router(_graph_kg.router)
+
 SPECIAL={"Department of Manufacturing and Industrial Engineering":"maie","Department of Informatics and Engineering Systems":"ies","Department of Electrical and Computer Engineering":"ece","Department of Mechanical Engineering":"me","Department of Civil Engineering":"ce","Department of Computer Science":"cs"}
 
 def slugify(n):

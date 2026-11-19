@@ -122,4 +122,85 @@ $('#mode').onchange=resetForMode;$('#strategy').onchange=()=>$('#types').classLi
   };
 })();
 </script>
+
+<!-- GRAPH_LR_V1: LightRAG-style graph embedded in the Graph Explorer tab -->
+<style>
+.kg-embed-wrap{position:relative;width:100%;height:calc(100vh - var(--kg-top,140px) - 16px);min-height:480px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.08)}
+.kg-embed-wrap iframe{width:100%;height:100%;border:0;display:block}
+.kg-embed-bar{display:flex;justify-content:flex-end;gap:8px;margin:0 0 6px}
+.kg-embed-bar a,.kg-embed-bar button{font:12px system-ui,sans-serif;padding:3px 10px;border-radius:7px;border:1px solid rgba(0,0,0,.15);background:transparent;color:inherit;text-decoration:none;cursor:pointer}
+#kg-fab{position:fixed;right:18px;bottom:18px;z-index:9999;padding:9px 14px;border-radius:999px;background:#0b2d5b;color:#fff;font:600 13px system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+</style>
+<script>
+(function () {
+  if (window.__kgEmbed) return; window.__kgEmbed = true;
+  var SRC = "/graph-view";
+  function findTab() {
+    var els = document.querySelectorAll('button,a,[role="tab"],li,[data-tab],[data-view]');
+    for (var i = 0; i < els.length; i++) {
+      var t = (els[i].textContent || "").trim();
+      if (/^graph(\s+explorer)?$/i.test(t) || /graph explorer/i.test(t) && t.length < 40) return els[i];
+    }
+    return null;
+  }
+  function byKey(k) {
+    if (!k) return null;
+    k = String(k).replace(/^#/, "");
+    var sel = ['#' + k, '#' + k + '-panel', '#' + k + 'Panel', '#panel-' + k, '#tab-' + k, '#view-' + k,
+               '[data-panel="' + k + '"]', '[data-tab-panel="' + k + '"]', '[data-view-panel="' + k + '"]',
+               'section[data-tab="' + k + '"]', 'div[data-tab="' + k + '"]:not(button)'];
+    for (var i = 0; i < sel.length; i++) { try { var el = document.querySelector(sel[i]); if (el && !/^(BUTTON|A|LI)$/.test(el.tagName)) return el; } catch (e) {} }
+    return null;
+  }
+  function findPanel(tab) {
+    var p = null;
+    if (tab) {
+      p = byKey(tab.getAttribute("aria-controls")) || byKey(tab.dataset.tab) || byKey(tab.dataset.target) ||
+          byKey(tab.dataset.view) || byKey(tab.dataset.panel) || byKey((tab.getAttribute("href") || "").indexOf("#") === 0 ? tab.getAttribute("href") : "");
+    }
+    if (!p) {
+      var cands = document.querySelectorAll("section[id],div[id],main[id]");
+      for (var i = 0; i < cands.length; i++) {
+        var id = cands[i].id;
+        if (/graph/i.test(id) && !/(btn|button|tab-?btn|nav)/i.test(id) && cands[i].querySelector("svg,canvas,input,select")) { p = cands[i]; break; }
+      }
+    }
+    return p;
+  }
+  function mount() {
+    var tab = findTab(), panel = findPanel(tab);
+    if (!panel) return false;
+    if (panel.querySelector(".kg-embed-wrap")) return true;
+    Array.prototype.forEach.call(panel.children, function (c) { c.setAttribute("data-kg-legacy", ""); c.style.display = "none"; });
+    var bar = document.createElement("div"); bar.className = "kg-embed-bar";
+    bar.innerHTML = '<button type="button" id="kg-legacy-btn">Classic view</button><a href="' + SRC + '" target="_blank" rel="noopener">Open in new tab ↗</a>';
+    var wrap = document.createElement("div"); wrap.className = "kg-embed-wrap";
+    var fr = document.createElement("iframe"); fr.title = "Knowledge graph"; fr.loading = "lazy"; fr.src = SRC;
+    wrap.appendChild(fr); panel.appendChild(bar); panel.appendChild(wrap);
+    bar.querySelector("#kg-legacy-btn").addEventListener("click", function () {
+      var showLegacy = wrap.style.display !== "none";
+      wrap.style.display = showLegacy ? "none" : "";
+      panel.querySelectorAll("[data-kg-legacy]").forEach(function (c) { c.style.display = showLegacy ? "" : "none"; });
+      this.textContent = showLegacy ? "Graph view" : "Classic view";
+    });
+    function size() { var r = wrap.getBoundingClientRect(); if (r.top > 0) wrap.style.setProperty("--kg-top", Math.round(r.top + window.scrollY) + "px"); }
+    window.addEventListener("resize", size); if (tab) tab.addEventListener("click", function () { setTimeout(size, 50); });
+    setTimeout(size, 100);
+    return true;
+  }
+  function fab() {
+    if (document.getElementById("kg-fab")) return;
+    var a = document.createElement("a"); a.id = "kg-fab"; a.href = SRC; a.target = "_blank"; a.rel = "noopener";
+    a.textContent = "Knowledge graph ↗"; document.body.appendChild(a);
+  }
+  function boot() {
+    if (!mount()) setTimeout(function () { if (!mount()) fab(); }, 1200);
+    // legacy tab code may re-render the panel; re-mount if our iframe gets removed
+    new MutationObserver(function () {
+      if (!document.querySelector(".kg-embed-wrap") && !document.getElementById("kg-fab")) mount();
+    }).observe(document.body, {childList: true, subtree: true});
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+</script>
 </body></html>
