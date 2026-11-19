@@ -12,6 +12,7 @@ from pydantic import BaseModel,field_validator
 from research_portfolio.matching.faculty_match import recommend as recommend_faculty_team
 from research_portfolio.common import fetch_json,dm_records,index_values
 from research_portfolio.retrieval import search as R
+from research_portfolio.answer_guard import guard_query_sync, guard_query_async  # RAG_FIXES_V1
 
 ROOT=Path(os.getenv("RAG_REPO_ROOT","/app")).resolve();CONFIG_DIR=ROOT/"config"/"departments";DATA_DIR=ROOT/"data"/"departments";STATIC=Path(__file__).parent/"static"
 DM_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList";PROFILE_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMuser?username=";SLUG=re.compile(r"^[a-z0-9][a-z0-9_-]{1,40}$")
@@ -193,8 +194,7 @@ def structured_records(mode,people,since,limit,grant_status=None,sponsor=None,in
             rows.extend(dict(x) for x in recs)
     return {"kind":"records","record_type":mode[:-1] if mode.endswith("s") else mode,"records":rows}
 
-@app.post("/api/query")
-async def query(r:QueryRequest):
+async def _query__impl(r:QueryRequest):
     people=[person(x) for x in r.person_ids]
     if r.mode in ("publications","grants","collaborators"):
         if not people: raise HTTPException(400,"Select at least one person")
@@ -202,6 +202,18 @@ async def query(r:QueryRequest):
     if not r.query:raise HTTPException(400,"Enter a question or topic")
     if len(people)>1:return {"kind":"comparison","results":[{"person":p,"result":await asyncio.to_thread(query_one,r.query,r.department,p["person_id"],r.types,r.mode,r.limit,r.since,r.grant_status,r.sponsor,r.investigator_role,r.publication_type,r.refereed,r.has_abstract)} for p in people]}
     return await asyncio.to_thread(query_one,r.query,r.department,people[0]["person_id"] if people else None,r.types,r.mode,r.limit,r.since,r.grant_status,r.sponsor,r.investigator_role,r.publication_type,r.refereed,r.has_abstract)
+
+
+# RAG_FIXES_V1: fuzzy names + cited-answer guard
+@app.post("/api/query")
+async def query(r: QueryRequest):
+    return await guard_query_async(_query__impl, r=r)
+
+
+@app.get("/api/people/suggest")
+def people_suggest(q: str):
+    from research_portfolio.person_match import resolve_name
+    return resolve_name(q, limit=8)["candidates"]
 @app.get("/api/chunks/{point_id}")
 def chunk(point_id:str):
     import requests

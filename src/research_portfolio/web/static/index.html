@@ -55,4 +55,71 @@ function bar(label,value){return `<div style="display:grid;grid-template-columns
 $('#matchRun').onclick=async()=>{const q=$('#matchQuery').value.trim();if(q.length<10)return $('#matchState').textContent='Enter a more detailed research need';try{$('#matchState').textContent='Scoring faculty and teams…';const p=new URLSearchParams({query:q,team_size:$('#teamSize').value,top_people:$('#candidatePool').value,top_teams:'6'});renderMatch(await api('/api/faculty-match?'+p));$('#matchState').textContent='Complete'}catch(e){$('#matchState').textContent=e.message}};
 function updateDept(){const d=depts.find(x=>x.slug===$('#dept').value);if(!d)return;$('#deptInfo').textContent=d.validated?'✓ Fully ingested and validated':d.configured?'Configured, not yet validated':'Configuration will be created automatically';$('#confirm').placeholder='APPLY '+d.slug}async function watch(){const d=await api('/api/jobs/'+job);$('#jobOut').textContent=d.log||'';$('#jobState').textContent=`${locked}: ${d.status}`;if(['succeeded','failed','cancelled'].includes(d.status)){clearInterval(poll);poll=null;$('#dept').disabled=false;$('#action').disabled=false;const current=locked;depts=await api('/api/departments?refresh=true');$('#dept').innerHTML=o(depts,false);$('#dept').value=current;updateDept()}}$('#jobRun').onclick=async()=>{locked=$('#dept').value;try{$('#dept').disabled=true;$('#action').disabled=true;const d=await api('/api/jobs',{method:'POST',body:JSON.stringify({department:locked,action:$('#action').value,confirmation:$('#confirm').value||null})});job=d.job_id;poll=setInterval(watch,900);watch()}catch(e){$('#dept').disabled=false;$('#action').disabled=false;$('#jobOut').textContent=e.message}};
 $('#mode').onchange=resetForMode;$('#strategy').onchange=()=>$('#types').classList.toggle('hidden',$('#strategy').value!=='custom');$('#dept').onchange=updateDept;$('#action').onchange=()=>updateDept();$('#closeDrawer').onclick=close;$('#backdrop').onclick=close;document.querySelectorAll('.nav button').forEach(b=>b.onclick=async()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['query','matching','graph','departments'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==b.dataset.tab));if(b.dataset.tab==='graph'){if(!graph.nodes.size)await loadOverview();requestAnimationFrame(()=>{drawGraph();fitGraph()})}});(async()=>{await load();picker();years();await refreshGraphOptions(false)})();
-</script></body></html>
+</script>
+<!-- RAG_FIXES_V1 -->
+<style>
+#rpg-toasts{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:420px}
+.rpg-t{font:14px/1.4 system-ui,sans-serif;padding:10px 34px 10px 12px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.18);position:relative;color:#1b1b1b}
+.rpg-info{background:#e8f1ff;border-left:4px solid #2b6cb0}.rpg-warn{background:#fff4e0;border-left:4px solid #CF4520}
+.rpg-t button.x{position:absolute;top:4px;right:6px;border:0;background:none;font-size:18px;cursor:pointer;color:inherit}
+.rpg-t .s{margin:6px 6px 0 0;padding:3px 8px;border-radius:12px;border:1px solid #CF4520;background:#fff;cursor:pointer}
+@media (prefers-color-scheme:dark){.rpg-info{background:#1d2b40;color:#e8eef7}.rpg-warn{background:#3a2a16;color:#f6eadb}.rpg-t .s{background:#222;color:#eee}}
+</style>
+<div id="rpg-toasts" aria-live="polite"></div>
+<script>
+(function(){
+  if (window.__rpgFixes) return; window.__rpgFixes = true;
+  const box = document.getElementById("rpg-toasts");
+  function toast(html, kind, sticky){
+    const d = document.createElement("div");
+    d.className = "rpg-t rpg-" + kind; d.innerHTML = html;
+    const x = document.createElement("button"); x.className = "x"; x.type = "button";
+    x.setAttribute("aria-label","Dismiss"); x.textContent = "\u00d7";
+    x.addEventListener("click", () => d.remove()); d.appendChild(x);
+    box.appendChild(d); if (!sticky) setTimeout(() => d.remove(), 9000);
+    return d;
+  }
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function replaceTerm(term, name){
+    let n = 0;
+    document.querySelectorAll("input[type=text],input:not([type]),input[type=search],textarea").forEach(el => {
+      if (el.value && el.value.toLowerCase().includes(term.toLowerCase())) {
+        el.value = el.value.replace(new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"i"), name);
+        el.dispatchEvent(new Event("input",{bubbles:true})); n++;
+      }
+    });
+    return n;
+  }
+  const orig = window.fetch.bind(window);
+  window.fetch = async function(input, init){
+    const res = await orig(input, init);
+    try {
+      const url = typeof input === "string" ? input : input.url;
+      if (url && url.includes("/api/query")) {
+        res.clone().json().then(d => {
+          if (!d || typeof d !== "object") return;
+          if (d.name_notes && d.name_notes.length) toast(esc(d.name_notes.join(" \u00b7 ")), "info");
+          if (d.clarify) {
+            const t = toast("<b>Faculty not found:</b> \u201c" + esc(d.clarify.term) + "\u201d. Did you mean:<br>", "warn", true);
+            (d.clarify.candidates || []).slice(0,5).forEach(c => {
+              const b = document.createElement("button"); b.type = "button"; b.className = "s";
+              b.textContent = c.name + " (" + c.score + ")";
+              b.addEventListener("click", () => {
+                const n = replaceTerm(d.clarify.term, c.name);
+                t.remove(); toast(n ? "Updated to " + esc(c.name) + ". Run the query again." : "Select " + esc(c.name) + " in the person picker.", "info");
+              });
+              t.insertBefore(b, t.querySelector("button.x"));
+            });
+          } else if (d.answer_status && ["empty","error","no_evidence"].includes(d.answer_status)) {
+            toast("<b>No answer generated</b> (" + esc(d.answer_status) + "): " + esc(d.answer_error || ""), "warn", true);
+          } else if (d.answer_status === "uncited") {
+            toast("Answer could not be fully cited; verify against the sources.", "warn");
+          }
+        }).catch(() => {});
+      }
+    } catch (e) {}
+    return res;
+  };
+})();
+</script>
+</body></html>
