@@ -12,7 +12,7 @@ volumes:
 
 x-init-ollama: &init-ollama
   image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
-  container_name: ollama-pull
+  container_name: researchrag-ollama-pull
   networks:
     - backend
   volumes:
@@ -40,7 +40,7 @@ x-init-ollama: &init-ollama
 
 x-ollama: &service-ollama
   image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
-  container_name: ollama
+  container_name: researchrag-ollama
   networks:
     - backend
   restart: unless-stopped
@@ -179,7 +179,7 @@ services:
 
   neo4j:
     image: ${NEO4J_IMAGE:-neo4j:2026.10.2-community-ubi10}
-    container_name: neo4j
+    container_name: researchrag-neo4j
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -202,7 +202,7 @@ services:
     
   reranker:
     image: ${TEI_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:120-1.9}
-    container_name: reranker
+    container_name: researchrag-reranker
     networks:
       - backend
     restart: unless-stopped
