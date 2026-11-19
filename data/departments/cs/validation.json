@@ -1,0 +1,88 @@
+{
+  "department": "cs",
+  "passed": true,
+  "checks": [
+    {
+      "name": "roster_membership",
+      "status": "pass",
+      "actual": 37,
+      "expected": 37
+    },
+    {
+      "name": "graph_entities_have_contributors",
+      "status": "pass",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "identity_key_cardinality",
+      "status": "pass",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "research_entities_missing_qdrant",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "qdrant_entities_missing_graph",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "searchable_people_missing_qdrant",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "text_poor_people_without_qdrant",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "text_poor_faculty",
+      "status": "warning",
+      "actual": [
+        "Alfredo Ramos",
+        "Carlos Janones Figueira",
+        "David Torres",
+        "Gustavo G Dietrich",
+        "Haoteng Tang",
+        "Jennifer Ashley Pedraza",
+        "Jonatan Reyes",
+        "Jose Ruben Espinoza",
+        "Joselito Antonio Guardado",
+        "Juan Garza",
+        "Li Zhang",
+        "Michael Lion Aguillon",
+        "Pedro Fonseca",
+        "Pu Jiao",
+        "Rene Barrera",
+        "Roberto Damian Jimenez",
+        "Ryan Knobel",
+        "Satzhan Sitmukhambetov",
+        "Sonya Crystal Cirlos"
+      ],
+      "expected": []
+    },
+    {
+      "name": "publications_without_abstract",
+      "status": "warning",
+      "actual": 648,
+      "expected": 0
+    }
+  ],
+  "summary": {
+    "roster_people": 37,
+    "research_entities": 893,
+    "qdrant_entities": 930,
+    "qdrant_points": 995,
+    "people_without_qdrant": 0,
+    "publications_without_abstract": 648
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "started_at": "2026-11-18T17:00:18.877784+00:00",
+  "department": "maie",
+  "apply": false,
+  "quality": {
+    "people": 15,
+    "profiles_missing": [],
+    "text_poor": [
+      "Ahmed Ben Daouia",
+      "Majid Hosseini",
+      "Lesly Orozco-Zarate"
+    ],
+    "rejected_dm_user_ids": 60,
+    "suspicious": [
+      {
+        "kind": "publication",
+        "title": "INDIRECT ANALYSIS OF INJECTION MOLDING USING FLOW SIMULATION",
+        "owner": "dm:1451016",
+        "issue": "owner_claim"
+      },
+      {
+        "kind": "publication",
+        "title": "Mechanics of Chip Formation during the Machining of Hardened Steel",
+        "owner": "dm:1592411",
+        "issue": "owner_given_name"
+      },
+      {
+        "kind": "grant",
+        "title": "Extending Life of Cutting Tool Inserts with Surface Functionalization",
+        "owner": "dm:1592411",
+        "issue": "owner_given_name"
+      },
+      {
+        "kind": "presentation",
+        "title": "INDIRECT ANALYSIS OF INJECTION MOLDING USING FLOW SIMULATION",
+        "owner": "dm:1451016",
+        "issue": "owner_claim"
+      }
+    ],
+    "publications": 451,
+    "grants": 242,
+    "presentations": 173,
+    "publications_with_abstract": 69,
+    "grants_with_abstract": 107,
+    "presentations_with_abstract": 7,
+    "publications_with_doi": 112,
+    "grant_status": {
+      "Not Funded": 71,
+      "Funded": 86,
+      "Currently Under Review": 25,
+      "unknown": 56,
+      "Submission Planned in Near Future": 4
+    }
+  },
+  "finished_at": "2026-11-18T17:00:19.409331+00:00"
+}

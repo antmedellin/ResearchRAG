@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "stage": "discover_faculty",
+  "retrieved_at": "2026-11-19T00:16:18.111072+00:00",
+  "institution": "University of Texas Rio Grande Valley",
+  "department": {
+    "slug": "ce",
+    "name": "Department of Civil Engineering",
+    "matched_names": [
+      "Department of Civil Engineering"
+    ]
+  },
+  "source": {
+    "url": "https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList",
+    "raw_snapshot": "raw/directory_20261119T001618Z.json",
+    "sha256": "f0462dbb0fc4ce0d8939c0179dbe491655915630dfd350ed6f14e2287a0c3e5d",
+    "records_in_source": 1870
+  },
+  "count": 22,
+  "skipped_incomplete": [],
+  "faculty": [
+    {
+      "person_id": "dm:2639364",
+      "dm_user_id": "2639364",
+      "username": "li.ai",
+      "display_name": "Li Ai",
+      "given_name": "Li",
+      "middle_name": null,
+      "family_name": "Ai",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2231642",
+      "dm_user_id": "2231642",
+      "username": "omar.alqudah",
+      "display_name": "Omar Al-Qudah",
+      "given_name": "Omar",
+      "middle_name": null,
+      "family_name": "Al-Qudah",
+      "rank": "Associate Professor of Practice",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2391024",
+      "dm_user_id": "2391024",
+      "username": "gasser.ali",
+      "display_name": "Gasser Ali",
+      "given_name": "Gasser",
+      "middle_name": null,
+      "family_name": "Ali",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2318261",
+      "dm_user_id": "2318261",
+      "username": "mohsen.amjadian",
+      "display_name": "Mohsen Amjadian",
+      "given_name": "Mohsen",
+      "middle_name": null,
+      "family_name": "Amjadian",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2448585",
+      "dm_user_id": "2448585",
+      "username": "jinwoo.an",
+      "display_name": "Jinwoo An",
+      "given_name": "Jinwoo",
+      "middle_name": null,
+      "family_name": "An",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1994341",
+      "dm_user_id": "1994341",
+      "username": "juan.bosquez",
+      "display_name": "Juan Bosquez",
+      "given_name": "Juan",
+      "middle_name": null,
+      "family_name": "Bosquez",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2375090",
+      "dm_user_id": "2375090",
+      "username": "heriberto.cavazos",
+      "display_name": "Heriberto Cavazos",
+      "given_name": "Heriberto",
+      "middle_name": null,
+      "family_name": "Cavazos",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1662388",
+      "dm_user_id": "1662388",
+      "username": "chulin.cheng",
+      "display_name": "Chu-Lin Cheng",
+      "given_name": "Chu-Lin",
+      "middle_name": null,
+      "family_name": "Cheng",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Civil Engineering",
+        "School of Earth, Environmental, and Marine Sciences"
+      ]
+    },
+    {
+      "person_id": "dm:2701006",
+      "dm_user_id": "2701006",
+      "username": "linh.duong",
+      "display_name": "Linh Thai Duong",
+      "given_name": "Linh",
+      "middle_name": "Thai",
+      "family_name": "Duong",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2698448",
+      "dm_user_id": "2698448",
+      "username": "zohaib.hassan",
+      "display_name": "Syed Zohaib Hassan",
+      "given_name": "Syed Zohaib",
+      "middle_name": null,
+      "family_name": "Hassan",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450963",
+      "dm_user_id": "1450963",
+      "username": "jungseok.ho",
+      "display_name": "Jungseok Ho",
+      "given_name": "Jungseok",
+      "middle_name": null,
+      "family_name": "Ho",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1951118",
+      "dm_user_id": "1951118",
+      "username": "jongmin.kim",
+      "display_name": "Jong Min Kim",
+      "given_name": "Jong Min",
+      "middle_name": null,
+      "family_name": "Kim",
+      "rank": "Associate Professor of Practice",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2639363",
+      "dm_user_id": "2639363",
+      "username": "yoojun.kim",
+      "display_name": "Yoojun Kim",
+      "given_name": "Yoojun",
+      "middle_name": null,
+      "family_name": "Kim",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2526915",
+      "dm_user_id": "2526915",
+      "username": "uma.malik",
+      "display_name": "Uma Malik",
+      "given_name": "Uma",
+      "middle_name": null,
+      "family_name": "Malik",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2201383",
+      "dm_user_id": "2201383",
+      "username": "fatemeh.nazari",
+      "display_name": "Fatemeh Nazari",
+      "given_name": "Fatemeh",
+      "middle_name": null,
+      "family_name": "Nazari",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2201384",
+      "dm_user_id": "2201384",
+      "username": "h.noruzoliaee",
+      "display_name": "Mohamadhossein Noruzoliaee",
+      "given_name": "Mohamadhossein",
+      "middle_name": null,
+      "family_name": "Noruzoliaee",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2109040",
+      "dm_user_id": "2109040",
+      "username": "philip.park",
+      "display_name": "Philip Park",
+      "given_name": "Philip",
+      "middle_name": null,
+      "family_name": "Park",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1962367",
+      "dm_user_id": "1962367",
+      "username": "thang.pham",
+      "display_name": "Thang Pham",
+      "given_name": "Thang",
+      "middle_name": null,
+      "family_name": "Pham",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2324726",
+      "dm_user_id": "2324726",
+      "username": "m.rahmaninezhad",
+      "display_name": "Seyed Mustapha Rahmaninezhad",
+      "given_name": "Seyed Mustapha",
+      "middle_name": null,
+      "family_name": "Rahmaninezhad",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1493859",
+      "dm_user_id": "1493859",
+      "username": "alejandro.sanchez01",
+      "display_name": "Alejandro Sanchez",
+      "given_name": "Alejandro",
+      "middle_name": null,
+      "family_name": "Sanchez",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1478906",
+      "dm_user_id": "1478906",
+      "username": "thuy.vu",
+      "display_name": "Thanh Thuy Vu",
+      "given_name": "Thanh",
+      "middle_name": "Thuy",
+      "family_name": "Vu",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2700076",
+      "dm_user_id": "2700076",
+      "username": "bozhou.zhuang",
+      "display_name": "Bozhou Zhuang",
+      "given_name": "Bozhou",
+      "middle_name": null,
+      "family_name": "Zhuang",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Civil Engineering"
+      ]
+    }
+  ]
+}

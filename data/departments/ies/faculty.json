@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "stage": "discover_faculty",
+  "retrieved_at": "2026-11-18T21:44:50.644405+00:00",
+  "institution": "University of Texas Rio Grande Valley",
+  "department": {
+    "slug": "ies",
+    "name": "Department of Informatics and Engineering Systems",
+    "matched_names": [
+      "Department of Informatics and Engineering Systems"
+    ]
+  },
+  "source": {
+    "url": "https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList",
+    "raw_snapshot": "raw/directory_20261118T214450Z.json",
+    "sha256": "f0462dbb0fc4ce0d8939c0179dbe491655915630dfd350ed6f14e2287a0c3e5d",
+    "records_in_source": 1870
+  },
+  "count": 17,
+  "skipped_incomplete": [],
+  "faculty": [
+    {
+      "person_id": "dm:1811220",
+      "dm_user_id": "1811220",
+      "username": "immanuel.edinbarough",
+      "display_name": "Edinbarough Immanuel Adaikalaraj",
+      "given_name": "Edinbarough",
+      "middle_name": "Immanuel",
+      "family_name": "Adaikalaraj",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:2710015",
+      "dm_user_id": "2710015",
+      "username": "md.alamin",
+      "display_name": "Md Al Amin",
+      "given_name": "Md",
+      "middle_name": null,
+      "family_name": "Al Amin",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:2530235",
+      "dm_user_id": "2530235",
+      "username": "reynaldo.anzaldua01",
+      "display_name": "Reynaldo Anzaldua",
+      "given_name": "Reynaldo",
+      "middle_name": null,
+      "family_name": "Anzaldua",
+      "rank": "Full Professor of Practice",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:2392242",
+      "dm_user_id": "2392242",
+      "username": "jorge.a.castillo01",
+      "display_name": "Jorge Abel Castillo",
+      "given_name": "Jorge",
+      "middle_name": "Abel",
+      "family_name": "Castillo",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:2201382",
+      "dm_user_id": "2201382",
+      "username": "erik.chumacero",
+      "display_name": "Erik Alfredo Chumacero",
+      "given_name": "Erik",
+      "middle_name": "Alfredo",
+      "family_name": "Chumacero",
+      "rank": "Associate Professor of Practice",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:2540137",
+      "dm_user_id": "2540137",
+      "username": "alexis.delacruz02",
+      "display_name": "Alexis Aaron De La Cruz",
+      "given_name": "Alexis",
+      "middle_name": "Aaron",
+      "family_name": "De La Cruz",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:1962784",
+      "dm_user_id": "1962784",
+      "username": "jesus.gonzalez1",
+      "display_name": "Jesus A Gonzalez Rodriguez",
+      "given_name": "Jesus",
+      "middle_name": "A",
+      "family_name": "Gonzalez Rodriguez",
+      "rank": "Associate Professor of Practice",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:2376088",
+      "dm_user_id": "2376088",
+      "username": "lucas.hall01",
+      "display_name": "Lucas Dominic Hall",
+      "given_name": "Lucas",
+      "middle_name": "Dominic",
+      "family_name": "Hall",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:1450988",
+      "dm_user_id": "1450988",
+      "username": "robert.jones",
+      "display_name": "Robert E Jones",
+      "given_name": "Robert",
+      "middle_name": "E",
+      "family_name": "Jones",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:2705150",
+      "dm_user_id": "2705150",
+      "username": "ryan.lechtenberg01",
+      "display_name": "Ryan Lee Lechtenberg",
+      "given_name": "Ryan",
+      "middle_name": "Lee",
+      "family_name": "Lechtenberg",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:1811368",
+      "dm_user_id": "1811368",
+      "username": "hansheng.lei",
+      "display_name": "Hansheng Lei",
+      "given_name": "Hansheng",
+      "middle_name": null,
+      "family_name": "Lei",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:1811423",
+      "dm_user_id": "1811423",
+      "username": "domingo.molina",
+      "display_name": "Domingo Molina",
+      "given_name": "Domingo",
+      "middle_name": null,
+      "family_name": "Molina",
+      "rank": "Lecturer III",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:1811478",
+      "dm_user_id": "1811478",
+      "username": "jose.poveda",
+      "display_name": "Jose Francisco Poveda",
+      "given_name": "Jose",
+      "middle_name": "Francisco",
+      "family_name": "Poveda",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:1811488",
+      "dm_user_id": "1811488",
+      "username": "mahmoud.quweider",
+      "display_name": "Mahmoud Khamees Quweider",
+      "given_name": "Mahmoud",
+      "middle_name": "Khamees",
+      "family_name": "Quweider",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:2346702",
+      "dm_user_id": "2346702",
+      "username": "yessenia.rodriguez01",
+      "display_name": "Yessenia Rodriguez",
+      "given_name": "Yessenia",
+      "middle_name": null,
+      "family_name": "Rodriguez",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:1811539",
+      "dm_user_id": "1811539",
+      "username": "bari.siddique",
+      "display_name": "Bari M. Siddique",
+      "given_name": "Bari",
+      "middle_name": "M.",
+      "family_name": "Siddique",
+      "rank": "Senior Lecturer",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    },
+    {
+      "person_id": "dm:1811608",
+      "dm_user_id": "1811608",
+      "username": "liyu.zhang",
+      "display_name": "Liyu Zhang",
+      "given_name": "Liyu",
+      "middle_name": null,
+      "family_name": "Zhang",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Informatics and Engineering Systems"
+      ]
+    }
+  ]
+}

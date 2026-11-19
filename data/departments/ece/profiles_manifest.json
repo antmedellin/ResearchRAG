@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "stage": "fetch_profiles",
+  "generated_at": "2026-11-19T00:20:20.206966+00:00",
+  "roster_retrieved_at": "2026-11-19T00:20:20.203909+00:00",
+  "profiles": [
+    {
+      "person_id": "dm:2449252",
+      "username": "fahmida.alam",
+      "path": "raw/profiles/2449252.json",
+      "status": "fetched",
+      "sha256": "436026b1aaef823654b015e02fa5645ec2890e485ec4023303c18414160cbb24",
+      "fetched_at": "2026-11-19T00:20:21.353755+00:00"
+    },
+    {
+      "person_id": "dm:2464961",
+      "username": "orune.aminul01",
+      "path": "raw/profiles/2464961.json",
+      "status": "fetched",
+      "sha256": "b261fd417e80158036e70fd15bb826284bcbe3bdfe529d719114fac4efc6a9b2",
+      "fetched_at": "2026-11-19T00:20:21.946833+00:00"
+    },
+    {
+      "person_id": "dm:1450711",
+      "username": "mounir.benghalia",
+      "path": "raw/profiles/1450711.json",
+      "status": "fetched",
+      "sha256": "db3a98a9841b1994867e65ba22870c5b432c79cd174f08d12d4499671ff58e2e",
+      "fetched_at": "2026-11-19T00:20:22.627392+00:00"
+    },
+    {
+      "person_id": "dm:2109038",
+      "username": "laura.benitez",
+      "path": "raw/profiles/2109038.json",
+      "status": "fetched",
+      "sha256": "df1fb0efef9997406b10416886114bdf11b9a422c1b78fb291f0559f6784fb2c",
+      "fetched_at": "2026-11-19T00:20:24.470242+00:00"
+    },
+    {
+      "person_id": "dm:2455111",
+      "username": "luis.castanuela01",
+      "path": "raw/profiles/2455111.json",
+      "status": "fetched",
+      "sha256": "945634711f2e155b387353c826bdda5b650b915d5e5c3b659e5deec96d24d200",
+      "fetched_at": "2026-11-19T00:20:25.076192+00:00"
+    },
+    {
+      "person_id": "dm:2374657",
+      "username": "chuwen.cheng01",
+      "path": "raw/profiles/2374657.json",
+      "status": "fetched",
+      "sha256": "70f8852edac70b58e7987c5b121e3fbc0844795efed0c0671f45454baa023119",
+      "fetched_at": "2026-11-19T00:20:25.683367+00:00"
+    },
+    {
+      "person_id": "dm:2698601",
+      "username": "lei.cheng",
+      "path": "raw/profiles/2698601.json",
+      "status": "fetched",
+      "sha256": "60cfec468331d21968c69de3a8384f815124e395cb2f256fce450b93c0aea255",
+      "fetched_at": "2026-11-19T00:20:26.966782+00:00"
+    },
+    {
+      "person_id": "dm:1478888",
+      "username": "paul.choi",
+      "path": "raw/profiles/1478888.json",
+      "status": "fetched",
+      "sha256": "f2bc06bd892d7f4398d5774470bae0f9c2e1d1c3b86507ffaeb744d1f7ac6f06",
+      "fetched_at": "2026-11-19T00:20:27.651957+00:00"
+    },
+    {
+      "person_id": "dm:1450774",
+      "username": "mark.chu",
+      "path": "raw/profiles/1450774.json",
+      "status": "fetched",
+      "sha256": "4abbb9e673250adc8771fdc7e1884d536b24e29d1bd6666abfbfe34b1fd9dc1b",
+      "fetched_at": "2026-11-19T00:20:31.279058+00:00"
+    },
+    {
+      "person_id": "dm:1912514",
+      "username": "alexander.domijan",
+      "path": "raw/profiles/1912514.json",
+      "status": "fetched",
+      "sha256": "a35ef93a0d8646024063b113591b63983e42fac1f8e02b27a7572065affdd13d",
+      "fetched_at": "2026-11-19T00:20:34.112180+00:00"
+    },
+    {
+      "person_id": "dm:1450823",
+      "username": "wenjie.dong",
+      "path": "raw/profiles/1450823.json",
+      "status": "fetched",
+      "sha256": "31205724966a7b2fcd41d47ae20973844728a7f3202515d621db554c45da1b34",
+      "fetched_at": "2026-11-19T00:20:34.793100+00:00"
+    },
+    {
+      "person_id": "dm:2634282",
+      "username": "anna.gegenava",
+      "path": "raw/profiles/2634282.json",
+      "status": "fetched",
+      "sha256": "3c93057d7a1f7abf64cdd39b98b74757a6efdf946399b4156e5466bb0c18d6e5",
+      "fetched_at": "2026-11-19T00:20:36.087247+00:00"
+    },
+    {
+      "person_id": "dm:1450970",
+      "username": "hasina.huq",
+      "path": "raw/profiles/1450970.json",
+      "status": "fetched",
+      "sha256": "88f6635633b61b2d504fdc446a1b39b9cae60ace66354007d2a2f9ce87ac3db7",
+      "fetched_at": "2026-11-19T00:20:36.769742+00:00"
+    },
+    {
+      "person_id": "dm:2526589",
+      "username": "ahmed.jalal",
+      "path": "raw/profiles/2526589.json",
+      "status": "fetched",
+      "sha256": "f929a079445e3dc02c3e9f91031a764cf0baeffb211bb4b375be30718fd8607c",
+      "fetched_at": "2026-11-19T00:20:38.271876+00:00"
+    },
+    {
+      "person_id": "dm:1451003",
+      "username": "weidong.kuang",
+      "path": "raw/profiles/1451003.json",
+      "status": "fetched",
+      "sha256": "ed44f8ffb4e0bae469bfbe2e3d5d3f25f57c14939d7433b2489115dd8f59b8be",
+      "fetched_at": "2026-11-19T00:20:38.932231+00:00"
+    },
+    {
+      "person_id": "dm:1451005",
+      "username": "sj.kumar",
+      "path": "raw/profiles/1451005.json",
+      "status": "fetched",
+      "sha256": "ff7a4c8ded5dcefefca68c076cf7d6b6b5448c2b916994d75805a1090440500d",
+      "fetched_at": "2026-11-19T00:20:42.963567+00:00"
+    },
+    {
+      "person_id": "dm:1657881",
+      "username": "andres.medina",
+      "path": "raw/profiles/1657881.json",
+      "status": "fetched",
+      "sha256": "6d8ec8b0bbc49cd006aad666a260f4fcd9e0700f32093d4161e31d3f0e774a84",
+      "fetched_at": "2026-11-19T00:20:43.613791+00:00"
+    },
+    {
+      "person_id": "dm:2632500",
+      "username": "yunsoo.park",
+      "path": "raw/profiles/2632500.json",
+      "status": "fetched",
+      "sha256": "4021ac8b171e93e6a635267df2254af8a940b8a66d1c0bd8484b9f4d2cf477c0",
+      "fetched_at": "2026-11-19T00:20:44.203508+00:00"
+    },
+    {
+      "person_id": "dm:1451145",
+      "username": "jun.peng",
+      "path": "raw/profiles/1451145.json",
+      "status": "fetched",
+      "sha256": "5d4f221abaa720f5f8881a52b3f6d65d6b4d078791ae467da2ba89c4dcf4ef91",
+      "fetched_at": "2026-11-19T00:20:44.905886+00:00"
+    },
+    {
+      "person_id": "dm:2204131",
+      "username": "carlos.rodriguezbetancourth01",
+      "path": "raw/profiles/2204131.json",
+      "status": "fetched",
+      "sha256": "0e189d016ee8995df5b437ed98ff318d384e787df4457ca7586955351080d0d0",
+      "fetched_at": "2026-11-19T00:20:45.567950+00:00"
+    },
+    {
+      "person_id": "dm:2321157",
+      "username": "rogelio.soto",
+      "path": "raw/profiles/2321157.json",
+      "status": "fetched",
+      "sha256": "d858f03052f42b0c0ff9df83bed492bba4cda114dabc08284c59ff1871dee3c8",
+      "fetched_at": "2026-11-19T00:20:46.216275+00:00"
+    },
+    {
+      "person_id": "dm:1819808",
+      "username": "nantakan.wongkasem",
+      "path": "raw/profiles/1819808.json",
+      "status": "fetched",
+      "sha256": "ad42b5037b5deabbd20594add0754b7255bc8e1ef44938b1c49974343ec1758e",
+      "fetched_at": "2026-11-19T00:20:46.905647+00:00"
+    },
+    {
+      "person_id": "dm:2526914",
+      "username": "jinghao.yang",
+      "path": "raw/profiles/2526914.json",
+      "status": "fetched",
+      "sha256": "73a2512be2e24e5a5b4ba63ba2631e1349523e10f0b15ba2ef2377f5725c16d4",
+      "fetched_at": "2026-11-19T00:20:47.516318+00:00"
+    },
+    {
+      "person_id": "dm:1811611",
+      "username": "yong.zhou",
+      "path": "raw/profiles/1811611.json",
+      "status": "fetched",
+      "sha256": "1bcb75c7a782f50957a41605fb4313d6211ca72e903a201dc14ef29536bb30f2",
+      "fetched_at": "2026-11-19T00:20:48.196770+00:00"
+    }
+  ]
+}

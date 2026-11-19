@@ -7,7 +7,4 @@ RUN groupadd --gid 1000 rag && useradd --uid 1000 --gid rag --create-home rag
 ENV HOME=/home/rag XDG_CACHE_HOME=/home/rag/.cache
 
 USER 1000:1000
-COPY src/basic_tests/qdrant_smoke_test.py .
-CMD ["python", "qdrant_smoke_test.py"]
 
-EXPOSE 8080

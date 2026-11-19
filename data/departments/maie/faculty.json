@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "stage": "discover_faculty",
+  "retrieved_at": "2026-11-18T16:42:55.795021+00:00",
+  "institution": "University of Texas Rio Grande Valley",
+  "department": {
+    "slug": "maie",
+    "name": "Department of Manufacturing and Industrial Engineering",
+    "matched_names": [
+      "Department of Manufacturing and Industrial Engineering"
+    ]
+  },
+  "source": {
+    "url": "https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList",
+    "raw_snapshot": "raw/directory_20261118T164255Z.json",
+    "sha256": "f0462dbb0fc4ce0d8939c0179dbe491655915630dfd350ed6f14e2287a0c3e5d",
+    "records_in_source": 1870
+  },
+  "count": 15,
+  "skipped_incomplete": [],
+  "faculty": [
+    {
+      "person_id": "dm:2270795",
+      "dm_user_id": "2270795",
+      "username": "farid.ahmed",
+      "display_name": "Farid Ahmed",
+      "given_name": "Farid",
+      "middle_name": null,
+      "family_name": "Ahmed",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2449251",
+      "dm_user_id": "2449251",
+      "username": "ammnazmul.ahsan",
+      "display_name": "AMM Nazmul Ahsan",
+      "given_name": "AMM Nazmul",
+      "middle_name": null,
+      "family_name": "Ahsan",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2730266",
+      "dm_user_id": "2730266",
+      "username": "ahmed.bendaouia",
+      "display_name": "Ahmed Ben Daouia",
+      "given_name": "Ahmed",
+      "middle_name": null,
+      "family_name": "Ben Daouia",
+      "rank": "Assistant Professor of Research",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450741",
+      "dm_user_id": "1450741",
+      "username": "alley.butler",
+      "display_name": "Alley Cowan Butler",
+      "given_name": "Alley",
+      "middle_name": "Cowan",
+      "family_name": "Butler",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1991449",
+      "dm_user_id": "1991449",
+      "username": "majid.hosseini01",
+      "display_name": "Majid Hosseini",
+      "given_name": "Majid",
+      "middle_name": null,
+      "family_name": "Hosseini",
+      "rank": "Full Professor of Practice",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1451016",
+      "dm_user_id": "1451016",
+      "username": "kyehwan.lee",
+      "display_name": "Kyehwan Lee",
+      "given_name": "Kyehwan",
+      "middle_name": null,
+      "family_name": "Lee",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1451022",
+      "dm_user_id": "1451022",
+      "username": "jianzhi.li",
+      "display_name": "Jianzhi Li",
+      "given_name": "Jianzhi",
+      "middle_name": null,
+      "family_name": "Li",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1478901",
+      "dm_user_id": "1478901",
+      "username": "hiram.moya",
+      "display_name": "Hiram Moya",
+      "given_name": "Hiram",
+      "middle_name": null,
+      "family_name": "Moya",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1962780",
+      "dm_user_id": "1962780",
+      "username": "edna.orozco01",
+      "display_name": "Edna I Orozco-Leonhardt",
+      "given_name": "Edna",
+      "middle_name": "I",
+      "family_name": "Orozco-Leonhardt",
+      "rank": "Lecturer III",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2204130",
+      "dm_user_id": "2204130",
+      "username": "lesly.orozco01",
+      "display_name": "Lesly Orozco-Zarate",
+      "given_name": "Lesly",
+      "middle_name": null,
+      "family_name": "Orozco-Zarate",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2375313",
+      "dm_user_id": "2375313",
+      "username": "benjamin.peters01",
+      "display_name": "Benjamin Peters",
+      "given_name": "Benjamin",
+      "middle_name": null,
+      "family_name": "Peters",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2526918",
+      "dm_user_id": "2526918",
+      "username": "monsuru.ramoni",
+      "display_name": "Monsuru Olalekan Ramoni",
+      "given_name": "Monsuru",
+      "middle_name": "Olalekan",
+      "family_name": "Ramoni",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1592411",
+      "dm_user_id": "1592411",
+      "username": "anil.srivastava",
+      "display_name": "Anil Kumar Srivastava",
+      "given_name": "Anil",
+      "middle_name": "Kumar",
+      "family_name": "Srivastava",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1391271",
+      "dm_user_id": "1391271",
+      "username": "douglas.timmer",
+      "display_name": "Douglas H Timmer",
+      "given_name": "Douglas",
+      "middle_name": "H",
+      "family_name": "Timmer",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2526916",
+      "dm_user_id": "2526916",
+      "username": "linfeng.wu",
+      "display_name": "Linfeng Wu",
+      "given_name": "Linfeng",
+      "middle_name": null,
+      "family_name": "Wu",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Manufacturing and Industrial Engineering"
+      ]
+    }
+  ]
+}

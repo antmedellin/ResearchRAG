@@ -1,0 +1,504 @@
+{
+  "schema_version": 1,
+  "stage": "discover_faculty",
+  "retrieved_at": "2026-11-19T00:18:50.197999+00:00",
+  "institution": "University of Texas Rio Grande Valley",
+  "department": {
+    "slug": "cs",
+    "name": "Department of Computer Science",
+    "matched_names": [
+      "Department of Computer Science"
+    ]
+  },
+  "source": {
+    "url": "https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList",
+    "raw_snapshot": "raw/directory_20261119T001850Z.json",
+    "sha256": "f0462dbb0fc4ce0d8939c0179dbe491655915630dfd350ed6f14e2287a0c3e5d",
+    "records_in_source": 1870
+  },
+  "count": 37,
+  "skipped_incomplete": [],
+  "faculty": [
+    {
+      "person_id": "dm:2462718",
+      "dm_user_id": "2462718",
+      "username": "michael.aguillon01",
+      "display_name": "Michael Lion Aguillon",
+      "given_name": "Michael",
+      "middle_name": "Lion",
+      "family_name": "Aguillon",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2109032",
+      "dm_user_id": "2109032",
+      "username": "marzieh.ayati",
+      "display_name": "Marzieh Ayati",
+      "given_name": "Marzieh",
+      "middle_name": null,
+      "family_name": "Ayati",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2377620",
+      "dm_user_id": "2377620",
+      "username": "divya.bajaj",
+      "display_name": "Divya Bajaj",
+      "given_name": "Divya",
+      "middle_name": null,
+      "family_name": "Bajaj",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2503095",
+      "dm_user_id": "2503095",
+      "username": "rene.barrera02",
+      "display_name": "Rene Barrera",
+      "given_name": "Rene",
+      "middle_name": null,
+      "family_name": "Barrera",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1450769",
+      "dm_user_id": "1450769",
+      "username": "zhixiang.chen",
+      "display_name": "Zhixiang Chen",
+      "given_name": "Zhixiang",
+      "middle_name": null,
+      "family_name": "Chen",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2526913",
+      "dm_user_id": "2526913",
+      "username": "sergei.chuprov",
+      "display_name": "Sergei Chuprov",
+      "given_name": "Sergei",
+      "middle_name": null,
+      "family_name": "Chuprov",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2380561",
+      "dm_user_id": "2380561",
+      "username": "sonya.cirlos01",
+      "display_name": "Sonya Crystal Cirlos",
+      "given_name": "Sonya",
+      "middle_name": "Crystal",
+      "family_name": "Cirlos",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1450819",
+      "dm_user_id": "1450819",
+      "username": "gustavo.dietrich",
+      "display_name": "Gustavo G Dietrich",
+      "given_name": "Gustavo",
+      "middle_name": "G",
+      "family_name": "Dietrich",
+      "rank": "Senior Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1450830",
+      "dm_user_id": "1450830",
+      "username": "david.egle",
+      "display_name": "David Egle",
+      "given_name": "David",
+      "middle_name": null,
+      "family_name": "Egle",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2124037",
+      "dm_user_id": "2124037",
+      "username": "erik.enriquez01",
+      "display_name": "Erik Marcelle Enriquez",
+      "given_name": "Erik",
+      "middle_name": "Marcelle",
+      "family_name": "Enriquez",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2639376",
+      "dm_user_id": "2639376",
+      "username": "jose.r.espinoza01",
+      "display_name": "Jose Ruben Espinoza",
+      "given_name": "Jose",
+      "middle_name": "Ruben",
+      "family_name": "Espinoza",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1451040",
+      "dm_user_id": "1451040",
+      "username": "andres.figueroa",
+      "display_name": "Andres Figueroa",
+      "given_name": "Andres",
+      "middle_name": null,
+      "family_name": "Figueroa",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2462729",
+      "dm_user_id": "2462729",
+      "username": "pedro.fonseca01",
+      "display_name": "Pedro Fonseca",
+      "given_name": "Pedro",
+      "middle_name": null,
+      "family_name": "Fonseca",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1450875",
+      "dm_user_id": "1450875",
+      "username": "bin.fu",
+      "display_name": "Bin Fu",
+      "given_name": "Bin",
+      "middle_name": null,
+      "family_name": "Fu",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2318262",
+      "dm_user_id": "2318262",
+      "username": "yifeng.gao",
+      "display_name": "Yifeng Gao",
+      "given_name": "Yifeng",
+      "middle_name": null,
+      "family_name": "Gao",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1987338",
+      "dm_user_id": "1987338",
+      "username": "juan.l.garza01",
+      "display_name": "Juan Garza",
+      "given_name": "Juan",
+      "middle_name": null,
+      "family_name": "Garza",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2526905",
+      "dm_user_id": "2526905",
+      "username": "pengfei.gu01",
+      "display_name": "Pengfei Gu",
+      "given_name": "Pengfei",
+      "middle_name": null,
+      "family_name": "Gu",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2462722",
+      "dm_user_id": "2462722",
+      "username": "joselito.guardado01",
+      "display_name": "Joselito Antonio Guardado",
+      "given_name": "Joselito",
+      "middle_name": "Antonio",
+      "family_name": "Guardado",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2592160",
+      "dm_user_id": "2592160",
+      "username": "carlos.janonesfigueira01",
+      "display_name": "Carlos Janones Figueira",
+      "given_name": "Carlos",
+      "middle_name": null,
+      "family_name": "Janones Figueira",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2697949",
+      "dm_user_id": "2697949",
+      "username": "pu.jiao",
+      "display_name": "Pu Jiao",
+      "given_name": "Pu",
+      "middle_name": null,
+      "family_name": "Jiao",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2201392",
+      "dm_user_id": "2201392",
+      "username": "roberto.jimenez01",
+      "display_name": "Roberto Damian Jimenez",
+      "given_name": "Roberto",
+      "middle_name": "Damian",
+      "family_name": "Jimenez",
+      "rank": "Staff Teaching Part-Time",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1662367",
+      "dm_user_id": "1662367",
+      "username": "dongchul.kim",
+      "display_name": "Dongchul Kim",
+      "given_name": "Dongchul",
+      "middle_name": null,
+      "family_name": "Kim",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2710016",
+      "dm_user_id": "2710016",
+      "username": "ryan.knobel01",
+      "display_name": "Ryan Knobel",
+      "given_name": "Ryan",
+      "middle_name": null,
+      "family_name": "Knobel",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2370676",
+      "dm_user_id": "2370676",
+      "username": "qi.lu",
+      "display_name": "Qi Lu",
+      "given_name": "Qi",
+      "middle_name": null,
+      "family_name": "Lu",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2526906",
+      "dm_user_id": "2526906",
+      "username": "austin.luchsinger",
+      "display_name": "Austin Luchsinger",
+      "given_name": "Austin",
+      "middle_name": null,
+      "family_name": "Luchsinger",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1962782",
+      "dm_user_id": "1962782",
+      "username": "eric.m.martinez02",
+      "display_name": "Eric Michael Martinez",
+      "given_name": "Eric",
+      "middle_name": "Michael",
+      "family_name": "Martinez",
+      "rank": "Staff Teaching Part-Time",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2639377",
+      "dm_user_id": "2639377",
+      "username": "jennifer.pedraza02",
+      "display_name": "Jennifer Ashley Pedraza",
+      "given_name": "Jennifer",
+      "middle_name": "Ashley",
+      "family_name": "Pedraza",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2139412",
+      "dm_user_id": "2139412",
+      "username": "carlos.penacaballero01",
+      "display_name": "Carlos Andres Pena-Caballero",
+      "given_name": "Carlos",
+      "middle_name": "Andres",
+      "family_name": "Pena-Caballero",
+      "rank": "Lecturer III",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2184274",
+      "dm_user_id": "2184274",
+      "username": "alfredo.ramos02",
+      "display_name": "Alfredo Ramos",
+      "given_name": "Alfredo",
+      "middle_name": null,
+      "family_name": "Ramos",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2530233",
+      "dm_user_id": "2530233",
+      "username": "jonatan.reyes01",
+      "display_name": "Jonatan Reyes",
+      "given_name": "Jonatan",
+      "middle_name": null,
+      "family_name": "Reyes",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1451258",
+      "dm_user_id": "1451258",
+      "username": "robert.schweller",
+      "display_name": "Robert T Schweller",
+      "given_name": "Robert",
+      "middle_name": "T",
+      "family_name": "Schweller",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1811544",
+      "dm_user_id": "1811544",
+      "username": "satzhan.sitmukhambetov01",
+      "display_name": "Satzhan Sitmukhambetov",
+      "given_name": "Satzhan",
+      "middle_name": null,
+      "family_name": "Sitmukhambetov",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2447484",
+      "dm_user_id": "2447484",
+      "username": "haoteng.tang",
+      "display_name": "Haoteng Tang",
+      "given_name": "Haoteng",
+      "middle_name": null,
+      "family_name": "Tang",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1451305",
+      "dm_user_id": "1451305",
+      "username": "emmett.tomai",
+      "display_name": "Emmett R Tomai",
+      "given_name": "Emmett",
+      "middle_name": "R",
+      "family_name": "Tomai",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2201393",
+      "dm_user_id": "2201393",
+      "username": "david.torres",
+      "display_name": "David Torres",
+      "given_name": "David",
+      "middle_name": null,
+      "family_name": "Torres",
+      "rank": "Staff Teaching Part-Time",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:1662366",
+      "dm_user_id": "1662366",
+      "username": "timothy.wylie",
+      "display_name": "Timothy Wylie",
+      "given_name": "Timothy",
+      "middle_name": null,
+      "family_name": "Wylie",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    },
+    {
+      "person_id": "dm:2447483",
+      "dm_user_id": "2447483",
+      "username": "li.zhang",
+      "display_name": "Li Zhang",
+      "given_name": "Li",
+      "middle_name": null,
+      "family_name": "Zhang",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Computer Science"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "stage": "fetch_profiles",
+  "generated_at": "2026-11-18T21:45:00.151263+00:00",
+  "roster_retrieved_at": "2026-11-18T21:44:50.644405+00:00",
+  "profiles": [
+    {
+      "person_id": "dm:1811220",
+      "username": "immanuel.edinbarough",
+      "path": "raw/profiles/1811220.json",
+      "status": "cached",
+      "sha256": "59f2a99b15cc0cfb6399a0af4f5cef8418d203b9b2dc09b3c13d8cdbdcd27867",
+      "fetched_at": "2026-11-18T19:36:49.857020+00:00"
+    },
+    {
+      "person_id": "dm:2710015",
+      "username": "md.alamin",
+      "path": "raw/profiles/2710015.json",
+      "status": "cached",
+      "sha256": "100320b4d1d827d2983da46729867d047371cd4e79d7a0a72d0cd6450c4416fd",
+      "fetched_at": "2026-11-18T19:36:51.040264+00:00"
+    },
+    {
+      "person_id": "dm:2530235",
+      "username": "reynaldo.anzaldua01",
+      "path": "raw/profiles/2530235.json",
+      "status": "cached",
+      "sha256": "c34a53bac39411bf6cf5c1a76fc8fc7af8a1c6dfa1d6537449531d8ef9cb2c86",
+      "fetched_at": "2026-11-18T19:36:52.362658+00:00"
+    },
+    {
+      "person_id": "dm:2392242",
+      "username": "jorge.a.castillo01",
+      "path": "raw/profiles/2392242.json",
+      "status": "cached",
+      "sha256": "6005ea837b8f3033740bd5afa6daf764ea8aa1e561901d54f3bc4ba81f38a1c8",
+      "fetched_at": "2026-11-18T19:36:53.831290+00:00"
+    },
+    {
+      "person_id": "dm:2201382",
+      "username": "erik.chumacero",
+      "path": "raw/profiles/2201382.json",
+      "status": "cached",
+      "sha256": "bae0b276b129411ab002653a38458d81da49dbcb20f2a74320e780a42e16aedf",
+      "fetched_at": "2026-11-18T19:36:55.668293+00:00"
+    },
+    {
+      "person_id": "dm:2540137",
+      "username": "alexis.delacruz02",
+      "path": "raw/profiles/2540137.json",
+      "status": "cached",
+      "sha256": "8420fea64e471a165b1ddd59316b8aa314564c7b5d63f5375602cb7c7968e9bf",
+      "fetched_at": "2026-11-18T19:36:56.242811+00:00"
+    },
+    {
+      "person_id": "dm:1962784",
+      "username": "jesus.gonzalez1",
+      "path": "raw/profiles/1962784.json",
+      "status": "cached",
+      "sha256": "60245efe87ed83bdbdf3545b6f6c94f4609c61d78b2b9ebe21819a8b9aa0c90e",
+      "fetched_at": "2026-11-18T19:36:58.650894+00:00"
+    },
+    {
+      "person_id": "dm:2376088",
+      "username": "lucas.hall01",
+      "path": "raw/profiles/2376088.json",
+      "status": "cached",
+      "sha256": "eddee6d641c2f6c2a0d44fa03a2a560f3d8607d960d36c0b727d6e53ad776dee",
+      "fetched_at": "2026-11-18T19:37:00.243608+00:00"
+    },
+    {
+      "person_id": "dm:1450988",
+      "username": "robert.jones",
+      "path": "raw/profiles/1450988.json",
+      "status": "cached",
+      "sha256": "39bbad087c7d327f0a435066bc9885ce9b47bf2f49dc76efd6ce1ed1f99f488d",
+      "fetched_at": "2026-11-18T19:37:00.932807+00:00"
+    },
+    {
+      "person_id": "dm:2705150",
+      "username": "ryan.lechtenberg01",
+      "path": "raw/profiles/2705150.json",
+      "status": "cached",
+      "sha256": "2b0513daa315256f6d6b03de3cbab82542ac254478827fcf2595cea53fb605e9",
+      "fetched_at": "2026-11-18T19:37:02.181524+00:00"
+    },
+    {
+      "person_id": "dm:1811368",
+      "username": "hansheng.lei",
+      "path": "raw/profiles/1811368.json",
+      "status": "cached",
+      "sha256": "5c5b33b1e1d7459165924283a5340659122e2e3b8b2714093fd31c5e53699bfd",
+      "fetched_at": "2026-11-18T19:37:05.148487+00:00"
+    },
+    {
+      "person_id": "dm:1811423",
+      "username": "domingo.molina",
+      "path": "raw/profiles/1811423.json",
+      "status": "cached",
+      "sha256": "bea6fe9c4cdc3ee0fa823966a0a4d9b97ad09153034398fa8089bbbc76779fcc",
+      "fetched_at": "2026-11-18T19:37:05.817137+00:00"
+    },
+    {
+      "person_id": "dm:1811478",
+      "username": "jose.poveda",
+      "path": "raw/profiles/1811478.json",
+      "status": "cached",
+      "sha256": "b97d8ca7878b4f68e3f519c2f5812d519f56b4700082a24dd6a8ab7b8b9032c5",
+      "fetched_at": "2026-11-18T19:37:08.494186+00:00"
+    },
+    {
+      "person_id": "dm:1811488",
+      "username": "mahmoud.quweider",
+      "path": "raw/profiles/1811488.json",
+      "status": "cached",
+      "sha256": "19f67e7d5057bf740612cd832160899386c1d05b898d522dcd21ed8fbca46522",
+      "fetched_at": "2026-11-18T19:37:09.219775+00:00"
+    },
+    {
+      "person_id": "dm:2346702",
+      "username": "yessenia.rodriguez01",
+      "path": "raw/profiles/2346702.json",
+      "status": "cached",
+      "sha256": "0ee2dfa982f5bfe40965b633219ad3f61ab1060b1eda8153ab883b29d4ce4c62",
+      "fetched_at": "2026-11-18T19:37:10.610334+00:00"
+    },
+    {
+      "person_id": "dm:1811539",
+      "username": "bari.siddique",
+      "path": "raw/profiles/1811539.json",
+      "status": "cached",
+      "sha256": "eec2b4c5545135b66c957058d9780312ada5c21589b30a85e47bbd773e0bdcb9",
+      "fetched_at": "2026-11-18T19:37:13.616310+00:00"
+    },
+    {
+      "person_id": "dm:1811608",
+      "username": "liyu.zhang",
+      "path": "raw/profiles/1811608.json",
+      "status": "cached",
+      "sha256": "dcb1565eeb10f62c45288e798e1464e280e5977236e1f9a0b527bc0f471e6bd1",
+      "fetched_at": "2026-11-18T19:37:16.582129+00:00"
+    }
+  ]
+}

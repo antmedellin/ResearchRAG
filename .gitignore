@@ -10,3 +10,6 @@ data/documents/*
 *.zip
 
 ollama_storage/
+tei_data/
+
+*Zone.Identifier

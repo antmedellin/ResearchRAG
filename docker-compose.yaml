@@ -94,7 +94,17 @@ services:
           echo "Creating collection ${QDRANT_COLLECTION}"
           curl -fsS -X PUT http://qdrant:6333/collections/${QDRANT_COLLECTION} \
             -H "Content-Type: application/json" \
-            -d '{"vectors":{"default":{"distance":"Dot","size":${DENSE_EMBED_DIMENSION:?Set DENSE_EMBED_DIMENSION in .env}}},"sparse_vectors":{"bm42":{"modifier":"idf"}}}'
+            -d '{"vectors":{"default":{"distance":"Cosine","size":${DENSE_EMBED_DIMENSION:-1024}}},"sparse_vectors":{"bm25":{"modifier":"idf"}}}'
+          echo
+        fi
+
+        if curl -fsS http://qdrant:6333/collections/${QDRANT_TEST_COLLECTION} >/dev/null; then
+          echo "Collection ${QDRANT_TEST_COLLECTION} already exists"
+        else
+          echo "Creating collection ${QDRANT_TEST_COLLECTION}"
+          curl -fsS -X PUT http://qdrant:6333/collections/${QDRANT_TEST_COLLECTION} \
+            -H "Content-Type: application/json" \
+            -d '{"vectors":{"default":{"distance":"Cosine","size":${DENSE_EMBED_DIMENSION:-1024}}},"sparse_vectors":{"bm25":{"modifier":"idf"}}}'
           echo
         fi
   ollama:
@@ -113,14 +123,54 @@ services:
     networks:
       - backend
     environment:
-      DENSE_EMBEDDING_URL: ${DENSE_EMBEDDING_URL:-http://ollama:11434/api/embeddings}
+      DENSE_EMBEDDING_URL: ${DENSE_EMBEDDING_URL:-http://ollama:11434/api/embed}
       DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL:-mxbai-embed-large:335m}
       QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
       QDRANT_TEST_COLLECTION: ${QDRANT_TEST_COLLECTION:-researcher_rag_smoke_test}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-researcher_rag}
+      BM25_AVG_LEN: ${BM25_AVG_LEN:-70}
+      CHAT_URL: ${CHAT_URL:-http://ollama:11434/api/chat}
+      CHAT_MODEL: ${CHAT_MODEL:-gemma4:12b}
+      RERANK_URL: ${RERANK_URL:-http://reranker:80/rerank}
+      RERANK_MODEL: ${RERANK_MODEL}
+      RERANK_CANDIDATES: ${RERANK_CANDIDATES:-20}
+      RAG_TOP_K: ${RAG_TOP_K:-5}
+      RERANK_MIN_SCORE: ${RERANK_MIN_SCORE:-0.05}
+      NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
+      NEO4J_USERNAME: ${NEO4J_USERNAME:?missing}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?missing}
+      NEO4J_DATABASE: ${NEO4J_DATABASE:-neo4j}
+      PYTHONPATH: /app/src
+      RP_COLLECTION: ${RP_COLLECTION:-rp_chunks}
+      DECISION_URL: ${DECISION_URL:-http://ollama:11434/api/chat}
+      DECISION_MODEL: ${DECISION_MODEL:-}
+      OPENALEX_MAILTO: ${OPENALEX_MAILTO:-}
+      # PYTHONPATH: /app/src
+      RAG_REPO_ROOT: /app
+    volumes:
+      - ./fastembed_cache:/cache/fastembed
+      - ./src:/app/src    
+      - ./config:/app/config
+      - ./data:/app/data      
+      - ./tests:/app/tests
+    working_dir: /app
+    # command: ["sleep", "infinity"]
+    command: ["python", "-m", "uvicorn", "research_portfolio.web.app:app", "--host", "0.0.0.0", "--port", "8080"]
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+    restart: unless-stopped
     depends_on:
       qdrant:
         condition: service_healthy
+      qdrant-init:
+        condition: service_completed_successfully
       ollama:
+        condition: service_healthy
+      ollama-init:
+        condition: service_completed_successfully
+      reranker:
+        condition: service_healthy
+      neo4j:
         condition: service_healthy
 
   neo4j:
@@ -145,3 +195,23 @@ services:
     environment:
       NEO4J_AUTH: ${NEO4J_USERNAME:?missing}/${NEO4J_PASSWORD:?missing}
       NEO4J_dbms_default__database: "neo4j"
+    
+  reranker:
+    image: ${TEI_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:120-1.9}
+    container_name: reranker
+    networks:
+      - backend
+    restart: unless-stopped
+    command: ["--model-id", "${RERANK_MODEL}", "--port", "80"]
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - ./tei_data:/data             
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/80 && printf \"GET /health HTTP/1.1\\r\\nHost: x\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && grep -q \"200 OK\" <&3'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s               
+    gpus: all                        
+

@@ -1,0 +1,24 @@
+{
+  "run_id": "20261119T001617Z",
+  "department_slug": "ce",
+  "status": "validated",
+  "started_at": "2026-11-19T00:16:17.539606+00:00",
+  "policy": {
+    "version": "1.0",
+    "auto_fuzzy_threshold": 96,
+    "clef_same_threshold": 0.85,
+    "decision_model_env": "DECISION_MODEL",
+    "department_ownership": "graph-derived"
+  },
+  "events": [
+    {
+      "status": "vectors_written",
+      "at": "2026-11-19T00:16:59.489804+00:00"
+    },
+    {
+      "status": "validated",
+      "at": "2026-11-19T00:16:59.993070+00:00"
+    }
+  ],
+  "finished_at": "2026-11-19T00:16:59.993086+00:00"
+}

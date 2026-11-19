@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "stage": "discover_faculty",
+  "retrieved_at": "2026-11-18T22:50:32.693904+00:00",
+  "institution": "University of Texas Rio Grande Valley",
+  "department": {
+    "slug": "fine-arts",
+    "name": "College of Fine Arts",
+    "matched_names": [
+      "College of Fine Arts"
+    ]
+  },
+  "source": {
+    "url": "https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList",
+    "raw_snapshot": "raw/directory_20261118T225032Z.json",
+    "sha256": "f0462dbb0fc4ce0d8939c0179dbe491655915630dfd350ed6f14e2287a0c3e5d",
+    "records_in_source": 1870
+  },
+  "count": 1,
+  "skipped_incomplete": [],
+  "faculty": [
+    {
+      "person_id": "dm:2629230",
+      "dm_user_id": "2629230",
+      "username": "shay.nelson",
+      "display_name": "Shay Nelson",
+      "given_name": "Shay",
+      "middle_name": null,
+      "family_name": "Nelson",
+      "rank": "Staff",
+      "dm_departments": [
+        "College of Fine Arts"
+      ]
+    }
+  ]
+}

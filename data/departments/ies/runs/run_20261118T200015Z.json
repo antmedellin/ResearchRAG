@@ -1,0 +1,24 @@
+{
+  "run_id": "20261118T200015Z",
+  "department_slug": "ies",
+  "status": "validated",
+  "started_at": "2026-11-18T20:00:15.716287+00:00",
+  "policy": {
+    "version": "1.0",
+    "auto_fuzzy_threshold": 96,
+    "clef_same_threshold": 0.85,
+    "decision_model_env": "DECISION_MODEL",
+    "department_ownership": "graph-derived"
+  },
+  "events": [
+    {
+      "status": "vectors_written",
+      "at": "2026-11-18T20:00:26.352789+00:00"
+    },
+    {
+      "status": "validated",
+      "at": "2026-11-18T20:00:26.858340+00:00"
+    }
+  ],
+  "finished_at": "2026-11-18T20:00:26.858358+00:00"
+}

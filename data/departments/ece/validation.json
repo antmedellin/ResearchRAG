@@ -1,0 +1,73 @@
+{
+  "department": "ece",
+  "passed": true,
+  "checks": [
+    {
+      "name": "roster_membership",
+      "status": "pass",
+      "actual": 24,
+      "expected": 24
+    },
+    {
+      "name": "graph_entities_have_contributors",
+      "status": "pass",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "identity_key_cardinality",
+      "status": "pass",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "research_entities_missing_qdrant",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "qdrant_entities_missing_graph",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "searchable_people_missing_qdrant",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "text_poor_people_without_qdrant",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "text_poor_faculty",
+      "status": "warning",
+      "actual": [
+        "Anna Gegenava",
+        "Lei Cheng",
+        "Luis Castanuela",
+        "Orune Aminul"
+      ],
+      "expected": []
+    },
+    {
+      "name": "publications_without_abstract",
+      "status": "warning",
+      "actual": 663,
+      "expected": 0
+    }
+  ],
+  "summary": {
+    "roster_people": 24,
+    "research_entities": 1051,
+    "qdrant_entities": 1075,
+    "qdrant_points": 1167,
+    "people_without_qdrant": 0,
+    "publications_without_abstract": 663
+  }
+}

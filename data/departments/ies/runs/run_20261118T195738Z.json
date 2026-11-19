@@ -1,0 +1,69 @@
+{
+  "started_at": "2026-11-18T19:57:38.107579+00:00",
+  "department": "ies",
+  "apply": false,
+  "quality": {
+    "people": 17,
+    "profiles_missing": [],
+    "text_poor": [
+      "Md Al Amin",
+      "Lucas Dominic Hall",
+      "Ryan Lee Lechtenberg",
+      "Yessenia Rodriguez"
+    ],
+    "rejected_dm_user_ids": 5,
+    "suspicious": [
+      {
+        "kind": "publication",
+        "title": "A Deep Dive into FAT-32 Windows File System: A Digital Forensics Perspective",
+        "owner": "dm:1811368",
+        "issue": "owner_claim"
+      },
+      {
+        "kind": "publication",
+        "title": "Development of Senior Design & Internship Integrated University-Industry Collaborative Program to address the skills gap in Advanced Manufacturing",
+        "owner": "dm:1962784",
+        "issue": "owner_claim"
+      }
+    ],
+    "publications": 305,
+    "grants": 143,
+    "presentations": 90,
+    "publications_with_abstract": 80,
+    "grants_with_abstract": 95,
+    "presentations_with_abstract": 16,
+    "publications_with_doi": 44,
+    "grant_status": {
+      "Currently Under Review": 11,
+      "unknown": 29,
+      "Not Funded": 39,
+      "Funded": 62,
+      "Submission Planned in Near Future": 2
+    }
+  },
+  "dedup": {
+    "publication": {
+      "ledger": 305,
+      "canonical": 299,
+      "new": 294,
+      "key": 6,
+      "fuzzy": 2,
+      "llm": 3
+    },
+    "grant": {
+      "ledger": 143,
+      "canonical": 139,
+      "new": 133,
+      "key": 7,
+      "llm": 2,
+      "fuzzy": 1
+    },
+    "presentation": {
+      "ledger": 90,
+      "canonical": 90,
+      "new": 89,
+      "key": 1
+    }
+  },
+  "finished_at": "2026-11-18T19:57:41.115622+00:00"
+}

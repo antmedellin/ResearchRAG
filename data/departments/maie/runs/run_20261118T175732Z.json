@@ -1,0 +1,85 @@
+{
+  "started_at": "2026-11-18T17:57:32.322683+00:00",
+  "department": "maie",
+  "apply": true,
+  "quality": {
+    "people": 15,
+    "profiles_missing": [],
+    "text_poor": [
+      "Ahmed Ben Daouia",
+      "Majid Hosseini",
+      "Lesly Orozco-Zarate"
+    ],
+    "rejected_dm_user_ids": 60,
+    "suspicious": [
+      {
+        "kind": "publication",
+        "title": "INDIRECT ANALYSIS OF INJECTION MOLDING USING FLOW SIMULATION",
+        "owner": "dm:1451016",
+        "issue": "owner_claim"
+      },
+      {
+        "kind": "publication",
+        "title": "Mechanics of Chip Formation during the Machining of Hardened Steel",
+        "owner": "dm:1592411",
+        "issue": "owner_given_name"
+      },
+      {
+        "kind": "grant",
+        "title": "Extending Life of Cutting Tool Inserts with Surface Functionalization",
+        "owner": "dm:1592411",
+        "issue": "owner_given_name"
+      },
+      {
+        "kind": "presentation",
+        "title": "INDIRECT ANALYSIS OF INJECTION MOLDING USING FLOW SIMULATION",
+        "owner": "dm:1451016",
+        "issue": "owner_claim"
+      }
+    ],
+    "publications": 451,
+    "grants": 242,
+    "presentations": 173,
+    "publications_with_abstract": 69,
+    "grants_with_abstract": 107,
+    "presentations_with_abstract": 7,
+    "publications_with_doi": 112,
+    "grant_status": {
+      "Not Funded": 71,
+      "Funded": 86,
+      "Currently Under Review": 25,
+      "unknown": 56,
+      "Submission Planned in Near Future": 4
+    }
+  },
+  "dedup": {
+    "publication": {
+      "ledger": 451,
+      "canonical": 446,
+      "key": 451
+    },
+    "grant": {
+      "ledger": 242,
+      "canonical": 235,
+      "key": 242
+    },
+    "presentation": {
+      "ledger": 173,
+      "canonical": 172,
+      "key": 173
+    }
+  },
+  "neo4j": {
+    "run": "20261118T175732Z",
+    "departed": 0,
+    "removed_entities": 0,
+    "slug_changes": 0,
+    "faculty_count": 15
+  },
+  "qdrant": {
+    "chunks": 950,
+    "avg_words": 64.0,
+    "collection_points": 950
+  },
+  "finished_at": "2026-11-18T17:57:46.230737+00:00"
+}

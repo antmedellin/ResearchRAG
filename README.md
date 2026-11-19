@@ -1,6 +1,8 @@
 # Local ResearcherRAG
 
-This system is designed to run locally on your machine with a local LLM and vector database. It creates a knowledge base from your documents and allows you to ask questions about them. It uses a hybrid approach of vector search and BM25 search to find relevant documents, and then uses a local LLM to generate answers.
+Faculty research portfolio from Digital Measures -> Neo4j (graph) + Qdrant (hybrid BM25 + dense search).
+Departments are loaded one at a time; shared people/publications/grants are deduplicated across departments.
+
 
 
 veify can read .env file
@@ -14,9 +16,9 @@ docker compose --env-file .env up -d
 
 
 test embedding endpoint
-curl http://localhost:11434/api/embeddings -d '{
+curl http://localhost:11434/api/embed -d '{
   "model": "mxbai-embed-large:335m",
-  "prompt": "Represent this sentence for searching relevant passages: The sky is blue because of Rayleigh scattering"
+  "input": "Represent this sentence for searching relevant passages: The sky is blue because of Rayleigh scattering"
 }'
 
 test decision endpoint
@@ -49,3 +51,83 @@ curl -i http://localhost:11434/v1/chat/completions \
       }
     ]
   }'
+
+
+
+
+
+docker compose up -d --force-recreate user_app
+
+
+
+# step 0 lists all departments and number of faculty in each 
+docker compose exec user_app python src/research_portfolio/ledger/discover_faculty.py --config config/departments/maie.yaml --list-departments
+
+# step 1 discover faculty in dept  
+docker compose exec user_app python src/research_portfolio/ledger/discover_faculty.py \
+  --config config/departments/maie.yaml
+
+# step 2
+docker compose exec user_app python src/research_portfolio/ledger/fetch_profiles.py --config config/departments/maie.yaml
+
+# step 3
+docker compose exec user_app python src/research_portfolio/ledger/build_ledger.py --config config/departments/maie.yaml
+
+# step 4 dry run 
+docker compose exec user_app python src/research_portfolio/run_department.py \
+  --config config/departments/maie.yaml --skip-discover --skip-fetch
+
+# step 5 ingest into graph qdrant
+docker compose exec user_app python src/research_portfolio/run_department.py \
+  --config config/departments/maie.yaml \
+  --skip-discover --skip-fetch \
+  --apply
+
+# step 6 validate
+docker compose exec user_app python \
+  -m research_portfolio.workflow.validate_department \
+  --config config/departments/ies.yaml
+
+# ask questions / query 
+ask questions 
+docker compose exec user_app python src/research_portfolio/retrieval/search.py \
+  "What are dr Moya research expertise?" \
+  --person "Hiram Moya" \
+  --ask
+
+
+docker compose exec user_app python src/research_portfolio/retrieval/search.py \
+  "additive manufacturing and advanced manufacturing for defense applications" \
+  --faculty \
+  --dept maie
+
+
+docker compose exec user_app python \
+  src/research_portfolio/retrieval/search.py \
+  "publications" \
+  --person "Hiram Moya" \
+  --list-publications \
+  --limit 20 \
+  --since 2020 
+ 
+docker compose exec user_app python src/research_portfolio/retrieval/search.py \
+  "advanced manufacturing defense research" \
+  --types grant --funded
+
+
+
+Faculty matching should eventually be multi-signal
+
+ Plain Text
+Candidate = Hiram Moya
+ 
+Technical relevance 0.83
+Past grant relevance 0.91
+Sponsor experience DHS
+Recent activity 0.71
+Collaboration/team fit 0.86
+Evidence strength 0.89
+
+verify openalex, vllm, lamma swap 
+
+click start job keeps reverting to fine arts instead saying on dept

@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "stage": "discover_faculty",
+  "retrieved_at": "2026-11-18T23:45:09.650932+00:00",
+  "institution": "University of Texas Rio Grande Valley",
+  "department": {
+    "slug": "me",
+    "name": "Department of Mechanical Engineering",
+    "matched_names": [
+      "Department of Mechanical Engineering"
+    ]
+  },
+  "source": {
+    "url": "https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList",
+    "raw_snapshot": "raw/directory_20261118T234509Z.json",
+    "sha256": "f0462dbb0fc4ce0d8939c0179dbe491655915630dfd350ed6f14e2287a0c3e5d",
+    "records_in_source": 1870
+  },
+  "count": 33,
+  "skipped_incomplete": [],
+  "faculty": [
+    {
+      "person_id": "dm:1587300",
+      "dm_user_id": "1587300",
+      "username": "mataz.alcoutlabi",
+      "display_name": "Mataz Yehia Alcoutlabi",
+      "given_name": "Mataz",
+      "middle_name": "Yehia",
+      "family_name": "Alcoutlabi",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1950294",
+      "dm_user_id": "1950294",
+      "username": "rogelio.benitez",
+      "display_name": "Rogelio Benitez",
+      "given_name": "Rogelio",
+      "middle_name": null,
+      "family_name": "Benitez",
+      "rank": "Associate Professor of Practice",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2201389",
+      "dm_user_id": "2201389",
+      "username": "jacob.bensen01",
+      "display_name": "Jacob Nathaniel Bensen",
+      "given_name": "Jacob",
+      "middle_name": "Nathaniel",
+      "family_name": "Bensen",
+      "rank": "Lecturer II",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1819807",
+      "dm_user_id": "1819807",
+      "username": "lawrence.cano",
+      "display_name": "Lawrence Cano",
+      "given_name": "Lawrence",
+      "middle_name": null,
+      "family_name": "Cano",
+      "rank": "Lecturer III",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450754",
+      "dm_user_id": "1450754",
+      "username": "dumitru.caruntu",
+      "display_name": "Dumitru Caruntu",
+      "given_name": "Dumitru",
+      "middle_name": null,
+      "family_name": "Caruntu",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450772",
+      "dm_user_id": "1450772",
+      "username": "isaac.palli",
+      "display_name": "Isaac Manohar Choutapalli",
+      "given_name": "Isaac",
+      "middle_name": "Manohar",
+      "family_name": "Choutapalli",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450873",
+      "dm_user_id": "1450873",
+      "username": "robert.freeman",
+      "display_name": "Robert Arthur Freeman",
+      "given_name": "Robert",
+      "middle_name": "Arthur",
+      "family_name": "Freeman",
+      "rank": "Dean",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450876",
+      "dm_user_id": "1450876",
+      "username": "arturo.fuentes",
+      "display_name": "Arturo Alejandro Fuentes",
+      "given_name": "Arturo",
+      "middle_name": "Alejandro",
+      "family_name": "Fuentes",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2449253",
+      "dm_user_id": "2449253",
+      "username": "mohammad.islam",
+      "display_name": "Mohammad Refatul Islam",
+      "given_name": "Mohammad",
+      "middle_name": "Refatul",
+      "family_name": "Islam",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2654041",
+      "dm_user_id": "2654041",
+      "username": "gyu.leem",
+      "display_name": "Gyu Leem",
+      "given_name": "Gyu",
+      "middle_name": null,
+      "family_name": "Leem",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1819805",
+      "dm_user_id": "1819805",
+      "username": "jazmin.ley",
+      "display_name": "Jazmin Ley",
+      "given_name": "Jazmin",
+      "middle_name": null,
+      "family_name": "Ley",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2697253",
+      "dm_user_id": "2697253",
+      "username": "junghsen.lieh",
+      "display_name": "Junghsen Lieh",
+      "given_name": "Junghsen",
+      "middle_name": null,
+      "family_name": "Lieh",
+      "rank": "Full Professor of Practice",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2318259",
+      "dm_user_id": "2318259",
+      "username": "eleazar.marquez01",
+      "display_name": "Eleazar Marquez",
+      "given_name": "Eleazar",
+      "middle_name": null,
+      "family_name": "Marquez",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2201390",
+      "dm_user_id": "2201390",
+      "username": "misael.e.martinez01",
+      "display_name": "Misael Eduardo Martinez",
+      "given_name": "Misael",
+      "middle_name": "Eduardo",
+      "family_name": "Martinez",
+      "rank": "Lecturer II",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2545010",
+      "dm_user_id": "2545010",
+      "username": "sergio.martinez12",
+      "display_name": "Sergio Miguel Martinez",
+      "given_name": "Sergio",
+      "middle_name": "Miguel",
+      "family_name": "Martinez",
+      "rank": "Staff Teaching Part-Time",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2705661",
+      "dm_user_id": "2705661",
+      "username": "julia.salas01",
+      "display_name": "Julia I Menchaca",
+      "given_name": "Julia",
+      "middle_name": "I",
+      "family_name": "Menchaca",
+      "rank": "Staff Teaching Part-Time",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1587302",
+      "dm_user_id": "1587302",
+      "username": "javier.ortega",
+      "display_name": "Javier Alonzo Ortega",
+      "given_name": "Javier",
+      "middle_name": "Alonzo",
+      "family_name": "Ortega",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2445981",
+      "dm_user_id": "2445981",
+      "username": "victoria.padilla",
+      "display_name": "Victoria Maria Padilla Gainza",
+      "given_name": "Victoria",
+      "middle_name": "Maria",
+      "family_name": "Padilla Gainza",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1451161",
+      "dm_user_id": "1451161",
+      "username": "gregory.potter",
+      "display_name": "Gregory A Potter",
+      "given_name": "Gregory",
+      "middle_name": "A",
+      "family_name": "Potter",
+      "rank": "Lecturer III",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2032759",
+      "dm_user_id": "2032759",
+      "username": "maysam.pournik",
+      "display_name": "Maysam Pournik",
+      "given_name": "Maysam",
+      "middle_name": null,
+      "family_name": "Pournik",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1223080",
+      "dm_user_id": "1223080",
+      "username": "ala.qubbaj",
+      "display_name": "Ala Rafat Qubbaj",
+      "given_name": "Ala",
+      "middle_name": "Rafat",
+      "family_name": "Qubbaj",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1451175",
+      "dm_user_id": "1451175",
+      "username": "samantha.ramirez",
+      "display_name": "Samantha Jean Ramirez",
+      "given_name": "Samantha",
+      "middle_name": "Jean",
+      "family_name": "Ramirez",
+      "rank": "Senior Lecturer",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1962357",
+      "dm_user_id": "1962357",
+      "username": "jose.j.sanchez01",
+      "display_name": "Jesus Sanchez",
+      "given_name": "Jesus",
+      "middle_name": null,
+      "family_name": "Sanchez",
+      "rank": "Lecturer III",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2633543",
+      "dm_user_id": "2633543",
+      "username": "novonil.sen",
+      "display_name": "Novonil Sen",
+      "given_name": "Novonil",
+      "middle_name": null,
+      "family_name": "Sen",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2261876",
+      "dm_user_id": "2261876",
+      "username": "jose.taha",
+      "display_name": "Jose Jaime Taha Tijerina",
+      "given_name": "Jose",
+      "middle_name": "Jaime",
+      "family_name": "Taha Tijerina",
+      "rank": "Associate Professor of Practice",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1451295",
+      "dm_user_id": "1451295",
+      "username": "constantine.tarawneh",
+      "display_name": "Constantine Mohammad Tarawneh",
+      "given_name": "Constantine",
+      "middle_name": "Mohammad",
+      "family_name": "Tarawneh",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2634283",
+      "dm_user_id": "2634283",
+      "username": "alfirio.trejo01",
+      "display_name": "Alfirio Trejo",
+      "given_name": "Alfirio",
+      "middle_name": null,
+      "family_name": "Trejo",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1950282",
+      "dm_user_id": "1950282",
+      "username": "noe.vargas",
+      "display_name": "Noe Vargas Hernandez",
+      "given_name": "Noe",
+      "middle_name": null,
+      "family_name": "Vargas Hernandez",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1451316",
+      "dm_user_id": "1451316",
+      "username": "horacio.vasquez",
+      "display_name": "Horacio Vasquez",
+      "given_name": "Horacio",
+      "middle_name": null,
+      "family_name": "Vasquez",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1819806",
+      "dm_user_id": "1819806",
+      "username": "marcos.villarreal02",
+      "display_name": "Marcos Rene Villarreal",
+      "given_name": "Marcos",
+      "middle_name": "Rene",
+      "family_name": "Villarreal",
+      "rank": "Lecturer III",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2526912",
+      "dm_user_id": "2526912",
+      "username": "weiguang.yang",
+      "display_name": "Weiguang Yang",
+      "given_name": "Weiguang",
+      "middle_name": null,
+      "family_name": "Yang",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1811597",
+      "dm_user_id": "1811597",
+      "username": "yingchen.yang",
+      "display_name": "Yingchen Yang",
+      "given_name": "Yingchen",
+      "middle_name": null,
+      "family_name": "Yang",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2370674",
+      "dm_user_id": "2370674",
+      "username": "nadim.zgheib",
+      "display_name": "Nadim Zgheib",
+      "given_name": "Nadim",
+      "middle_name": null,
+      "family_name": "Zgheib",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Mechanical Engineering"
+      ]
+    }
+  ]
+}

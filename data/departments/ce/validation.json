@@ -1,0 +1,71 @@
+{
+  "department": "ce",
+  "passed": true,
+  "checks": [
+    {
+      "name": "roster_membership",
+      "status": "pass",
+      "actual": 22,
+      "expected": 22
+    },
+    {
+      "name": "graph_entities_have_contributors",
+      "status": "pass",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "identity_key_cardinality",
+      "status": "pass",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "research_entities_missing_qdrant",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "qdrant_entities_missing_graph",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "searchable_people_missing_qdrant",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "text_poor_people_without_qdrant",
+      "status": "pass",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "text_poor_faculty",
+      "status": "warning",
+      "actual": [
+        "Heriberto Cavazos",
+        "Jinwoo An"
+      ],
+      "expected": []
+    },
+    {
+      "name": "publications_without_abstract",
+      "status": "warning",
+      "actual": 296,
+      "expected": 0
+    }
+  ],
+  "summary": {
+    "roster_people": 22,
+    "research_entities": 680,
+    "qdrant_entities": 702,
+    "qdrant_points": 782,
+    "people_without_qdrant": 0,
+    "publications_without_abstract": 296
+  }
+}

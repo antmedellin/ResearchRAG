@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "stage": "discover_faculty",
+  "retrieved_at": "2026-11-19T00:20:20.203909+00:00",
+  "institution": "University of Texas Rio Grande Valley",
+  "department": {
+    "slug": "ece",
+    "name": "Department of Electrical and Computer Engineering",
+    "matched_names": [
+      "Department of Electrical and Computer Engineering"
+    ]
+  },
+  "source": {
+    "url": "https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList",
+    "raw_snapshot": "raw/directory_20261119T002020Z.json",
+    "sha256": "f0462dbb0fc4ce0d8939c0179dbe491655915630dfd350ed6f14e2287a0c3e5d",
+    "records_in_source": 1870
+  },
+  "count": 24,
+  "skipped_incomplete": [],
+  "faculty": [
+    {
+      "person_id": "dm:2449252",
+      "dm_user_id": "2449252",
+      "username": "fahmida.alam",
+      "display_name": "Fahmida Alam",
+      "given_name": "Fahmida",
+      "middle_name": null,
+      "family_name": "Alam",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2464961",
+      "dm_user_id": "2464961",
+      "username": "orune.aminul01",
+      "display_name": "Orune Aminul",
+      "given_name": "Orune",
+      "middle_name": null,
+      "family_name": "Aminul",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450711",
+      "dm_user_id": "1450711",
+      "username": "mounir.benghalia",
+      "display_name": "Mounir Ben Ghalia",
+      "given_name": "Mounir",
+      "middle_name": null,
+      "family_name": "Ben Ghalia",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2109038",
+      "dm_user_id": "2109038",
+      "username": "laura.benitez",
+      "display_name": "Laura Elena Benitez",
+      "given_name": "Laura",
+      "middle_name": "Elena",
+      "family_name": "Benitez",
+      "rank": "Lecturer III",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2455111",
+      "dm_user_id": "2455111",
+      "username": "luis.castanuela01",
+      "display_name": "Luis Castanuela",
+      "given_name": "Luis",
+      "middle_name": null,
+      "family_name": "Castanuela",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2374657",
+      "dm_user_id": "2374657",
+      "username": "chuwen.cheng01",
+      "display_name": "Chu-Wen Cheng",
+      "given_name": "Chu-Wen",
+      "middle_name": null,
+      "family_name": "Cheng",
+      "rank": "Assistant Professor of Practice",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2698601",
+      "dm_user_id": "2698601",
+      "username": "lei.cheng",
+      "display_name": "Lei Cheng",
+      "given_name": "Lei",
+      "middle_name": null,
+      "family_name": "Cheng",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1478888",
+      "dm_user_id": "1478888",
+      "username": "paul.choi",
+      "display_name": "Paul Yoonsu Choi",
+      "given_name": "Paul",
+      "middle_name": "Yoonsu",
+      "family_name": "Choi",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450774",
+      "dm_user_id": "1450774",
+      "username": "mark.chu",
+      "display_name": "Mark Yul Chu",
+      "given_name": "Mark",
+      "middle_name": "Yul",
+      "family_name": "Chu",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1912514",
+      "dm_user_id": "1912514",
+      "username": "alexander.domijan",
+      "display_name": "Alexander Domijan",
+      "given_name": "Alexander",
+      "middle_name": null,
+      "family_name": "Domijan",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450823",
+      "dm_user_id": "1450823",
+      "username": "wenjie.dong",
+      "display_name": "Wenjie Dong",
+      "given_name": "Wenjie",
+      "middle_name": null,
+      "family_name": "Dong",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2634282",
+      "dm_user_id": "2634282",
+      "username": "anna.gegenava",
+      "display_name": "Anna Gegenava",
+      "given_name": "Anna",
+      "middle_name": null,
+      "family_name": "Gegenava",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1450970",
+      "dm_user_id": "1450970",
+      "username": "hasina.huq",
+      "display_name": "Hasina Fahmida Huq",
+      "given_name": "Hasina",
+      "middle_name": "Fahmida",
+      "family_name": "Huq",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2526589",
+      "dm_user_id": "2526589",
+      "username": "ahmed.jalal",
+      "display_name": "Ahmed Hasnain Jalal",
+      "given_name": "Ahmed",
+      "middle_name": "Hasnain",
+      "family_name": "Jalal",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1451003",
+      "dm_user_id": "1451003",
+      "username": "weidong.kuang",
+      "display_name": "Weidong Kuang",
+      "given_name": "Weidong",
+      "middle_name": null,
+      "family_name": "Kuang",
+      "rank": "Associate Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1451005",
+      "dm_user_id": "1451005",
+      "username": "sj.kumar",
+      "display_name": "Sanjeev Kumar",
+      "given_name": "Sanjeev",
+      "middle_name": null,
+      "family_name": "Kumar",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1657881",
+      "dm_user_id": "1657881",
+      "username": "andres.medina",
+      "display_name": "Andres Medina",
+      "given_name": "Andres",
+      "middle_name": null,
+      "family_name": "Medina",
+      "rank": "Lecturer III",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2632500",
+      "dm_user_id": "2632500",
+      "username": "yunsoo.park",
+      "display_name": "Yunsoo Park",
+      "given_name": "Yunsoo",
+      "middle_name": null,
+      "family_name": "Park",
+      "rank": "Lecturer I",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1451145",
+      "dm_user_id": "1451145",
+      "username": "jun.peng",
+      "display_name": "Jun Peng",
+      "given_name": "Jun",
+      "middle_name": null,
+      "family_name": "Peng",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2204131",
+      "dm_user_id": "2204131",
+      "username": "carlos.rodriguezbetancourth01",
+      "display_name": "Carlos Aparicio Rodriguez Betancourth",
+      "given_name": "Carlos",
+      "middle_name": "Aparicio",
+      "family_name": "Rodriguez Betancourth",
+      "rank": "Lecturer II",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2321157",
+      "dm_user_id": "2321157",
+      "username": "rogelio.soto",
+      "display_name": "Rogelio Soto",
+      "given_name": "Rogelio",
+      "middle_name": null,
+      "family_name": "Soto",
+      "rank": "Full Professor of Practice",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1819808",
+      "dm_user_id": "1819808",
+      "username": "nantakan.wongkasem",
+      "display_name": "Nantakan Wongkasem",
+      "given_name": "Nantakan",
+      "middle_name": null,
+      "family_name": "Wongkasem",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:2526914",
+      "dm_user_id": "2526914",
+      "username": "jinghao.yang",
+      "display_name": "Jinghao Yang",
+      "given_name": "Jinghao",
+      "middle_name": null,
+      "family_name": "Yang",
+      "rank": "Assistant Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    },
+    {
+      "person_id": "dm:1811611",
+      "dm_user_id": "1811611",
+      "username": "yong.zhou",
+      "display_name": "Yong Zhou",
+      "given_name": "Yong",
+      "middle_name": null,
+      "family_name": "Zhou",
+      "rank": "Full Professor",
+      "dm_departments": [
+        "Department of Electrical and Computer Engineering"
+      ]
+    }
+  ]
+}
