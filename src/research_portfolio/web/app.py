@@ -9,6 +9,7 @@ from fastapi import FastAPI,HTTPException,Query
 from fastapi.responses import FileResponse
 from neo4j import GraphDatabase
 from pydantic import BaseModel,field_validator
+from research_portfolio.matching.faculty_match import recommend as recommend_faculty_team
 from research_portfolio.common import fetch_json,dm_records,index_values
 from research_portfolio.retrieval import search as R
 
@@ -87,7 +88,7 @@ def query_one(q,dept,pid,types,mode,limit,since,grant_status,sponsor,investigato
 
 class QueryRequest(BaseModel):
     mode:Literal["answer","faculty","evidence","publications","grants","collaborators"]
-    query:str|None=None;department:str|None=None;person_ids:list[str]=[];types:list[str]=[];since:int|None=None;limit:int=8
+    query:str|None=None;department:str|None=None;person_ids:list[str]=[];types:list[str]=[];since:int|None=None;limit:int=50
     grant_status:str|None=None;sponsor:str|None=None;investigator_role:str|None=None
     publication_type:str|None=None;refereed:bool|None=None;has_abstract:bool|None=None
     @field_validator("types")
@@ -152,50 +153,52 @@ def filter_options(department:str|None=None,person_ids:list[str]=Query(default=[
     clean=lambda xs:sorted({str(x).strip() for x in (xs or []) if x not in (None,"")},key=str.casefold)
     return {"grant_statuses":clean(g.get("statuses")),"sponsors":clean(g.get("sponsors")),"investigator_roles":clean(g.get("roles")),"publication_types":clean(q.get("types"))}
 
+# structured_records_v13
+def structured_records(mode,people,since,limit,grant_status=None,sponsor=None,investigator_role=None,publication_type=None,refereed=None,has_abstract=None):
+    rows=[]
+    with graph() as d:
+        for p in people:
+            if mode=="grants":
+                recs,_,_=d.execute_query("""
+                  MATCH (p:Person {person_id:$pid})-[rel:INVESTIGATOR_ON]->(g:Grant)
+                  WHERE ($since IS NULL OR g.year >= $since)
+                    AND ($status IS NULL OR g.status=$status)
+                    AND ($sponsor IS NULL OR g.sponsor=$sponsor)
+                    AND ($role IS NULL OR rel.role=$role)
+                  RETURN p.display_name AS person,p.person_id AS person_id,g.title AS title,g.year AS year,
+                         g.status AS status,g.sponsor AS sponsor,rel.role AS role,g.amount AS amount,
+                         g.abstract AS abstract,g.id AS entity_id
+                  ORDER BY g.year DESC,toLower(g.title) LIMIT $limit
+                """,pid=p["person_id"],since=since,status=grant_status,sponsor=sponsor,role=investigator_role,limit=min(limit,500),database_=os.getenv("NEO4J_DATABASE","neo4j"))
+            elif mode=="publications":
+                recs,_,_=d.execute_query("""
+                  MATCH (p:Person {person_id:$pid})-[:AUTHORED]->(x:Publication)
+                  WHERE ($since IS NULL OR x.year >= $since)
+                    AND ($ptype IS NULL OR x.type=$ptype)
+                    AND ($refereed IS NULL OR coalesce(x.refereed,false)=$refereed)
+                    AND ($has_abs IS NULL OR (x.abstract IS NOT NULL AND trim(x.abstract)<>"")=$has_abs)
+                  RETURN p.display_name AS person,p.person_id AS person_id,x.title AS title,x.year AS year,
+                         x.type AS type,x.refereed AS refereed,x.publisher AS publisher,x.doi AS doi,
+                         x.abstract AS abstract,x.id AS entity_id
+                  ORDER BY x.year DESC,toLower(x.title) LIMIT $limit
+                """,pid=p["person_id"],since=since,ptype=publication_type,refereed=refereed,has_abs=has_abstract,limit=min(limit,500),database_=os.getenv("NEO4J_DATABASE","neo4j"))
+            else:
+                recs,_,_=d.execute_query("""
+                  MATCH (p:Person {person_id:$pid})-[:AUTHORED|INVESTIGATOR_ON|PRESENTED]->(x)<-[:AUTHORED|INVESTIGATOR_ON|PRESENTED]-(c:Person)
+                  WHERE c.person_id<>p.person_id
+                  RETURN p.display_name AS person,p.person_id AS person_id,c.display_name AS collaborator,
+                         c.person_id AS collaborator_id,count(DISTINCT x) AS shared
+                  ORDER BY shared DESC,collaborator LIMIT $limit
+                """,pid=p["person_id"],limit=min(limit,500),database_=os.getenv("NEO4J_DATABASE","neo4j"))
+            rows.extend(dict(x) for x in recs)
+    return {"kind":"records","record_type":mode[:-1] if mode.endswith("s") else mode,"records":rows}
+
 @app.post("/api/query")
 async def query(r:QueryRequest):
     people=[person(x) for x in r.person_ids]
     if r.mode in ("publications","grants","collaborators"):
-        if not people:raise HTTPException(400,"Select at least one person")
-        if r.mode=="publications" and (r.publication_type or r.refereed is not None or r.has_abstract is not None):
-            rows=[]
-            with graph() as d:
-                for p in people:
-                    recs,_,_=d.execute_query("""
-                      MATCH (p:Person {person_id:$pid})-[:AUTHORED]->(x:Publication)
-                      WHERE ($since IS NULL OR x.year >= $since)
-                        AND ($ptype IS NULL OR x.type=$ptype)
-                        AND ($refereed IS NULL OR coalesce(x.refereed,false)=$refereed)
-                        AND ($has_abs IS NULL OR (x.abstract IS NOT NULL AND trim(x.abstract)<>"")=$has_abs)
-                      RETURN p.display_name AS person,x.title AS title,x.year AS year,x.type AS type,
-                             x.refereed AS refereed,x.doi AS doi,x.id AS entity_id,
-                             (x.abstract IS NOT NULL AND trim(x.abstract)<>"") AS has_abstract
-                      ORDER BY x.year DESC,toLower(x.title) LIMIT $limit
-                    """,pid=p["person_id"],since=r.since,ptype=r.publication_type,refereed=r.refereed,has_abs=r.has_abstract,limit=min(r.limit,500),database_=os.getenv("NEO4J_DATABASE","neo4j"))
-                    rows.extend(dict(x) for x in recs)
-            return {"kind":"records","record_type":"publication","records":rows}
-        if r.mode=="grants" and (r.grant_status or r.sponsor or r.investigator_role):
-            rows=[]
-            with graph() as d:
-                for p in people:
-                    recs,_,_=d.execute_query("""
-                      MATCH (p:Person {person_id:$pid})-[rel:INVESTIGATOR_ON]->(g:Grant)
-                      WHERE ($since IS NULL OR g.year >= $since)
-                        AND ($status IS NULL OR g.status=$status)
-                        AND ($sponsor IS NULL OR g.sponsor=$sponsor)
-                        AND ($role IS NULL OR rel.role=$role)
-                      RETURN p.display_name AS person,g.title AS title,g.year AS year,g.status AS status,
-                             g.sponsor AS sponsor,rel.role AS role,g.id AS entity_id
-                      ORDER BY g.year DESC,toLower(g.title) LIMIT $limit
-                    """,pid=p["person_id"],since=r.since,status=r.grant_status,sponsor=r.sponsor,role=r.investigator_role,limit=min(r.limit,500),database_=os.getenv("NEO4J_DATABASE","neo4j"))
-                    rows.extend(dict(x) for x in recs)
-            return {"kind":"records","record_type":"grant","records":rows}
-        op={"publications":"--list-publications","grants":"--list-grants","collaborators":"--collaborators"}[r.mode];outs=[]
-        for p in people:
-            c=[sys.executable,"src/research_portfolio/retrieval/structured.py","--person",p["person_id"],op,"--limit",str(r.limit)]
-            if r.since:c+=["--since",str(r.since)]
-            proc=await asyncio.create_subprocess_exec(*c,cwd=ROOT,stdout=asyncio.subprocess.PIPE);o,_=await proc.communicate();outs.append(o.decode())
-        return {"kind":"text","output":"\n\n".join(outs)}
+        if not people: raise HTTPException(400,"Select at least one person")
+        return structured_records(r.mode,people,r.since,r.limit,r.grant_status,r.sponsor,r.investigator_role,r.publication_type,r.refereed,r.has_abstract)
     if not r.query:raise HTTPException(400,"Enter a question or topic")
     if len(people)>1:return {"kind":"comparison","results":[{"person":p,"result":await asyncio.to_thread(query_one,r.query,r.department,p["person_id"],r.types,r.mode,r.limit,r.since,r.grant_status,r.sponsor,r.investigator_role,r.publication_type,r.refereed,r.has_abstract)} for p in people]}
     return await asyncio.to_thread(query_one,r.query,r.department,people[0]["person_id"] if people else None,r.types,r.mode,r.limit,r.since,r.grant_status,r.sponsor,r.investigator_role,r.publication_type,r.refereed,r.has_abstract)
@@ -363,6 +366,11 @@ def graph_node(node_id:str):
         """,id=node_id,database_=os.getenv("NEO4J_DATABASE","neo4j"))
     if not rows: raise HTTPException(404,"Graph node not found")
     return dict(rows[0])
+
+@app.get("/api/faculty-match")
+def faculty_match(query:str,team_size:str="auto",top_people:int=15,top_teams:int=6):
+    if team_size!="auto" and (not team_size.isdigit() or not 2<=int(team_size)<=6):raise HTTPException(400,"team_size must be auto or 2-6")
+    return recommend_faculty_team(query,None,team_size,min(max(top_people,8),20),min(max(top_teams,2),6))
 
 @app.post("/api/jobs")
 async def jobs(r:JobRequest):
