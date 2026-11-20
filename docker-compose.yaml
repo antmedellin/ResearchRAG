@@ -156,7 +156,6 @@ services:
       - ./src:/app/src    
       - ./config:/app/config
       - ./data:/app/data      
-      - ./tests:/app/tests
     working_dir: /app
     # command: ["sleep", "infinity"]
     command: ["python", "-m", "uvicorn", "research_portfolio.web.app:app", "--host", "0.0.0.0", "--port", "8080"]
