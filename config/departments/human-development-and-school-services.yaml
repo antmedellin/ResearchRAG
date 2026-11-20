@@ -1,0 +1,11 @@
+institution: University of Texas Rio Grande Valley
+department_name: Department of Human Development and School Services
+department_slug: human-development-and-school-services
+sources:
+  faculty:
+    type: digital_measures
+    source_name: UTRGV Digital Measures
+    api_url: https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList
+    profile_api_url: https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMuser?username=
+    department_name: Department of Human Development and School Services
+    department_aliases: []

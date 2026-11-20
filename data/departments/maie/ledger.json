@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "stage": "build_ledger",
-  "generated_at": "2026-11-19T16:36:52.042021+00:00",
+  "generated_at": "2026-11-19T18:35:29.949531+00:00",
   "institution": "University of Texas Rio Grande Valley",
   "department": {
     "slug": "maie",
@@ -9,7 +9,7 @@
     "aliases": []
   },
   "inputs": {
-    "roster_retrieved_at": "2026-11-19T16:36:09.100939+00:00",
+    "roster_retrieved_at": "2026-11-19T18:35:29.840561+00:00",
     "profiles": {
       "dm:2270795": "e5435beeebdb444d31d8ad74e7b8465f5407010ddee4c4372ff2335e2eb72548",
       "dm:2449251": "b3a58b40f92822a8010dc8bf57b78bb5f1bcf1433a06bf1b7cb000a28c243a74",

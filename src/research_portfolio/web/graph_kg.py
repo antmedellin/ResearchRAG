@@ -174,24 +174,28 @@ def kg_meta():
 def kg_overview(limit: int = Query(300, ge=10, le=5000), labels: str = "",
                 rels: str = "", dept: str = ""):
     L, R = _csv(labels), _csv(rels)
-    if dept:
+    D = _csv(dept)                       # one or more department slugs (comma-separated)
+    if D:
         seeds = _run(
-            f"""MATCH (d:Department) WHERE d.slug = $dept OR d.name = $dept
+            f"""MATCH (d:Department) WHERE d.slug IN $depts OR d.name IN $depts
                 OPTIONAL MATCH (d)<-[:MEMBER_OF]-(p)
                 WITH collect(DISTINCT d) + collect(DISTINCT p) AS ns
                 UNWIND ns AS n WITH DISTINCT n WHERE n IS NOT NULL
-                RETURN {_node_ret()}""", dept=dept, labels=L, rels=R)
+                RETURN {_node_ret()}""", depts=D, labels=L, rels=R)
         seed_ids = [s["id"] for s in seeds]
         nb = _run(
             f"""MATCH (s) WHERE {_idf('s')} IN $seed
                 MATCH (s)-[r]-(n) WHERE {_rok('r')} AND {_lok('n')}
                       AND NOT {_idf('n')} IN $seed
+                      AND NOT n:Department
+                      AND (NOT n:Person OR size([(n)-[:MEMBER_OF]->(dd:Department)
+                           WHERE dd.slug IN $depts OR dd.name IN $depts | 1]) > 0)
                 WITH DISTINCT n
                 WITH n, {_deg('n')} AS degree ORDER BY degree DESC
                 WITH collect(n) AS ns_all, count(n) AS total
                 UNWIND ns_all[0..$lim] AS n
                 RETURN {_node_ret()}, total""",
-            seed=seed_ids, lim=max(0, limit - len(seeds)), labels=L, rels=R)
+            seed=seed_ids, depts=D, lim=max(0, limit - len(seeds)), labels=L, rels=R)
         total = len(seeds) + (nb[0]["total"] if nb else 0)
         return _graph(seeds + nb, R, L, total=total, mode="department", dept=dept)
 
@@ -266,6 +270,17 @@ def kg_search(q: str, limit: int = Query(20, ge=1, le=100), labels: str = ""):
     for o in out:
         o.pop("props", None)
     return out[:limit]
+
+
+@router.get("/api/kg/resolve")
+@_safe
+def kg_resolve(key: str):
+    """Map a domain key (Grant/Publication id, person_id, topic_id) to the graph node id."""
+    rows = _run(f"""MATCH (n) WHERE n.id = $k OR n.person_id = $k OR n.topic_id = $k
+                    RETURN {_idf('n')} AS id LIMIT 1""", k=key)
+    if not rows:
+        raise HTTPException(404, "node not found")
+    return {"id": rows[0]["id"]}
 
 
 @router.get("/api/kg/node")

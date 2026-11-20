@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "stage": "fetch_profiles",
+  "generated_at": "2026-11-20T01:37:31.779586+00:00",
+  "roster_retrieved_at": "2026-11-20T01:37:31.776042+00:00",
+  "profiles": [
+    {
+      "person_id": "dm:2041420",
+      "username": "hilda.baesa01",
+      "path": "raw/profiles/2041420.json",
+      "status": "fetched",
+      "sha256": "069d757e5d5bac1f801680cdce72215b9e5f4b9271b2dfce22c1d8cc30a64b5c",
+      "fetched_at": "2026-11-20T01:37:34.133762+00:00"
+    },
+    {
+      "person_id": "dm:1450898",
+      "username": "juliann.garza01",
+      "path": "raw/profiles/1450898.json",
+      "status": "fetched",
+      "sha256": "e74bbe2915eb33b9455e3bb27bf03ae614412f6e8eb579078a5adcec91a2cad6",
+      "fetched_at": "2026-11-20T01:37:34.768579+00:00"
+    },
+    {
+      "person_id": "dm:2328261",
+      "username": "nathalie.chacon",
+      "path": "raw/profiles/2328261.json",
+      "status": "fetched",
+      "sha256": "f630e179ff2be6c61265056b96319e8bd66d947f3bd0512a422cdf8d34b63415",
+      "fetched_at": "2026-11-20T01:37:35.393169+00:00"
+    },
+    {
+      "person_id": "dm:2615235",
+      "username": "heather.davis01",
+      "path": "raw/profiles/2615235.json",
+      "status": "fetched",
+      "sha256": "c33f3552864817e9a75ffb4aeeb066d5d9712ace6650d1d88445354f451cc02a",
+      "fetched_at": "2026-11-20T01:37:36.006459+00:00"
+    },
+    {
+      "person_id": "dm:1450844",
+      "username": "ibrahim.farooqi",
+      "path": "raw/profiles/1450844.json",
+      "status": "fetched",
+      "sha256": "be46b73b32e1db8a8b6ee6d35f2c09d7064a632002494279e7feeee976e31327",
+      "fetched_at": "2026-11-20T01:37:36.684154+00:00"
+    },
+    {
+      "person_id": "dm:2662612",
+      "username": "kareena.garza01",
+      "path": "raw/profiles/2662612.json",
+      "status": "fetched",
+      "sha256": "15dfc2da8dcd2a1882aebf4716c0e5b3c3550de34899a8277a484a32958cdc49",
+      "fetched_at": "2026-11-20T01:37:37.821238+00:00"
+    },
+    {
+      "person_id": "dm:2465434",
+      "username": "daniel.gomez04",
+      "path": "raw/profiles/2465434.json",
+      "status": "fetched",
+      "sha256": "8ff9f522068481c8fd0aa023b86b76e596e6ae8592d05c601cd85c83189ab7be",
+      "fetched_at": "2026-11-20T01:37:39.503171+00:00"
+    },
+    {
+      "person_id": "dm:2028213",
+      "username": "christina.gonzales",
+      "path": "raw/profiles/2028213.json",
+      "status": "fetched",
+      "sha256": "668bc68db19316e74298bdd3cd3767e0dfc857a0fabb3f388956bf19d7a1f25c",
+      "fetched_at": "2026-11-20T01:37:42.611443+00:00"
+    },
+    {
+      "person_id": "dm:2066696",
+      "username": "keith.joseph",
+      "path": "raw/profiles/2066696.json",
+      "status": "fetched",
+      "sha256": "ea51eda386ddd20742b47a0c95278830c78690f494c35e5aed83185a8d98ca32",
+      "fetched_at": "2026-11-20T01:37:43.264688+00:00"
+    },
+    {
+      "person_id": "dm:2001443",
+      "username": "john.kiker01",
+      "path": "raw/profiles/2001443.json",
+      "status": "fetched",
+      "sha256": "470b5292548848dabddccb0455d7f4db9911d352a5f11aca80a7dfdd8bed142c",
+      "fetched_at": "2026-11-20T01:37:45.061130+00:00"
+    },
+    {
+      "person_id": "dm:1451004",
+      "username": "lisa.kuhn",
+      "path": "raw/profiles/1451004.json",
+      "status": "fetched",
+      "sha256": "fb369c12e459cd544eac22845e47bc3cab11afc4eac433e72744c25b23705d79",
+      "fetched_at": "2026-11-20T01:37:48.299105+00:00"
+    },
+    {
+      "person_id": "dm:1587271",
+      "username": "lisa.longoria",
+      "path": "raw/profiles/1587271.json",
+      "status": "fetched",
+      "sha256": "de7b96369e56935e378cb30058809e8b0c609c7e6b0e749d00ce8f8818a3ba43",
+      "fetched_at": "2026-11-20T01:37:48.961930+00:00"
+    },
+    {
+      "person_id": "dm:2247840",
+      "username": "sharon.machner01",
+      "path": "raw/profiles/2247840.json",
+      "status": "fetched",
+      "sha256": "a8c24a6f07d433e888885130fdc2a173cb50c5a2b63fa8d1aa5233c53c6f08db",
+      "fetched_at": "2026-11-20T01:37:50.652210+00:00"
+    },
+    {
+      "person_id": "dm:2046510",
+      "username": "diana.paz",
+      "path": "raw/profiles/2046510.json",
+      "status": "fetched",
+      "sha256": "89b0daf27af888413f1a1b22b77c9564cac86c3cbb9585b49e8aa09894d6596e",
+      "fetched_at": "2026-11-20T01:37:52.762287+00:00"
+    },
+    {
+      "person_id": "dm:2366113",
+      "username": "ashley.pe01",
+      "path": "raw/profiles/2366113.json",
+      "status": "fetched",
+      "sha256": "ae2e43ce56e60f9ff81af89e027abeb44e73b5321977e75d49ede6d3e0ddc971",
+      "fetched_at": "2026-11-20T01:37:54.153659+00:00"
+    },
+    {
+      "person_id": "dm:2476203",
+      "username": "daniel.tamezgonzalez",
+      "path": "raw/profiles/2476203.json",
+      "status": "fetched",
+      "sha256": "e748b2e429584f75d5a30ef253639057c8fdfc9e714709daba9fae39f196fa62",
+      "fetched_at": "2026-11-20T01:37:55.457650+00:00"
+    },
+    {
+      "person_id": "dm:1956342",
+      "username": "angelica.urbina01",
+      "path": "raw/profiles/1956342.json",
+      "status": "fetched",
+      "sha256": "fc55f0663940eefbce977c3f232b39335c857c41924d9645c57d6941fd6c1716",
+      "fetched_at": "2026-11-20T01:37:58.367022+00:00"
+    },
+    {
+      "person_id": "dm:2092684",
+      "username": "george.vera01",
+      "path": "raw/profiles/2092684.json",
+      "status": "fetched",
+      "sha256": "cfb26ed698a6f99e9c6755c561108edcc4275a4a3b5e0e3e9511735830474292",
+      "fetched_at": "2026-11-20T01:38:00.308943+00:00"
+    },
+    {
+      "person_id": "dm:2639173",
+      "username": "neyssy.villarreal",
+      "path": "raw/profiles/2639173.json",
+      "status": "fetched",
+      "sha256": "c8c638ac51f5258d105d75c73ced6acdab513be0e0dbf9901cb014c85b90d7e4",
+      "fetched_at": "2026-11-20T01:38:01.553949+00:00"
+    },
+    {
+      "person_id": "dm:2464962",
+      "username": "cassandra.whetstone",
+      "path": "raw/profiles/2464962.json",
+      "status": "fetched",
+      "sha256": "7a2d202c52c50784ae80ea31cad87702725174af21ea346414a77924fb559734",
+      "fetched_at": "2026-11-20T01:38:03.266462+00:00"
+    }
+  ]
+}

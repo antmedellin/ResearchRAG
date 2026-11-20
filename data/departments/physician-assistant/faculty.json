@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "stage": "discover_faculty",
+  "retrieved_at": "2026-11-20T01:37:31.776042+00:00",
+  "institution": "University of Texas Rio Grande Valley",
+  "department": {
+    "slug": "physician-assistant",
+    "name": "Department of Physician Assistant",
+    "matched_names": [
+      "Department of Physician Assistant"
+    ]
+  },
+  "source": {
+    "url": "https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList",
+    "raw_snapshot": "raw/directory_20261120T013731Z.json",
+    "sha256": "d45d1adbdf307c6f1317747cb3ff4a404d0cea1873a6c2a6a171b240633a43c4",
+    "records_in_source": 1874
+  },
+  "count": 20,
+  "skipped_incomplete": [],
+  "faculty": [
+    {
+      "person_id": "dm:2041420",
+      "dm_user_id": "2041420",
+      "username": "hilda.baesa01",
+      "display_name": "Hilda R. Baesa",
+      "given_name": "Hilda",
+      "middle_name": "R.",
+      "family_name": "Baesa",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:1450898",
+      "dm_user_id": "1450898",
+      "username": "juliann.garza01",
+      "display_name": "Juliann Garza Castillo",
+      "given_name": "Juliann",
+      "middle_name": "Garza",
+      "family_name": "Castillo",
+      "rank": "Clinical Full Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2328261",
+      "dm_user_id": "2328261",
+      "username": "nathalie.chacon",
+      "display_name": "Nathalie Chacon",
+      "given_name": "Nathalie",
+      "middle_name": null,
+      "family_name": "Chacon",
+      "rank": "Clinical Assistant Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2615235",
+      "dm_user_id": "2615235",
+      "username": "heather.davis01",
+      "display_name": "Heather Davis-Lopez",
+      "given_name": "Heather",
+      "middle_name": null,
+      "family_name": "Davis-Lopez",
+      "rank": "Clinical Assistant Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:1450844",
+      "dm_user_id": "1450844",
+      "username": "ibrahim.farooqi",
+      "display_name": "Mohammed Ibrahim Husain Farooqi",
+      "given_name": "Mohammed",
+      "middle_name": "Ibrahim Husain",
+      "family_name": "Farooqi",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2662612",
+      "dm_user_id": "2662612",
+      "username": "kareena.garza01",
+      "display_name": "Kareena Arlen Garza",
+      "given_name": "Kareena",
+      "middle_name": "Arlen",
+      "family_name": "Garza",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2465434",
+      "dm_user_id": "2465434",
+      "username": "daniel.gomez04",
+      "display_name": "Daniel Lee Gomez",
+      "given_name": "Daniel",
+      "middle_name": "Lee",
+      "family_name": "Gomez",
+      "rank": "Clinical Assistant Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2028213",
+      "dm_user_id": "2028213",
+      "username": "christina.gonzales",
+      "display_name": "Christina Granado Gonzales",
+      "given_name": "Christina",
+      "middle_name": "Granado",
+      "family_name": "Gonzales",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2066696",
+      "dm_user_id": "2066696",
+      "username": "keith.joseph",
+      "display_name": "Keith Gilbert Joseph",
+      "given_name": "Keith",
+      "middle_name": "Gilbert",
+      "family_name": "Joseph",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2001443",
+      "dm_user_id": "2001443",
+      "username": "john.kiker01",
+      "display_name": "John Madison Kiker",
+      "given_name": "John",
+      "middle_name": "Madison",
+      "family_name": "Kiker",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:1451004",
+      "dm_user_id": "1451004",
+      "username": "lisa.kuhn",
+      "display_name": "Lisa Lynn Kuhn",
+      "given_name": "Lisa",
+      "middle_name": "Lynn",
+      "family_name": "Kuhn",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:1587271",
+      "dm_user_id": "1587271",
+      "username": "lisa.longoria",
+      "display_name": "Lisa D Longoria",
+      "given_name": "Lisa",
+      "middle_name": "D",
+      "family_name": "Longoria",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2247840",
+      "dm_user_id": "2247840",
+      "username": "sharon.machner01",
+      "display_name": "Sharon Green Machner",
+      "given_name": "Sharon",
+      "middle_name": "Green",
+      "family_name": "Machner",
+      "rank": "Clinical Assistant Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2046510",
+      "dm_user_id": "2046510",
+      "username": "diana.paz",
+      "display_name": "Diana Laura Paz",
+      "given_name": "Diana",
+      "middle_name": "Laura",
+      "family_name": "Paz",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2366113",
+      "dm_user_id": "2366113",
+      "username": "ashley.pe01",
+      "display_name": "Ashley Peña",
+      "given_name": "Ashley",
+      "middle_name": null,
+      "family_name": "Peña",
+      "rank": "Clinical Assistant Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2476203",
+      "dm_user_id": "2476203",
+      "username": "daniel.tamezgonzalez",
+      "display_name": "Daniel Tamez Gonzalez",
+      "given_name": "Daniel",
+      "middle_name": null,
+      "family_name": "Tamez Gonzalez",
+      "rank": "Part-Time Lecturer",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:1956342",
+      "dm_user_id": "1956342",
+      "username": "angelica.urbina01",
+      "display_name": "Angelica R Urbina",
+      "given_name": "Angelica",
+      "middle_name": "R",
+      "family_name": "Urbina",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2092684",
+      "dm_user_id": "2092684",
+      "username": "george.vera01",
+      "display_name": "George Vera",
+      "given_name": "George",
+      "middle_name": null,
+      "family_name": "Vera",
+      "rank": "Clinical Associate Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2639173",
+      "dm_user_id": "2639173",
+      "username": "neyssy.villarreal",
+      "display_name": "Neyssy Nelly Villarreal",
+      "given_name": "Neyssy",
+      "middle_name": "Nelly",
+      "family_name": "Villarreal",
+      "rank": "Clinical Assistant Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    },
+    {
+      "person_id": "dm:2464962",
+      "dm_user_id": "2464962",
+      "username": "cassandra.whetstone",
+      "display_name": "Cassandra Salinas Whetstone",
+      "given_name": "Cassandra",
+      "middle_name": "Salinas",
+      "family_name": "Whetstone",
+      "rank": "Clinical Assistant Professor",
+      "dm_departments": [
+        "Department of Physician Assistant"
+      ]
+    }
+  ]
+}

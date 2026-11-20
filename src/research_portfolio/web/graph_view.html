@@ -19,7 +19,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:13px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
 #kg{position:relative;width:100%;height:100%}
-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
 canvas.drag{cursor:grabbing}canvas.hover{cursor:pointer}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}
 button,select,input{font:inherit;color:inherit}
@@ -98,7 +98,22 @@ select,input[type=text],input[type=search]{background:var(--panel2);border:1px s
 #toast.err{border-color:#dc2626;color:#dc2626}
 #loading{position:absolute;inset:0;display:none;place-items:center;z-index:8;background:rgba(0,0,0,.04);pointer-events:none}
 #loading div{padding:8px 14px}
-@media (max-width:700px){#panel{top:auto;height:55%;width:auto;left:12px}#legend{display:none}}
+#popDept{top:56px;left:12px;bottom:auto;max-height:min(420px,calc(100% - 80px));min-width:260px}
+#deptBtn{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:700px){
+  #top{top:8px;left:8px;right:8px;gap:6px}
+  #searchWrap{width:100%}
+  .ctl{padding:2px 4px}.ctl label{display:none}
+  #overviewBtn{padding:4px 8px}
+  #panelToggle{top:auto;bottom:52px;right:8px}
+  #panel{top:auto;bottom:8px;height:55%;width:auto;left:8px;right:8px}
+  #legend{display:none}
+  #tools{left:8px;bottom:8px}
+  #status{left:56px;right:8px;bottom:8px;font-size:11px;flex-wrap:wrap}
+  .pop{left:8px;right:8px;bottom:56px;min-width:0}
+  #popDept{top:auto;bottom:56px;left:8px;right:8px}
+  #deptBtn{max-width:150px}
+}
 </style>
 </head>
 <body>
@@ -112,8 +127,8 @@ select,input[type=text],input[type=search]{background:var(--panel2);border:1px s
       <div id="sugg" class="card" role="listbox"></div>
     </div>
     <div class="card ctl">
-      <label for="dept">Dept</label>
-      <select id="dept"><option value="">All of UTRGV</option></select>
+      <label for="deptBtn">Dept</label>
+      <button id="deptBtn" class="btn small" type="button" aria-haspopup="true" aria-expanded="false">Deselect All ▾</button>
     </div>
     <div class="card ctl">
       <label for="depth">Depth</label>
@@ -155,6 +170,12 @@ select,input[type=text],input[type=search]{background:var(--panel2);border:1px s
     <button type="button" id="unpinAll">Unpin all</button>
   </div>
 
+  <div id="popDept" class="pop card" role="dialog" aria-label="Departments">
+    <h4>Departments</h4>
+    <div class="acts"><button class="btn small" type="button" id="deptAll">Select all</button><button class="btn small" type="button" id="deptNone">Deselect All</button></div>
+    <div id="deptList"></div>
+    <div class="acts" style="margin-top:8px"><button id="deptApply" class="btn primary" type="button">Apply</button></div>
+  </div>
   <div id="popFilter" class="pop card">
     <h4>Node types</h4>
     <div class="acts"><button class="btn small" type="button" data-all="labels">Select all</button><button class="btn small" type="button" data-none="labels">Deselect all</button></div>
@@ -210,6 +231,7 @@ let W = 0, H = 0, DPR = 1;
 let hover = null, selected = null, dragNode = null, panning = null, moved = false;
 let pendingFit = false, alpha = 0, running = false, layoutKind = "forceatlas";
 let hiddenLabels = new Set();             // legend toggles (client-side)
+let selDepts = new Set(), draftDepts = null, needFit = false;   // multi-department scope
 let filt = {labels: new Set(), rels: new Set()}; // empty = all
 let ctxView = {mode: "overview", id: null, skip: 0, total: 0, returned: 0};
 const S = {labels: true, edgeLabels: false, selEdgeLabels: true, arrows: true, curved: false,
@@ -280,10 +302,11 @@ function visible(n) { return !hiddenLabels.has(n.label); }
 async function loadOverview() {
   loading(true);
   try {
-    const dept = $("#dept").value;
+    const dept = [...selDepts].join(",");
     const g = await getJSON("/api/kg/overview", {limit: $("#maxn").value, dept, ...filterParams()});
     clearGraph(); merge(g);
     ctxView = {mode: dept ? "department" : "overview", id: null, dept, total: g.total, returned: g.nodes.length};
+    const n = selDepts.size; if (n > 1) toast(`Showing ${n} departments.`);
     afterLoad(true);
   } catch (e) { toast("Could not load graph: " + e.message, true); }
   finally { loading(false); }
@@ -433,19 +456,23 @@ function tick() {
 /* ------------------------------------------------------------ view transforms */
 function resize() {
   const r = cv.getBoundingClientRect(); DPR = window.devicePixelRatio || 1;
-  W = r.width; H = r.height; cv.width = W * DPR; cv.height = H * DPR;
+  const wasEmpty = W < 10 || H < 10;
+  W = r.width; H = r.height; cv.width = Math.max(1, W * DPR); cv.height = Math.max(1, H * DPR);
+  if (W < 10 || H < 10) return;                      // hidden (e.g. inactive tab) — wait for a real size
   if (!resize.done) { view.x = W / 2; view.y = H / 2; resize.done = true; }
+  if ((wasEmpty || needFit) && nodes.size) { needFit = false; fit(null, true); }
 }
 const toScreen = (x, y) => [x * view.k + view.x, y * view.k + view.y];
 const toWorld = (sx, sy) => [(sx - view.x) / view.k, (sy - view.y) / view.k];
 function fit(ids, instant) {
   const arr = ids ? ids.map(i => nodes.get(i)).filter(Boolean) : [...nodes.values()].filter(visible);
   if (!arr.length) return;
+  if (W < 10 || H < 10) { needFit = true; return; }   // canvas not laid out yet; fit on first real resize
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   arr.forEach(n => { x0 = Math.min(x0, n.x); y0 = Math.min(y0, n.y); x1 = Math.max(x1, n.x); y1 = Math.max(y1, n.y); });
   const panelW = $("#panel").classList.contains("hidden") || W < 700 ? 0 : 360;
   const pad = 70, w = Math.max(x1 - x0, 50), h = Math.max(y1 - y0, 50);
-  const k = Math.min((W - panelW - pad * 2) / w, (H - pad * 2 - 50) / h, 2.5);
+  const pd = W < 500 ? 30 : pad, k = Math.min((W - panelW - pd * 2) / w, (H - pd * 2 - 50) / h, 2.5);
   const kk = Math.max(k, 0.05), nx = (W - panelW) / 2 - (x0 + x1) / 2 * kk, ny = H / 2 + 10 - (y0 + y1) / 2 * kk;
   if (instant) { view.k = kk; view.x = nx; view.y = ny; } else animateView(kk, nx, ny);
 }
@@ -567,7 +594,14 @@ function nodeAt(sx, sy) {
   return best;
 }
 function pos(ev) { const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; }
+const touches = new Map(); let pinch = null;
 cv.addEventListener("pointerdown", ev => {
+  touches.set(ev.pointerId, pos(ev));
+  if (touches.size === 2) {                         // two fingers: pinch-zoom, cancel drag/pan
+    const [a, b] = [...touches.values()];
+    pinch = {d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, k: view.k};
+    dragNode = null; panning = null; moved = true; return;
+  }
   cv.setPointerCapture(ev.pointerId); closePops();
   const [sx, sy] = pos(ev), n = nodeAt(sx, sy); moved = false;
   pendingFit = false;
@@ -576,13 +610,21 @@ cv.addEventListener("pointerdown", ev => {
 });
 cv.addEventListener("pointermove", ev => {
   const [sx, sy] = pos(ev);
+  if (touches.has(ev.pointerId)) touches.set(ev.pointerId, [sx, sy]);
+  if (pinch && touches.size === 2) {
+    const [a, b] = [...touches.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1;
+    zoomAt((pinch.k * d / pinch.d) / view.k, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); pendingFit = false; return;
+  }
   if (dragNode) { const [wx, wy] = toWorld(sx, sy); if (Math.hypot(wx - dragNode.x, wy - dragNode.y) * view.k > 2) moved = true;
     dragNode.x = wx; dragNode.y = wy; if (moved) { dragNode.fixed = true; reheat(0.15); } return; }
   if (panning) { if (Math.hypot(sx - panning.sx, sy - panning.sy) > 3) moved = true; view.x = panning.vx + sx - panning.sx; view.y = panning.vy + sy - panning.sy; return; }
   const n = nodeAt(sx, sy); const id = n ? n.id : null;
   if (id !== hover) { hover = id; cv.classList.toggle("hover", !!id); }
 });
+cv.addEventListener("pointercancel", ev => { touches.delete(ev.pointerId); if (touches.size < 2) pinch = null; dragNode = null; panning = null; });
 cv.addEventListener("pointerup", ev => {
+  touches.delete(ev.pointerId);
+  if (pinch) { if (touches.size < 2) pinch = null; cv.classList.remove("drag"); dragNode = null; panning = null; return; }
   cv.classList.remove("drag");
   if (dragNode && !moved) select(dragNode.id);
   if (panning && !moved) select(null);
@@ -595,6 +637,8 @@ cv.addEventListener("dblclick", ev => {
 });
 cv.addEventListener("wheel", ev => { ev.preventDefault(); pendingFit = false; const [sx, sy] = pos(ev); zoomAt(Math.exp(-ev.deltaY * 0.0015), sx, sy); }, {passive: false});
 window.addEventListener("resize", resize);
+if (window.ResizeObserver) new ResizeObserver(() => resize()).observe(cv);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) resize(); });
 document.addEventListener("keydown", ev => {
   if (ev.target.matches("input,select,textarea")) { if (ev.key === "Escape") ev.target.blur(); return; }
   if (ev.key === "/") { ev.preventDefault(); $("#search").focus(); }
@@ -616,7 +660,7 @@ async function select(id) {
   const n = nodes.get(id); if (!n) return;
   chip.style.display = ""; chip.style.background = colorOf(n.label); chip.textContent = n.label;
   $("#pTitle").textContent = n.name; $("#pTitle").title = n.name;
-  if ($("#panel").classList.contains("hidden")) togglePanel(true);
+  if ($("#panel").classList.contains("hidden") && W >= 700) togglePanel(true);
   body.innerHTML = actionsHTML(n) + '<div class="empty">Loading…</div>';
   bindActions(n);
   let d;
@@ -727,7 +771,7 @@ $("#search").addEventListener("keydown", e => {
 $("#search").addEventListener("blur", () => setTimeout(() => $("#sugg").style.display = "none", 150));
 
 /* ------------------------------------------------------------ toolbar & popovers */
-function closePops() { document.querySelectorAll(".pop").forEach(p => p.style.display = "none"); ["#tLayout","#tFilter","#tSettings"].forEach(s => $(s).classList.remove("on")); }
+function closePops() { document.querySelectorAll(".pop").forEach(p => p.style.display = "none"); $("#deptBtn") && $("#deptBtn").setAttribute("aria-expanded", "false"); ["#tLayout","#tFilter","#tSettings"].forEach(s => $(s).classList.remove("on")); }
 function togglePop(btn, pop) { const open = $(pop).style.display === "block"; closePops(); if (!open) { $(pop).style.display = "block"; $(btn).classList.add("on"); } }
 $("#tLayout").addEventListener("click", () => togglePop("#tLayout", "#popLayout"));
 $("#tFilter").addEventListener("click", () => { renderFilters(); togglePop("#tFilter", "#popFilter"); });
@@ -741,7 +785,27 @@ $("#tTheme").addEventListener("click", () => { const d = root.dataset.theme === 
 document.querySelectorAll("[data-layout]").forEach(b => b.addEventListener("click", () => { runLayout(b.dataset.layout, false); closePops(); }));
 $("#unpinAll").addEventListener("click", () => { nodes.forEach(n => n.fixed = false); reheat(0.4); closePops(); });
 $("#overviewBtn").addEventListener("click", () => { $("#search").value = ""; loadOverview(); });
-$("#dept").addEventListener("change", loadOverview);
+function deptLabel() {
+  const ds = meta.departments || [];
+  if (!selDepts.size) return "Deselect All ▾";
+  if (selDepts.size === 1) { const d = ds.find(x => x.slug === [...selDepts][0]); return (d ? d.name : [...selDepts][0]) + " ▾"; }
+  return selDepts.size + " departments ▾";
+}
+function renderDeptList() {
+  const ds = meta.departments || [];
+  $("#deptList").innerHTML = ds.length ? ds.map(d => `<label class="row"><input type="checkbox" value="${esc(d.slug)}" ${draftDepts.has(d.slug) ? "checked" : ""}>
+    <span>${esc(d.name)}</span><span class="c">${d.members || 0}</span></label>`).join("") : '<div class="empty">No departments ingested yet.</div>';
+  $("#deptList").querySelectorAll("input").forEach(cb => cb.addEventListener("change", () => { cb.checked ? draftDepts.add(cb.value) : draftDepts.delete(cb.value); }));
+}
+$("#deptBtn").addEventListener("click", () => {
+  const open = $("#popDept").style.display === "block"; closePops();
+  if (!open) { draftDepts = new Set(selDepts); renderDeptList(); $("#popDept").style.display = "block"; $("#deptBtn").setAttribute("aria-expanded", "true"); }
+});
+$("#deptAll").addEventListener("click", () => { draftDepts = new Set((meta.departments || []).map(d => d.slug)); renderDeptList(); });
+$("#deptNone").addEventListener("click", () => { draftDepts = new Set(); renderDeptList(); });
+$("#deptApply").addEventListener("click", () => {
+  selDepts = new Set(draftDepts || []); $("#deptBtn").textContent = deptLabel(); closePops(); loadOverview();
+});
 $("#moreBtn").addEventListener("click", loadMore);
 
 const bindS = (id, key, num) => $(id).addEventListener(num ? "input" : "change", e => { S[key] = num ? +e.target.value : e.target.checked; if (key === "size" || key === "degSize") noverlap(20); });
@@ -779,19 +843,46 @@ $("#applyFilters").addEventListener("click", () => {
 });
 $("#resetFilters").addEventListener("click", () => { draft = null; filt = {labels: new Set(), rels: new Set()}; $("#tFilter").style.color = ""; renderFilters(); });
 
+/* ------------------------------------------------------------ live refresh / parent messages */
+function syncDepts() {
+  const valid = new Set((meta.departments || []).map(d => d.slug));
+  selDepts = new Set([...selDepts].filter(x => valid.has(x)));
+  $("#deptBtn").textContent = deptLabel();
+}
+async function refreshMeta(reload) {
+  try {
+    const before = (meta.departments || []).map(d => d.slug).join("|");
+    meta = await getJSON("/api/kg/meta", {_: Date.now()});
+    syncDepts(); draft = null;
+    const changed = before !== (meta.departments || []).map(d => d.slug).join("|");
+    if (reload || (changed && ctxView.mode !== "focus")) loadOverview();
+  } catch (e) { /* keep current view */ }
+}
+async function focusKey(key) {
+  try { const r = await getJSON("/api/kg/resolve", {key}); await loadFocus(r.id, false); }
+  catch (e) { toast("Not found in graph: " + key, true); }
+}
+window.addEventListener("message", ev => {
+  if (ev.origin !== location.origin || !ev.data) return;
+  if (ev.data.type === "kg-refresh") refreshMeta(!!ev.data.reload);
+  else if (ev.data.type === "kg-focus-key" && ev.data.key) focusKey(ev.data.key);
+  else if (ev.data.type === "kg-resize") resize();
+});
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshMeta(false); });
 /* ------------------------------------------------------------ boot */
 (function init() {
   let th = null; try { th = localStorage.getItem("kgTheme"); } catch (e) {}
   root.dataset.theme = th || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   if (W === 0) resize();
+  if (window.innerWidth < 700) togglePanel();      // small screens: graph first, properties on demand
   requestAnimationFrame(frame);
   getJSON("/api/kg/meta").then(m => {
     meta = m;
-    $("#dept").innerHTML = '<option value="">All of UTRGV</option>' + (m.departments || []).map(d =>
-      `<option value="${esc(d.slug)}">${esc(d.name)}${d.members ? " (" + d.members + ")" : ""}</option>`).join("");
     const p = new URLSearchParams(location.search);
-    if (p.get("dept")) $("#dept").value = p.get("dept");
+    if (p.get("dept")) selDepts = new Set(p.get("dept").split(",").filter(Boolean));
+    syncDepts();
     if (p.get("focus")) return loadFocus(p.get("focus"), false);
+    if (p.get("entity")) return focusKey(p.get("entity"));
     if (p.get("q")) return getJSON("/api/kg/search", {q: p.get("q"), limit: 1}).then(r => r[0] ? loadFocus(r[0].id, false) : loadOverview());
     return loadOverview();
   }).catch(e => { toast("Graph API unavailable: " + e.message, true); $("#stTxt").textContent = "Graph API unavailable"; });

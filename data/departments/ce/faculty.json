@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "stage": "discover_faculty",
-  "retrieved_at": "2026-11-19T16:37:26.186377+00:00",
+  "retrieved_at": "2026-11-19T18:33:55.654668+00:00",
   "institution": "University of Texas Rio Grande Valley",
   "department": {
     "slug": "ce",
@@ -12,7 +12,7 @@
   },
   "source": {
     "url": "https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList",
-    "raw_snapshot": "raw/directory_20261119T163726Z.json",
+    "raw_snapshot": "raw/directory_20261119T183355Z.json",
     "sha256": "d45d1adbdf307c6f1317747cb3ff4a404d0cea1873a6c2a6a171b240633a43c4",
     "records_in_source": 1874
   },

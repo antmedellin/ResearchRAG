@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "stage": "fetch_profiles",
-  "generated_at": "2026-11-19T16:38:11.088481+00:00",
-  "roster_retrieved_at": "2026-11-19T16:38:11.084672+00:00",
+  "generated_at": "2026-11-19T18:32:47.247811+00:00",
+  "roster_retrieved_at": "2026-11-19T18:32:47.242003+00:00",
   "profiles": [
     {
       "person_id": "dm:2462718",
@@ -10,7 +10,7 @@
       "path": "raw/profiles/2462718.json",
       "status": "cached",
       "sha256": "bdd55f9eee31640c0b11154b4767a9233a9dcb5c003ddf0a68bb2a5d637ee808",
-      "fetched_at": "2026-11-19T14:18:06.486040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.015241+00:00"
     },
     {
       "person_id": "dm:2109032",
@@ -18,7 +18,7 @@
       "path": "raw/profiles/2109032.json",
       "status": "cached",
       "sha256": "61fe9596791ff59aa3019a655ebb187d9bfdd7a70b1979184d34c30a29b14006",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:2377620",
@@ -26,7 +26,7 @@
       "path": "raw/profiles/2377620.json",
       "status": "cached",
       "sha256": "4e4cbcfa3cdffef0009355ee26c3f11ea20251d42ceeb516ad74805485b5da08",
-      "fetched_at": "2026-11-19T14:18:06.486040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.015241+00:00"
     },
     {
       "person_id": "dm:2503095",
@@ -34,7 +34,7 @@
       "path": "raw/profiles/2503095.json",
       "status": "cached",
       "sha256": "ae71d157eac1f95e03592fa67efb8787e34d4acb8281dc0742fcc29cb4ca5047",
-      "fetched_at": "2026-11-19T14:18:06.486040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.015241+00:00"
     },
     {
       "person_id": "dm:1450769",
@@ -42,7 +42,7 @@
       "path": "raw/profiles/1450769.json",
       "status": "cached",
       "sha256": "aa418cdd9dda4f23f8ccf36b2576d195e07d4b80fe8607ec9f1613059b16e32c",
-      "fetched_at": "2026-11-19T14:18:06.474040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.003241+00:00"
     },
     {
       "person_id": "dm:2526913",
@@ -50,7 +50,7 @@
       "path": "raw/profiles/2526913.json",
       "status": "cached",
       "sha256": "b731a08d49f979423ff840467d0c157ecdac550990dfd8e4282919cd9d31f620",
-      "fetched_at": "2026-11-19T14:18:06.490040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.019241+00:00"
     },
     {
       "person_id": "dm:2380561",
@@ -58,7 +58,7 @@
       "path": "raw/profiles/2380561.json",
       "status": "cached",
       "sha256": "0c482bd687508e964e7f77368826a92e671cee6c9dbe4fc9f4fdfdbf58adf5f0",
-      "fetched_at": "2026-11-19T14:18:06.486040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.015241+00:00"
     },
     {
       "person_id": "dm:1450819",
@@ -66,7 +66,7 @@
       "path": "raw/profiles/1450819.json",
       "status": "cached",
       "sha256": "7250157d09587b491ea21f8aed91dc8aa7dd5cb29da520b4ab6ef383f4a8ebd1",
-      "fetched_at": "2026-11-19T14:18:06.475388+00:00"
+      "fetched_at": "2026-11-19T18:28:59.003241+00:00"
     },
     {
       "person_id": "dm:1450830",
@@ -74,7 +74,7 @@
       "path": "raw/profiles/1450830.json",
       "status": "cached",
       "sha256": "856393f91aa505d8d2bb3747460e77efa4e00e3bce014aeb4e5e3f8aa6ce4ed5",
-      "fetched_at": "2026-11-19T14:18:06.475388+00:00"
+      "fetched_at": "2026-11-19T18:28:59.003241+00:00"
     },
     {
       "person_id": "dm:2124037",
@@ -82,7 +82,7 @@
       "path": "raw/profiles/2124037.json",
       "status": "cached",
       "sha256": "8e296eb818537b41c68e9e1e7c9ddcc36134d5901e41eaa5eaff64f226404fe1",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:2639376",
@@ -90,7 +90,7 @@
       "path": "raw/profiles/2639376.json",
       "status": "cached",
       "sha256": "9ad513ef4db792365ff8c8f65e64d24112d0e0644d4a481dae147535c06ee574",
-      "fetched_at": "2026-11-19T14:18:06.490040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.019241+00:00"
     },
     {
       "person_id": "dm:1451040",
@@ -98,7 +98,7 @@
       "path": "raw/profiles/1451040.json",
       "status": "cached",
       "sha256": "0af667d6aa086d4c0671b086de5d6da235c96cde483b6f17b44778748faf3233",
-      "fetched_at": "2026-11-19T14:18:06.478040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.003241+00:00"
     },
     {
       "person_id": "dm:2462729",
@@ -106,7 +106,7 @@
       "path": "raw/profiles/2462729.json",
       "status": "cached",
       "sha256": "eb767e5bcf8eb303e0fa8c4b895b2f0dc85a1af6d23ba1fb82588a6e5c8b1c75",
-      "fetched_at": "2026-11-19T14:18:06.486040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.015241+00:00"
     },
     {
       "person_id": "dm:1450875",
@@ -114,7 +114,7 @@
       "path": "raw/profiles/1450875.json",
       "status": "cached",
       "sha256": "dbb0604953d99964eff9d56f6e77bbb37179a961042ee623971af79f5194bf4b",
-      "fetched_at": "2026-11-19T14:18:06.475388+00:00"
+      "fetched_at": "2026-11-19T18:28:59.003241+00:00"
     },
     {
       "person_id": "dm:2318262",
@@ -122,7 +122,7 @@
       "path": "raw/profiles/2318262.json",
       "status": "cached",
       "sha256": "d793e179caee16e9f2da19deb9f0a8906585e55d6a99c24b6fb11c2a9be58fd4",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:1987338",
@@ -130,7 +130,7 @@
       "path": "raw/profiles/1987338.json",
       "status": "cached",
       "sha256": "32d3b0197a7d604bfb037882d027275ceded5c4ab8128a8b9db0eed278cb89d2",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:2526905",
@@ -138,7 +138,7 @@
       "path": "raw/profiles/2526905.json",
       "status": "cached",
       "sha256": "9d4bf008a7c61ceb8a9444371234cf5e92365fc5005dff0b0910702825dbbd26",
-      "fetched_at": "2026-11-19T14:18:06.490040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.019241+00:00"
     },
     {
       "person_id": "dm:2462722",
@@ -146,7 +146,7 @@
       "path": "raw/profiles/2462722.json",
       "status": "cached",
       "sha256": "711b5b3e77d6f51cc67f5d60725f781a56a8b8b326824ccfbf8e50df90b85ef7",
-      "fetched_at": "2026-11-19T14:18:06.486040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.015241+00:00"
     },
     {
       "person_id": "dm:2592160",
@@ -154,7 +154,7 @@
       "path": "raw/profiles/2592160.json",
       "status": "cached",
       "sha256": "8e23bd3e8f66caaf13ba0556866f1ade0b93b7276de06ab19166d3bac7a061b8",
-      "fetched_at": "2026-11-19T14:18:06.490040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.019241+00:00"
     },
     {
       "person_id": "dm:2697949",
@@ -162,7 +162,7 @@
       "path": "raw/profiles/2697949.json",
       "status": "cached",
       "sha256": "6a530012e002009c671d899adae7b05daaaac5844ac6f99add05c6bab3713ea9",
-      "fetched_at": "2026-11-19T14:18:06.490040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.019241+00:00"
     },
     {
       "person_id": "dm:2201392",
@@ -170,7 +170,7 @@
       "path": "raw/profiles/2201392.json",
       "status": "cached",
       "sha256": "dfc45c7cfbc7cb725b8ae62ea97b7f6bfb5695c2a8c8ccf4f461220075b5a8c9",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:1662367",
@@ -178,7 +178,7 @@
       "path": "raw/profiles/1662367.json",
       "status": "cached",
       "sha256": "c24a0944a5ae656a3c2f44b2793e478179f7968e6bd4ddf948f29b1bfd9ad3a2",
-      "fetched_at": "2026-11-19T14:18:06.478040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.007241+00:00"
     },
     {
       "person_id": "dm:2710016",
@@ -186,7 +186,7 @@
       "path": "raw/profiles/2710016.json",
       "status": "cached",
       "sha256": "e968dd26d5279a78e2b26b85249b1467cb5939aac7a47142a138ec8fba1b59b7",
-      "fetched_at": "2026-11-19T14:18:06.490040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.019241+00:00"
     },
     {
       "person_id": "dm:2370676",
@@ -194,7 +194,7 @@
       "path": "raw/profiles/2370676.json",
       "status": "cached",
       "sha256": "171476ca28cb91ce32b6ab081b4181a84977e4c10dded4a8299ff9407bc31462",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:2526906",
@@ -202,7 +202,7 @@
       "path": "raw/profiles/2526906.json",
       "status": "cached",
       "sha256": "cb0dbf1a1a268867e4237458a6e32772f221162a9980e68055de0fe7a24d2fa4",
-      "fetched_at": "2026-11-19T14:18:06.490040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.019241+00:00"
     },
     {
       "person_id": "dm:1962782",
@@ -210,7 +210,7 @@
       "path": "raw/profiles/1962782.json",
       "status": "cached",
       "sha256": "9e474c6992e58eafb95a916f333b7d0430dfadc7804a1474da29b4251054b003",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:2639377",
@@ -218,7 +218,7 @@
       "path": "raw/profiles/2639377.json",
       "status": "cached",
       "sha256": "e528f6f6437cb0f39d821381a2cf6577b1a59100c497d56a24857595773be0cc",
-      "fetched_at": "2026-11-19T14:18:06.490040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.019241+00:00"
     },
     {
       "person_id": "dm:2139412",
@@ -226,7 +226,7 @@
       "path": "raw/profiles/2139412.json",
       "status": "cached",
       "sha256": "40a353e6f6673d889a720b4f02510c291c40510b452eb08ee3107019c0f7035b",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:2184274",
@@ -234,7 +234,7 @@
       "path": "raw/profiles/2184274.json",
       "status": "cached",
       "sha256": "86f1e8535e7b192b36fee61ab594a89d1bac8732ebdac488e5fe17cd9eb6f762",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:2530233",
@@ -242,7 +242,7 @@
       "path": "raw/profiles/2530233.json",
       "status": "cached",
       "sha256": "e8dbbbe2e879bb479cf243f13d91d43f8eb91af02e163390353200f7e900b172",
-      "fetched_at": "2026-11-19T14:18:06.490040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.019241+00:00"
     },
     {
       "person_id": "dm:1451258",
@@ -250,7 +250,7 @@
       "path": "raw/profiles/1451258.json",
       "status": "cached",
       "sha256": "7b2e520077d00986aabf88905bc2ac30b35f5cd3e96260f76f8017f5282b6673",
-      "fetched_at": "2026-11-19T14:18:06.478040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.007241+00:00"
     },
     {
       "person_id": "dm:1811544",
@@ -258,7 +258,7 @@
       "path": "raw/profiles/1811544.json",
       "status": "cached",
       "sha256": "16aaa348b92e45c6d03f799ca22955a1136fa123aefcca48576a893ad997be95",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.007241+00:00"
     },
     {
       "person_id": "dm:2447484",
@@ -266,7 +266,7 @@
       "path": "raw/profiles/2447484.json",
       "status": "cached",
       "sha256": "4d2017bb3c3fafecee993a78315c6d906be08d6b96babb6fc3776752798c8932",
-      "fetched_at": "2026-11-19T14:18:06.486040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.015241+00:00"
     },
     {
       "person_id": "dm:1451305",
@@ -274,7 +274,7 @@
       "path": "raw/profiles/1451305.json",
       "status": "cached",
       "sha256": "561700e914d2ecfb924940975a4f945d78eaf2aa60f90a1316124c0641c8b42a",
-      "fetched_at": "2026-11-19T14:18:06.478040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.007241+00:00"
     },
     {
       "person_id": "dm:2201393",
@@ -282,7 +282,7 @@
       "path": "raw/profiles/2201393.json",
       "status": "cached",
       "sha256": "c52a88b6429991a8239935a6171f966cc3548388f3a7fb938c79ac8056b8309a",
-      "fetched_at": "2026-11-19T14:18:06.482040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.011241+00:00"
     },
     {
       "person_id": "dm:1662366",
@@ -290,7 +290,7 @@
       "path": "raw/profiles/1662366.json",
       "status": "cached",
       "sha256": "d2940c8c577c893a0156d269bf184f91d5f5c9fd09c4a37a2914e97ca828ae20",
-      "fetched_at": "2026-11-19T14:18:06.478040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.007241+00:00"
     },
     {
       "person_id": "dm:2447483",
@@ -298,7 +298,7 @@
       "path": "raw/profiles/2447483.json",
       "status": "cached",
       "sha256": "579c14d59f639134edb78e84e7557140f21399a722dd248f78431c36426f3c88",
-      "fetched_at": "2026-11-19T14:18:06.486040+00:00"
+      "fetched_at": "2026-11-19T18:28:59.015241+00:00"
     }
   ]
 }

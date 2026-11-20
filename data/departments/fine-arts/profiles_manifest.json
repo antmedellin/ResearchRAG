@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "stage": "fetch_profiles",
+  "generated_at": "2026-11-20T02:27:45.260659+00:00",
+  "roster_retrieved_at": "2026-11-20T02:27:45.256566+00:00",
+  "profiles": [
+    {
+      "person_id": "dm:2629230",
+      "username": "shay.nelson",
+      "path": "raw/profiles/2629230.json",
+      "status": "fetched",
+      "sha256": "f7bdc3324b0853299ed54b8efb38341a3734ef2730842dbeb781033c2a808796",
+      "fetched_at": "2026-11-20T02:27:45.892158+00:00"
+    }
+  ]
+}

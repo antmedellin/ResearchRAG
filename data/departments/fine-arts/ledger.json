@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "stage": "build_ledger",
+  "generated_at": "2026-11-20T02:27:46.393700+00:00",
+  "institution": "University of Texas Rio Grande Valley",
+  "department": {
+    "slug": "fine-arts",
+    "name": "College of Fine Arts",
+    "aliases": []
+  },
+  "inputs": {
+    "roster_retrieved_at": "2026-11-20T02:27:45.256566+00:00",
+    "profiles": {
+      "dm:2629230": "f7bdc3324b0853299ed54b8efb38341a3734ef2730842dbeb781033c2a808796"
+    }
+  },
+  "quality": {
+    "people": 1,
+    "profiles_missing": [],
+    "text_poor": [
+      "Shay Nelson"
+    ],
+    "rejected_dm_user_ids": 0,
+    "suspicious": [],
+    "publications": 0,
+    "grants": 0,
+    "presentations": 0,
+    "publications_with_abstract": 0,
+    "grants_with_abstract": 0,
+    "presentations_with_abstract": 0,
+    "publications_with_doi": 0,
+    "grant_status": {}
+  },
+  "people": [
+    {
+      "person_id": "dm:2629230",
+      "dm_user_id": "2629230",
+      "username": "shay.nelson",
+      "display_name": "Shay Nelson",
+      "given_name": "Shay",
+      "family_name": "Nelson",
+      "rank": "Staff",
+      "dm_departments": [
+        "College of Fine Arts"
+      ],
+      "email": "shay.nelson@utrgv.edu",
+      "counts": {
+        "publication": 0,
+        "grant": 0,
+        "presentation": 0
+      },
+      "flags": [
+        "no_bio",
+        "no_research_interests",
+        "text_poor"
+      ]
+    }
+  ],
+  "entities": {
+    "publication": [],
+    "grant": [],
+    "presentation": []
+  }
+}

@@ -1,0 +1,11 @@
+institution: University of Texas Rio Grande Valley
+department_name: School of Mathematical and Statistical Science
+department_slug: mathematical-and-statistical-science
+sources:
+  faculty:
+    type: digital_measures
+    source_name: UTRGV Digital Measures
+    api_url: https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList
+    profile_api_url: https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMuser?username=
+    department_name: School of Mathematical and Statistical Science
+    department_aliases: []
