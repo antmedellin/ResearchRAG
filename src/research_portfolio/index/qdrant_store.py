@@ -7,7 +7,8 @@ from research_portfolio.common import keep
 
 QDRANT      = os.environ.get("QDRANT_URL", "http://qdrant:6333")
 COLL        = os.environ.get("RP_COLLECTION", "rp_chunks")
-EMBED_URL   = os.environ.get("DENSE_EMBEDDING_URL", "http://ollama:11434/api/embed")
+from research_portfolio.llm_endpoints import DENSE_EMBEDDING_URL as EMBED_URL
+from research_portfolio.llm_client import post_embed
 EMBED_MODEL = os.environ.get("DENSE_EMBEDDING_MODEL", "mxbai-embed-large:335m")
 AVG_LEN     = float(os.environ.get("BM25_AVG_LEN", 120))
 BM25_OPTS   = {"avg_len": AVG_LEN, "language": "english"}       # identical at index and query time
@@ -31,7 +32,7 @@ def embed(texts, batch=32):
     out = []
     for i in range(0, len(texts), batch):
         part = texts[i:i + batch]
-        embs = check(requests.post(EMBED_URL, json={"model": EMBED_MODEL, "input": part},
+        embs = check(post_embed(EMBED_URL, json={"model": EMBED_MODEL, "input": part},
                                    timeout=300)).json().get("embeddings") or []
         if len(embs) != len(part):
             raise RuntimeError(f"expected {len(part)} embeddings, got {len(embs)} from {EMBED_URL}")
@@ -99,6 +100,33 @@ def person_chunks(p):
     if p.get("licenses"):
         base_lic = {**base, "licenses": p["licenses"]}
         out += make(pid, "license", [f"{head} Licenses: " + join(p["licenses"], ("title", "organization", "year"))], base_lic)
+
+    # Guarantee every roster person has at least one canonical person chunk.
+    # Some faculty have research entities but no bio/interests/education/etc.,
+    # which previously made them invisible as standalone people in Qdrant.
+    if not out:
+        pubs = int(p.get("publication_count") or 0)
+        grants = int(p.get("grant_count") or 0)
+        funded = int(p.get("funded_grant_count") or 0)
+
+        parts = []
+        if pubs:
+            parts.append(f"{pubs} publication{'s' if pubs != 1 else ''}")
+        if grants:
+            grant_text = f"{grants} grant{'s' if grants != 1 else ''}"
+            if funded:
+                grant_text += f" ({funded} funded)"
+            parts.append(grant_text)
+
+        research_record = ", ".join(parts) if parts else "profile available in the faculty roster"
+
+        out += make(
+            pid,
+            "profile",
+            [f"{head} Research record: {research_record}."],
+            base,
+        )
+
     return out
 
 ENTITY_SKIP = {"id", "kind", "contributor_names", "family_names", "last_run", "identity_keys"}

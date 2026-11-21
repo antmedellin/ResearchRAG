@@ -112,6 +112,8 @@ services:
       OLLAMA_CONTEXT_LENGTH: "55000"
       OLLAMA_FLASH_ATTENTION: "1"
       OLLAMA_KV_CACHE_TYPE: "q8_0"
+      OLLAMA_KEEP_ALIVE: "-1" 
+      OLLAMA_MAX_LOADED_MODELS: "2"
     <<: *service-ollama
     gpus: all
 
@@ -127,15 +129,17 @@ services:
     networks:
       - backend
     environment:
-      DENSE_EMBEDDING_URL: ${DENSE_EMBEDDING_URL:-http://ollama:11434/api/embed}
+      DENSE_EMBEDDING_URL: ${DENSE_EMBEDDING_URL:-http://llama-swap:8080/upstream/mxbai-embed/api/embed}
       DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL:-mxbai-embed-large:335m}
       QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
       QDRANT_TEST_COLLECTION: ${QDRANT_TEST_COLLECTION:-researcher_rag_smoke_test}
       QDRANT_COLLECTION: ${QDRANT_COLLECTION:-researcher_rag}
       BM25_AVG_LEN: ${BM25_AVG_LEN:-70}
-      CHAT_URL: ${CHAT_URL:-http://ollama:11434/api/chat}
+      CHAT_NUM_CTX: ${CHAT_NUM_CTX:-55000}
+      CHAT_NUM_PREDICT: ${CHAT_NUM_PREDICT:-5000}
+      CHAT_URL: ${CHAT_URL:-http://llama-swap:8080/upstream/gemma4-12b/api/chat}
       CHAT_MODEL: ${CHAT_MODEL:-gemma4:12b}
-      RERANK_URL: ${RERANK_URL:-http://reranker:80/rerank}
+      RERANK_URL: ${RERANK_URL:-http://llama-swap:8080/v1/rerank}
       RERANK_MODEL: ${RERANK_MODEL}
       RERANK_CANDIDATES: ${RERANK_CANDIDATES:-20}
       RAG_TOP_K: ${RAG_TOP_K:-5}
@@ -146,11 +150,13 @@ services:
       NEO4J_DATABASE: ${NEO4J_DATABASE:-neo4j}
       PYTHONPATH: /app/src
       RP_COLLECTION: ${RP_COLLECTION:-rp_chunks}
-      DECISION_URL: ${DECISION_URL:-http://ollama:11434/api/chat}
+      DECISION_URL: ${DECISION_URL:-http://llama-swap:8080/upstream/clef-flash-9b/v1/systemone}
       DECISION_MODEL: ${DECISION_MODEL:-}
       OPENALEX_MAILTO: ${OPENALEX_MAILTO:-}
       # PYTHONPATH: /app/src
       RAG_REPO_ROOT: /app
+      CHAT_API: ${CHAT_API:-ollama}
+      EMBED_API: ${EMBED_API:-ollama}
     volumes:
       - ./fastembed_cache:/cache/fastembed
       - ./src:/app/src    
@@ -158,7 +164,6 @@ services:
       - ./data:/app/data      
       - ./tests:/app/tests
     working_dir: /app
-    # command: ["sleep", "infinity"]
     command: ["python", "-m", "uvicorn", "research_portfolio.web.app:app", "--host", "0.0.0.0", "--port", "8080"]
     ports:
       - "127.0.0.1:${APP_PORT:-8080}:8080"
@@ -168,10 +173,12 @@ services:
         condition: service_healthy
       qdrant-init:
         condition: service_completed_successfully
-      ollama:
-        condition: service_healthy
-      ollama-init:
-        condition: service_completed_successfully
+      # ollama:
+      #   condition: service_healthy
+      # ollama-init:
+      #   condition: service_completed_successfully
+      llama-swap:
+        condition: service_started
       reranker:
         condition: service_healthy
       neo4j:
@@ -217,5 +224,24 @@ services:
       timeout: 5s
       retries: 30
       start_period: 120s               
-    gpus: all                        
+    gpus: all                    
+
+  llama-swap:
+    image: ${LLAMA_SWAP_IMAGE:-ghcr.io/mostlygeek/llama-swap:cpu}
+    container_name: researchrag-llama-swap
+    networks:
+      - backend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${LLAMA_SWAP_PORT:-9292}:8080"
+    volumes:
+      - ./llama-swap/config.yaml:/app/config.yaml:ro
+      - ./llama-swap/ollama-keeper.sh:/app/ollama-keeper.sh:ro
+    environment:
+      OLLAMA_URL: http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+      ollama-init:
+        condition: service_completed_successfully
 

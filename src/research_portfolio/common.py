@@ -7,7 +7,7 @@ REPO_ROOT = Path(os.getenv("RAG_REPO_ROOT", "/app")).resolve()
 DATA_ROOT = Path(os.getenv("RP_DATA_ROOT", REPO_ROOT / "data" / "departments")).resolve()
 REGISTRY  = Path(os.getenv("RP_REGISTRY", REPO_ROOT / "data" / "registry")).resolve()
 USER_AGENT = "Mozilla/5.0 (UTRGV-ResearchRAG)"
-SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{1,40}$")
+SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,98}[a-z0-9])?$")
 _TAG = re.compile(r"<[^>]+>")
 
 def _get(d, dotted):

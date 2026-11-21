@@ -5,7 +5,7 @@ import requests
 from rapidfuzz import fuzz
 from research_portfolio.common import REGISTRY, norm_key, write_atomic
 
-DECISION_URL=os.getenv("DECISION_URL","http://ollama:11434/v1/systemone").strip()
+from research_portfolio.llm_endpoints import DECISION_URL
 DECISION_MODEL=os.getenv("DECISION_MODEL","clef-flash:9b").strip()
 SAME_MIN=float(os.getenv("PERSON_SAME_MIN","0.85"))
 ALIASES=REGISTRY/"person_aliases.json"

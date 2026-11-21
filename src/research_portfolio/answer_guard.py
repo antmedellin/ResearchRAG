@@ -12,9 +12,8 @@ import re
 
 import requests
 
-OLLAMA = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").rstrip("/")
-if OLLAMA.endswith("/v1"):
-    OLLAMA = OLLAMA[:-3]
+from research_portfolio.llm_endpoints import CHAT_URL
+from research_portfolio.llm_client import post_chat
 MODEL = os.getenv("CHAT_MODEL", "gemma4:12b")
 NUM_CTX = int(os.getenv("CHAT_NUM_CTX", "55000"))
 NUM_PREDICT = int(os.getenv("CHAT_NUM_PREDICT", "5000"))
@@ -34,6 +33,15 @@ SYSTEM = (
 )
 CITE_RE = re.compile(r"\[(\d+)\]")
 
+PERSON_RESEARCH_RE = re.compile(
+    r"\b(research interests?|research areas?|research themes?|"
+    r"research topics?|expertise|speciali[sz](?:e|es|ed|ation)|"
+    r"what (?:does|is|are).{0,60}research)\b",
+    re.IGNORECASE,
+)
+
+PROFILE_TYPES = {"interests", "bio"}
+DEMONSTRATED_RESEARCH_TYPES = {"publication", "grant", "presentation"}
 
 def _text(s):
     p = s.get("payload") or {}
@@ -46,6 +54,50 @@ def _source_block(i, s):
     head = " | ".join(str(m) for m in meta if m)
     return f"[{i}] {head}\n{_text(s)[:MAX_SOURCE_CHARS]}"
 
+def _chunk_type(source):
+    payload = source.get("payload") or {}
+    return str(
+        source.get("chunk_type")
+        or payload.get("chunk_type")
+        or ""
+    ).strip().lower()
+
+
+def _question_instruction(question, sources):
+    if not PERSON_RESEARCH_RE.search(question or ""):
+        return ""
+
+    available = {_chunk_type(source) for source in sources}
+    has_profile = bool(available & PROFILE_TYPES)
+    has_research = bool(available & DEMONSTRATED_RESEARCH_TYPES)
+
+    instructions = [
+        "This question concerns a person's research, expertise, topics, or interests.",
+        "Structure the answer using these evidence categories:",
+        "1. Explicitly stated interests: use only interests or bio evidence.",
+        "2. Demonstrated research themes: synthesize recurring topics supported by "
+        "publications, grants, or presentations.",
+        "Do not present inferred or demonstrated themes as explicitly stated interests.",
+        "Cite representative evidence for every theme.",
+    ]
+
+    if has_profile and has_research:
+        instructions.append(
+            "Both profile evidence and demonstrated-research evidence are available, "
+            "so the answer MUST discuss both categories."
+        )
+    elif has_profile:
+        instructions.append(
+            "Only profile evidence is available. State that demonstrated research evidence "
+            "was not available in the retrieved sources."
+        )
+    elif has_research:
+        instructions.append(
+            "Only demonstrated-research evidence is available. State that no explicit "
+            "research-interest statement was found in the retrieved sources."
+        )
+
+    return "\n".join(instructions)
 
 def build_messages(question, sources):
     budget = (NUM_CTX - NUM_PREDICT - PROMPT_OVERHEAD_TOKENS) * CHARS_PER_TOKEN
@@ -56,8 +108,20 @@ def build_messages(question, sources):
             break
         blocks.append(b)
         used += len(b)
-    user = ("Evidence:\n\n" + "\n\n".join(blocks)
-            + f"\n\nQuestion: {question}\nAnswer with citations:")
+    
+    special_instruction = _question_instruction(question, sources[:len(blocks)])
+
+    user = (
+        "Evidence:\n\n"
+        + "\n\n".join(blocks)
+        + (
+            f"\n\nQuestion-specific instructions:\n{special_instruction}"
+            if special_instruction else ""
+        )
+        + f"\n\nQuestion: {question}\nAnswer with citations:"
+    )
+    
+    
     return [{"role": "system", "content": SYSTEM},
             {"role": "user", "content": user}], len(blocks)
 
@@ -68,7 +132,7 @@ def _chat(messages, think_off=True):
                            "temperature": 0.2}}
     if think_off:
         payload["think"] = False
-    r = requests.post(f"{OLLAMA}/api/chat", json=payload, timeout=600)
+    r = post_chat(CHAT_URL, json=payload, timeout=600)
     if r.status_code == 400 and think_off and "think" in r.text.lower():
         return _chat(messages, think_off=False)
     r.raise_for_status()

@@ -15,7 +15,7 @@ from research_portfolio.retrieval import search as R
 from research_portfolio.answer_guard import guard_query_sync, guard_query_async  # RAG_FIXES_V1
 
 ROOT=Path(os.getenv("RAG_REPO_ROOT","/app")).resolve();CONFIG_DIR=ROOT/"config"/"departments";DATA_DIR=ROOT/"data"/"departments";STATIC=Path(__file__).parent/"static"
-DM_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList";PROFILE_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMuser?username=";SLUG=re.compile(r"^[a-z0-9][a-z0-9_-]{1,40}$")
+DM_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList";PROFILE_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMuser?username=";SLUG=re.compile(r"^[a-z0-9][a-z0-9_-]{0,99}$")
 TYPES=("bio","interests","education","experience","award","license","publication","grant","presentation");JOBS={};CACHE={"rows":None};app=FastAPI(title="UTRGV Research Portfolio",version="1.7")
 
 # GRAPH_LR_V1: LightRAG-style knowledge graph (/graph-view, /api/kg/*)

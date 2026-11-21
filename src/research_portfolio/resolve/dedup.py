@@ -15,7 +15,7 @@ AUTO_SAME, REVIEW_LOW, DOI_TITLE_MIN, LLM_MIN_CONF = 96, 85, 85, 0.8
 CACHE, OVERRIDES, REVIEW = (REGISTRY / "dedup_decisions.jsonl", REGISTRY / "dedup_overrides.json",
                             REGISTRY / "review.jsonl")
 
-DECISION_URL   = os.environ.get("DECISION_URL", "http://ollama:11434/v1/systemone").strip()
+from research_portfolio.llm_endpoints import DECISION_URL
 DECISION_MODEL = os.environ.get("DECISION_MODEL")
 SAME_MIN, REVIEW_MIN = 0.85, 0.20          # thresholds on probabilities["same"]
 

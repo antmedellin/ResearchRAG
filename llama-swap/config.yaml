@@ -1,0 +1,66 @@
+healthCheckTimeout: 180
+logLevel: info
+
+
+hooks:
+  on_startup:
+    preload:
+      - mxbai-embed
+      - gemma4-12b
+
+      
+models:
+  gemma4-12b:
+    name: "Gemma 4 12B (Ollama)"
+    aliases:
+      - "gemma4:12b"
+    cmd: sh /app/ollama-keeper.sh gemma4:12b chat
+    proxy: http://ollama:11434
+    checkEndpoint: /api/tags
+    useModelName: "gemma4:12b"     # used later if you move to /v1 endpoints
+    ttl: 1800                      # unload after 30 min idle
+
+  clef-flash-9b:
+    name: "Clef Flash 9B (Ollama systemone)"
+    cmd: sh /app/ollama-keeper.sh clef-flash:9b systemone
+    aliases:
+      - "clef-flash:9b"
+    env:
+      - "REPIN=mxbai-embed-large:335m"
+    proxy: http://ollama:11434
+    checkEndpoint: /api/tags
+    useModelName: "clef-flash:9b"
+    ttl: 600
+
+  mxbai-embed:
+    name: "mxbai-embed-large 335m (Ollama)"
+    cmd: sh /app/ollama-keeper.sh mxbai-embed-large:335m embed
+    aliases:
+      - "mxbai-embed-large:335m"
+    proxy: http://ollama:11434
+    checkEndpoint: /api/tags
+    useModelName: "mxbai-embed-large:335m"
+  
+  # bge-reranker-v2-m3:
+  #   proxy: "http://reranker:80"
+  
+  # "BAAI/bge-reranker-v2-m3":
+  #   proxy: "http://reranker:80"
+
+peers:
+  tei-reranker:
+    proxy: http://reranker:80
+    models:
+      - BAAI/bge-reranker-v2-m3
+
+groups:
+  llm:                 # only one big LLM resident at a time
+    swap: true
+    exclusive: false   # don't unload the embed group
+    members: [gemma4-12b, clef-flash-9b]
+
+  embed:               # always resident, never swapped
+    swap: false
+    exclusive: false
+    persistent: true
+    members: [mxbai-embed]

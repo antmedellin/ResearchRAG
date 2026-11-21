@@ -30,7 +30,16 @@ from research_portfolio.index.qdrant_store import (
 )
 
 RERANK_URL = os.environ.get("RERANK_URL")
-CHAT_URL = os.environ.get("CHAT_URL", "http://ollama:11434/api/chat")
+RERANK_MODEL = os.environ.get(
+    "RERANK_MODEL",
+    "BAAI/bge-reranker-v2-m3"
+)
+RERANK_ROUTE_MODEL = os.environ.get(
+    "RERANK_ROUTE_MODEL",
+    RERANK_MODEL,
+)
+from research_portfolio.llm_endpoints import CHAT_URL
+from research_portfolio.llm_client import post_chat
 CHAT_MODEL = os.environ.get("CHAT_MODEL")
 NEO4J_URI = os.environ.get("NEO4J_URI", "bolt://neo4j:7687")
 NEO4J_DATABASE = os.environ.get("NEO4J_DATABASE", "neo4j")
@@ -209,6 +218,7 @@ def rerank(query, points, top_n, batch_size=32):
             requests.post(
                 RERANK_URL,
                 json={
+                    "model": RERANK_ROUTE_MODEL,
                     "query": query,
                     "texts": [p["payload"]["text"] for p in batch],
                     "truncate": True,
@@ -325,12 +335,19 @@ def ask(question, points, person=None):
     person_instruction = ""
     if person:
         person_instruction = (
-            f" The subject is {person['display_name']}. Distinguish explicitly stated interests "
-            "from demonstrated research in publications and grants."
+            f"\nThe subject is {person['display_name']}.\n"
+            "For questions about this person's research, expertise, topics, or interests:\n"
+            "1. Report explicitly stated research interests from interests or bio evidence.\n"
+            "2. Separately summarize demonstrated research themes supported by publications, "
+            "grants, and presentations.\n"
+            "3. Do not describe demonstrated themes as explicitly stated interests.\n"
+            "4. Use both categories when both are available.\n"
+            "5. Mention representative publications, grants, or presentations that support each "
+            "demonstrated theme.\n"
+            "6. If one category is unavailable, explicitly say which evidence category was not found.\n"
         )
     response = check(
-        requests.post(
-            CHAT_URL,
+        post_chat(CHAT_URL,
             json={
                 "model": CHAT_MODEL,
                 "stream": False,
@@ -339,8 +356,12 @@ def ask(question, points, person=None):
                     {
                         "role": "system",
                         "content": (
-                            "Answer university research-portfolio questions using ONLY the numbered context. "
-                            "Cite sources like [1]. If evidence is insufficient, say so. Do not guess."
+                            "Answer university research-portfolio questions using ONLY the numbered context.\n"
+                            "Every factual claim must include one or more citations such as [1] or [2][4].\n"
+                            "Use the evidence's labels and source types when interpreting it.\n"
+                            "Do not treat profile statements, publications, grants, and presentations as "
+                            "interchangeable evidence.\n"
+                            "If evidence is insufficient, say what information is missing. Do not guess."
                             + person_instruction
                         ),
                     },
