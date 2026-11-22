@@ -1,14 +1,16 @@
-
-
-
 name: research-rag
 
 networks:
   backend:
-    
+
 volumes:
   qdrant_data:
   neo4j_data:
+
+
+# =============================================================================
+# Reusable service definitions
+# =============================================================================
 
 x-init-ollama: &init-ollama
   image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
@@ -19,23 +21,18 @@ x-init-ollama: &init-ollama
     - ./ollama_storage:/root/.ollama
   entrypoint: ["/bin/sh", "-c"]
   environment:
-    CHAT_PLATFORM: ${CHAT_PLATFORM}
-    CHAT_MODEL: ${CHAT_MODEL}
-    DECISION_PLATFORM: ${DECISION_PLATFORM}
-    DECISION_MODEL: ${DECISION_MODEL}
     DENSE_EMBED_PLATFORM: ${DENSE_EMBED_PLATFORM}
     DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL}
-    RERANK_PLATFORM: ${RERANK_PLATFORM}
-    RERANK_MODEL: ${RERANK_MODEL}
   command:
-      - |
-        ollama serve &
-        sleep 10
+    - |
+      ollama serve &
+      sleep 10
 
-        [ "$$DENSE_EMBED_PLATFORM" = "ollama" ] && ollama pull "$$DENSE_EMBEDDING_MODEL"
-        [ "$$RERANK_PLATFORM" = "ollama" ] && ollama pull "$$RERANK_MODEL"
-        [ "$$DECISION_PLATFORM" = "ollama" ] && ollama pull "$$DECISION_MODEL"
-        [ "$$CHAT_PLATFORM" = "ollama" ] && ollama pull "$$CHAT_MODEL"
+      if [ "$$DENSE_EMBED_PLATFORM" = "ollama" ]; then
+        ollama pull "$$DENSE_EMBEDDING_MODEL"
+      fi
+
+      exit 0
 
 
 x-ollama: &service-ollama
@@ -45,7 +42,7 @@ x-ollama: &service-ollama
     - backend
   restart: unless-stopped
   ports:
-    - "11434:11434"
+    - "127.0.0.1:11434:11434"
   volumes:
     - ./ollama_storage:/root/.ollama
   healthcheck:
@@ -55,23 +52,303 @@ x-ollama: &service-ollama
     retries: 10
     start_period: 60s
 
+
+x-vllm-common: &vllm-common
+  image: ${VLLM_IMAGE:-vllm/vllm-openai:v0.33.0}
+  networks:
+    - backend
+  restart: unless-stopped
+  volumes:
+    - ./vllm_storage/huggingface:/root/.cache/huggingface
+  environment:
+    VLLM_SERVER_DEV_MODE: "1"
+  gpus: all
+  ipc: host
+  healthcheck:
+    test:
+      [
+        "CMD",
+        "python3",
+        "-c",
+        "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+      ]
+    interval: 15s
+    timeout: 5s
+    retries: 40
+    start_period: 600s
+
+
+# =============================================================================
+# Services
+# =============================================================================
+
 services:
-  
+
+  # ===========================================================================
+  # Chat model - vLLM
+  # ===========================================================================
+
+  vllm-chat:
+    <<: *vllm-common
+    container_name: researchrag-vllm-chat
+    ports:
+      - "127.0.0.1:${VLLM_CHAT_PORT:-18001}:8000"
+    command:
+      - ${VLLM_CHAT_MODEL:-google/gemma-4-12B-it-qat-w4a16-ct}
+
+      - --served-model-name
+      - ${CHAT_MODEL:-gemma4-12b}
+      - gemma4:12b
+
+      - --enable-sleep-mode
+
+      - --max-model-len
+      - "${VLLM_CHAT_MAX_MODEL_LEN:-25000}"
+
+      - --max-num-seqs
+      - "2"
+
+      - --max-num-batched-tokens
+      - "4096"
+
+      - --gpu-memory-utilization
+      - "${VLLM_CHAT_GPU_UTIL:-0.75}"
+
+      - --kv-cache-dtype
+      - fp8
+
+      - --enforce-eager
+
+      - --limit-mm-per-prompt
+      - '{"image":0,"audio":0}'
+
+      - --enable-auto-tool-choice
+
+      - --tool-call-parser
+      - gemma4
+
+      - --reasoning-parser
+      - gemma4
+
+      - --chat-template
+      - examples/tool_chat_template_gemma4.jinja
+
+
+  # ===========================================================================
+  # Sleep chat model before decision model starts
+  # ===========================================================================
+
+  vllm-chat-sleep-init:
+    image: python:3.12-alpine
+    networks:
+      - backend
+    restart: "no"
+    depends_on:
+      vllm-chat:
+        condition: service_healthy
+    command:
+      - python
+      - -c
+      - |
+        import urllib.request
+
+        req = urllib.request.Request(
+            "http://vllm-chat:8000/sleep?level=1",
+            data=b"",
+            method="POST",
+        )
+
+        with urllib.request.urlopen(req, timeout=120) as response:
+            print("Chat vLLM sleep:", response.status)
+
+
+  # ===========================================================================
+  # Wake chat model after all GPU services have initialized
+  # ===========================================================================
+
+  vllm-chat-wake-init:
+    image: python:3.12-alpine
+    networks:
+      - backend
+    restart: "no"
+
+    depends_on:
+      vllm-chat-sleep-init:
+        condition: service_completed_successfully
+
+      vllm-decision-sleep-init:
+        condition: service_completed_successfully
+
+      ollama:
+        condition: service_healthy
+
+      ollama-init:
+        condition: service_completed_successfully
+
+      reranker:
+        condition: service_healthy
+
+    command:
+      - python
+      - -c
+      - |
+        import urllib.request
+
+        req = urllib.request.Request(
+            "http://vllm-chat:8000/wake_up",
+            data=b"",
+            method="POST",
+        )
+
+        with urllib.request.urlopen(req, timeout=120) as response:
+            print("Chat vLLM wake:", response.status)
+
+  # ===========================================================================
+  # Decision model - vLLM
+  # ===========================================================================
+
+  vllm-decision:
+    <<: *vllm-common
+    container_name: researchrag-vllm-decision
+    ports:
+      - "127.0.0.1:${VLLM_DECISION_PORT:-18003}:8000"
+    depends_on:
+      vllm-chat-sleep-init:
+        condition: service_completed_successfully
+    command:
+      - ${VLLM_DECISION_MODEL:-Cloudflare/clef-flash}
+
+      - --served-model-name
+      - ${DECISION_MODEL:-clef-flash:9b}
+
+      - --runner
+      - pooling
+
+      - --max-model-len
+      - "${VLLM_DECISION_MAX_MODEL_LEN:-4096}"
+
+      - --gpu-memory-utilization
+      - "${VLLM_DECISION_GPU_UTIL:-0.90}"
+
+      - --quantization
+      - fp8_per_tensor
+
+      - --enforce-eager
+
+      - --enable-sleep-mode
+
+
+  # ===========================================================================
+  # Sleep decision model before persistent GPU services start
+  # ===========================================================================
+
+  vllm-decision-sleep-init:
+    image: python:3.12-alpine
+    networks:
+      - backend
+    restart: "no"
+    depends_on:
+      vllm-decision:
+        condition: service_healthy
+    command:
+      - python
+      - -c
+      - |
+        import urllib.request
+
+        req = urllib.request.Request(
+            "http://vllm-decision:8000/sleep?level=1",
+            data=b"",
+            method="POST",
+        )
+
+        with urllib.request.urlopen(req, timeout=120) as response:
+            print("Decision vLLM sleep:", response.status)
+
+
+  # ===========================================================================
+  # Ollama - dense embedding only
+  # ===========================================================================
+
+  ollama:
+    <<: *service-ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: "-1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    gpus: all
+    depends_on:
+      vllm-decision-sleep-init:
+        condition: service_completed_successfully
+
+
+  ollama-init:
+    <<: *init-ollama
+    restart: "no"
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+
+  # ===========================================================================
+  # Reranker - Hugging Face TEI
+  # ===========================================================================
+
+  reranker:
+    image: ${TEI_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:120-1.9}
+    container_name: researchrag-reranker
+    networks:
+      - backend
+    restart: unless-stopped
+    command:
+      - --model-id
+      - ${RERANK_MODEL}
+      - --port
+      - "80"
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - ./tei_data:/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c 'exec 3<>/dev/tcp/127.0.0.1/80 && printf \"GET /health HTTP/1.1\\r\\nHost: x\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && grep -q \"200 OK\" <&3'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
+    gpus: all
+    depends_on:
+      vllm-decision-sleep-init:
+        condition: service_completed_successfully
+
+
+  # ===========================================================================
+  # Qdrant
+  # ===========================================================================
 
   qdrant:
     image: ${QDRANT_IMAGE:-qdrant/qdrant:v1.20.2}
+    networks:
+      - backend
     restart: unless-stopped
     ports:
       - "127.0.0.1:${QDRANT_PORT:-6333}:6333"
     volumes:
       - qdrant_data:/qdrant/storage
-    networks:
-      - backend
     healthcheck:
-      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/6333 && echo -e 'GET /readyz HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q 'HTTP/1.1 200' <&3"]
+      test:
+        [
+          "CMD",
+          "bash",
+          "-c",
+          "exec 3<>/dev/tcp/127.0.0.1/6333 && echo -e 'GET /readyz HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q 'HTTP/1.1 200' <&3"
+        ]
       interval: 5s
       timeout: 3s
       retries: 4
+
 
   qdrant-init:
     image: curlimages/curl:8.12.1
@@ -88,110 +365,44 @@ services:
           sleep 2
         done
 
-        if curl -fsS http://qdrant:6333/collections/${QDRANT_COLLECTION} >/dev/null; then
-          echo "Collection ${QDRANT_COLLECTION} already exists"
-        else
-          echo "Creating collection ${QDRANT_COLLECTION}"
-          curl -fsS -X PUT http://qdrant:6333/collections/${QDRANT_COLLECTION} \
-            -H "Content-Type: application/json" \
-            -d '{"vectors":{"default":{"distance":"Cosine","size":${DENSE_EMBED_DIMENSION:-1024}}},"sparse_vectors":{"bm25":{"modifier":"idf"}}}'
-          echo
-        fi
+        for collection in \
+          "${QDRANT_COLLECTION}" \
+          "${QDRANT_TEST_COLLECTION}"
+        do
+          if curl -fsS "http://qdrant:6333/collections/$${collection}" >/dev/null; then
+            echo "Collection $${collection} already exists"
+          else
+            echo "Creating collection $${collection}"
 
-        if curl -fsS http://qdrant:6333/collections/${QDRANT_TEST_COLLECTION} >/dev/null; then
-          echo "Collection ${QDRANT_TEST_COLLECTION} already exists"
-        else
-          echo "Creating collection ${QDRANT_TEST_COLLECTION}"
-          curl -fsS -X PUT http://qdrant:6333/collections/${QDRANT_TEST_COLLECTION} \
-            -H "Content-Type: application/json" \
-            -d '{"vectors":{"default":{"distance":"Cosine","size":${DENSE_EMBED_DIMENSION:-1024}}},"sparse_vectors":{"bm25":{"modifier":"idf"}}}'
-          echo
-        fi
-  ollama:
-    environment:
-      OLLAMA_CONTEXT_LENGTH: "55000"
-      OLLAMA_FLASH_ATTENTION: "1"
-      OLLAMA_KV_CACHE_TYPE: "q8_0"
-      OLLAMA_KEEP_ALIVE: "-1" 
-      OLLAMA_MAX_LOADED_MODELS: "2"
-    <<: *service-ollama
-    gpus: all
+            curl -fsS \
+              -X PUT \
+              "http://qdrant:6333/collections/$${collection}" \
+              -H "Content-Type: application/json" \
+              -d '{"vectors":{"default":{"distance":"Cosine","size":${DENSE_EMBED_DIMENSION:-1024}}},"sparse_vectors":{"bm25":{"modifier":"idf"}}}'
 
-  ollama-init:
-    <<: *init-ollama
-    restart: "no"
+            echo
+          fi
+        done
 
-  user_app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    user: "1000:1000"
-    networks:
-      - backend
-    environment:
-      DENSE_EMBEDDING_URL: ${DENSE_EMBEDDING_URL:-http://llama-swap:8080/upstream/mxbai-embed/api/embed}
-      DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL:-mxbai-embed-large:335m}
-      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
-      QDRANT_TEST_COLLECTION: ${QDRANT_TEST_COLLECTION:-researcher_rag_smoke_test}
-      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-researcher_rag}
-      BM25_AVG_LEN: ${BM25_AVG_LEN:-70}
-      CHAT_NUM_CTX: ${CHAT_NUM_CTX:-55000}
-      CHAT_NUM_PREDICT: ${CHAT_NUM_PREDICT:-5000}
-      CHAT_URL: ${CHAT_URL:-http://llama-swap:8080/upstream/gemma4-12b/api/chat}
-      CHAT_MODEL: ${CHAT_MODEL:-gemma4:12b}
-      RERANK_URL: ${RERANK_URL:-http://llama-swap:8080/v1/rerank}
-      RERANK_MODEL: ${RERANK_MODEL}
-      RERANK_CANDIDATES: ${RERANK_CANDIDATES:-20}
-      RAG_TOP_K: ${RAG_TOP_K:-5}
-      RERANK_MIN_SCORE: ${RERANK_MIN_SCORE:-0.05}
-      NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
-      NEO4J_USERNAME: ${NEO4J_USERNAME:?missing}
-      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?missing}
-      NEO4J_DATABASE: ${NEO4J_DATABASE:-neo4j}
-      PYTHONPATH: /app/src
-      RP_COLLECTION: ${RP_COLLECTION:-rp_chunks}
-      DECISION_URL: ${DECISION_URL:-http://llama-swap:8080/upstream/clef-flash-9b/v1/systemone}
-      DECISION_MODEL: ${DECISION_MODEL:-}
-      OPENALEX_MAILTO: ${OPENALEX_MAILTO:-}
-      # PYTHONPATH: /app/src
-      RAG_REPO_ROOT: /app
-      CHAT_API: ${CHAT_API:-ollama}
-      EMBED_API: ${EMBED_API:-ollama}
-    volumes:
-      - ./fastembed_cache:/cache/fastembed
-      - ./src:/app/src    
-      - ./config:/app/config
-      - ./data:/app/data      
-      - ./tests:/app/tests
-    working_dir: /app
-    command: ["python", "-m", "uvicorn", "research_portfolio.web.app:app", "--host", "0.0.0.0", "--port", "8080"]
-    ports:
-      - "127.0.0.1:${APP_PORT:-8080}:8080"
-    restart: unless-stopped
-    depends_on:
-      qdrant:
-        condition: service_healthy
-      qdrant-init:
-        condition: service_completed_successfully
-      # ollama:
-      #   condition: service_healthy
-      # ollama-init:
-      #   condition: service_completed_successfully
-      llama-swap:
-        condition: service_started
-      reranker:
-        condition: service_healthy
-      neo4j:
-        condition: service_healthy
+
+  # ===========================================================================
+  # Neo4j
+  # ===========================================================================
 
   neo4j:
     image: ${NEO4J_IMAGE:-neo4j:2026.10.2-community-ubi10}
     container_name: researchrag-neo4j
+    networks:
+      - backend
+    restart: unless-stopped
     ports:
       - "7474:7474"
       - "7687:7687"
     volumes:
       - neo4j_data:/data
+    environment:
+      NEO4J_AUTH: ${NEO4J_USERNAME:?missing}/${NEO4J_PASSWORD:?missing}
+      NEO4J_dbms_default__database: "neo4j"
     healthcheck:
       test:
         - CMD-SHELL
@@ -200,34 +411,14 @@ services:
       timeout: 3s
       retries: 120
       start_period: 10s
-    restart: unless-stopped
-    networks:
-      - backend
-    environment:
-      NEO4J_AUTH: ${NEO4J_USERNAME:?missing}/${NEO4J_PASSWORD:?missing}
-      NEO4J_dbms_default__database: "neo4j"
-    
-  reranker:
-    image: ${TEI_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:120-1.9}
-    container_name: researchrag-reranker
-    networks:
-      - backend
-    restart: unless-stopped
-    command: ["--model-id", "${RERANK_MODEL}", "--port", "80"]
-    environment:
-      HF_TOKEN: ${HF_TOKEN:-}
-    volumes:
-      - ./tei_data:/data             
-    healthcheck:
-      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/80 && printf \"GET /health HTTP/1.1\\r\\nHost: x\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && grep -q \"200 OK\" <&3'"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-      start_period: 120s               
-    gpus: all                    
+
+
+  # ===========================================================================
+  # llama-swap - model routing and GPU swapping
+  # ===========================================================================
 
   llama-swap:
-    image: ${LLAMA_SWAP_IMAGE:-ghcr.io/mostlygeek/llama-swap:cpu}
+    image: ${LLAMA_SWAP_IMAGE:-ghcr.io/mostlygeek/llama-swap:unified-cuda13}
     container_name: researchrag-llama-swap
     networks:
       - backend
@@ -235,13 +426,123 @@ services:
     ports:
       - "127.0.0.1:${LLAMA_SWAP_PORT:-9292}:8080"
     volumes:
-      - ./llama-swap/config.yaml:/app/config.yaml:ro
+      - ./llama-swap/config.yaml:/etc/llama-swap/config/config.yaml:ro
       - ./llama-swap/ollama-keeper.sh:/app/ollama-keeper.sh:ro
     environment:
       OLLAMA_URL: http://ollama:11434
+      VLLM_CHAT_URL: http://vllm-chat:8000
+      VLLM_DECISION_URL: http://vllm-decision:8000
     depends_on:
       ollama:
         condition: service_healthy
+
       ollama-init:
         condition: service_completed_successfully
 
+      vllm-chat-sleep-init:
+        condition: service_completed_successfully
+      vllm-chat-wake-init:
+        condition: service_completed_successfully
+
+      vllm-decision-sleep-init:
+        condition: service_completed_successfully
+
+      reranker:
+        condition: service_healthy
+
+
+  # ===========================================================================
+  # ResearchRAG application
+  # ===========================================================================
+
+  user_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "1000:1000"
+    networks:
+      - backend
+    restart: unless-stopped
+
+    environment:
+      # Dense retrieval
+      DENSE_EMBEDDING_URL: ${DENSE_EMBEDDING_URL:-http://llama-swap:8080/v1/embeddings}
+      DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL:-mxbai-embed-large:335m}
+      EMBED_API: ${EMBED_API:-openai}
+      BM25_AVG_LEN: ${BM25_AVG_LEN:-70}
+
+      # Chat
+      CHAT_URL: ${CHAT_URL:-http://llama-swap:8080/v1/chat/completions}
+      CHAT_MODEL: ${CHAT_MODEL:-gemma4-12b}
+      CHAT_API: ${CHAT_API:-openai}
+      CHAT_NUM_CTX: ${CHAT_NUM_CTX:-20000}
+      CHAT_NUM_PREDICT: ${CHAT_NUM_PREDICT:-5000}
+      CHAT_MAX_SOURCE_CHARS: ${CHAT_MAX_SOURCE_CHARS:-6000}
+      ANSWER_GUARD_MODE: ${ANSWER_GUARD_MODE:-fallback}
+
+      # Decision
+      DECISION_URL: ${DECISION_URL:-http://llama-swap:8080/v1/systemone}
+      DECISION_MODEL: ${DECISION_MODEL:-clef-flash:9b}
+
+      # Reranker
+      RERANK_URL: ${RERANK_URL:-http://llama-swap:8080/rerank}
+      RERANK_MODEL: ${RERANK_MODEL}
+      RERANK_CANDIDATES: ${RERANK_CANDIDATES:-20}
+      RERANK_MIN_SCORE: ${RERANK_MIN_SCORE:-0.05}
+      RAG_TOP_K: ${RAG_TOP_K:-5}
+
+      # Qdrant
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-researcher_rag}
+      QDRANT_TEST_COLLECTION: ${QDRANT_TEST_COLLECTION:-researcher_rag_smoke_test}
+
+      # Neo4j
+      NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
+      NEO4J_USERNAME: ${NEO4J_USERNAME:?missing}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?missing}
+      NEO4J_DATABASE: ${NEO4J_DATABASE:-neo4j}
+
+      # External data
+      OPENALEX_MAILTO: ${OPENALEX_MAILTO:-}
+
+      # Application
+      PYTHONPATH: /app/src
+      RAG_REPO_ROOT: /app
+      RP_COLLECTION: ${RP_COLLECTION:-rp_chunks}
+
+    volumes:
+      - ./fastembed_cache:/cache/fastembed
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./data:/app/data
+      - ./tests:/app/tests
+
+    working_dir: /app
+
+    command:
+      [
+        "python",
+        "-m",
+        "uvicorn",
+        "research_portfolio.web.app:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8080"
+      ]
+
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+
+    depends_on:
+      qdrant-init:
+        condition: service_completed_successfully
+
+      neo4j:
+        condition: service_healthy
+
+      llama-swap:
+        condition: service_started
+
+      reranker:
+        condition: service_healthy
