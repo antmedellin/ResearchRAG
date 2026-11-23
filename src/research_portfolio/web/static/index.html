@@ -89,6 +89,21 @@ if(saveBtn) saveBtn.onclick=async()=>{
     $('#runState').textContent='Save failed: '+e.message;
   }
 };document.querySelectorAll('.view').forEach(b=>b.onclick=()=>chunk(b.dataset.id));document.querySelectorAll('.record-inspect').forEach(b=>b.onclick=()=>inspectRecord(b.dataset.record));document.querySelectorAll('.record-graph').forEach(b=>b.onclick=()=>openEntityInGraph(b.dataset.entity));bindRecordLinks($('#result'))}
+async function deleteSavedResearch(id){
+  if(!confirm('Are you sure you want to delete this saved research entry?')){
+    return;
+  }
+
+  try{
+    await api('/api/saved-research/'+encodeURIComponent(id),{
+      method:'DELETE'
+    });
+
+    await loadSavedResearch();
+  }catch(e){
+    alert('Could not delete saved research: '+e.message);
+  }
+}
 async function loadSavedResearch(){
   const host=$('#savedResearchList');
   host.innerHTML='<div class="empty-result">Loading saved research…</div>';
