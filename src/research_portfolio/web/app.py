@@ -143,7 +143,7 @@ def query_one(q,depts,pid,types,mode,limit,since,grant_status,sponsor,investigat
     if depts and not allowed:
         return {"kind":"evidence","answer":None,"sources":[],"scope_note":f"No validated roster members found for: {', '.join(depts)}."}
     if person_obj and mode=="answer" and not types:
-        points=R.balanced_person_evidence(q,person_obj["person_id"],candidates=max(20,limit))
+        points=R.balanced_person_evidence(q,person_obj["person_id"],profile_k=max(3,limit//6),research_k=5,candidates=max(40,limit*2),fill_to=limit)
         points=scope_points(points,None,since)
     else:
         flt=R.build_filter(types=types or None,depts=depts,since=since,people=[pid] if pid else None,funded_only=False)
