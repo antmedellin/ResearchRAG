@@ -7,63 +7,20 @@ volumes:
   qdrant_data:
   neo4j_data:
 
-
 # =============================================================================
 # Reusable service definitions
 # =============================================================================
-
-x-init-ollama: &init-ollama
-  image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
-  container_name: researchrag-ollama-pull
-  networks:
-    - backend
-  volumes:
-    - ./ollama_storage:/root/.ollama
-  entrypoint: ["/bin/sh", "-c"]
-  environment:
-    DENSE_EMBED_PLATFORM: ${DENSE_EMBED_PLATFORM}
-    DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL}
-  command:
-    - |
-      ollama serve &
-      sleep 10
-
-      if [ "$$DENSE_EMBED_PLATFORM" = "ollama" ]; then
-        ollama pull "$$DENSE_EMBEDDING_MODEL"
-      fi
-
-      exit 0
-
-
-x-ollama: &service-ollama
-  image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
-  container_name: researchrag-ollama
-  networks:
-    - backend
-  restart: unless-stopped
-  ports:
-    - "127.0.0.1:11434:11434"
-  volumes:
-    - ./ollama_storage:/root/.ollama
-  healthcheck:
-    test: ["CMD-SHELL", "[ $(ollama list | wc -l) -gt 1 ]"]
-    interval: 10s
-    timeout: 10s
-    retries: 10
-    start_period: 60s
-
 
 x-vllm-common: &vllm-common
   image: ${VLLM_IMAGE:-vllm/vllm-openai:v0.33.0}
   networks:
     - backend
-  restart: unless-stopped
   volumes:
     - ./vllm_storage/huggingface:/root/.cache/huggingface
-  environment:
-    VLLM_SERVER_DEV_MODE: "1"
+    - ./vllm/health-stub.py:/opt/health-stub.py:ro
   gpus: all
   ipc: host
+  entrypoint: ["/bin/sh", "-c"]
   healthcheck:
     test:
       [
@@ -77,6 +34,11 @@ x-vllm-common: &vllm-common
     retries: 40
     start_period: 600s
 
+x-sleep-init: &sleep-init
+  image: python:3.12-alpine
+  networks:
+    - backend
+  restart: "no"
 
 # =============================================================================
 # Services
@@ -85,7 +47,7 @@ x-vllm-common: &vllm-common
 services:
 
   # ===========================================================================
-  # Chat model - vLLM
+  # Chat model - vLLM (runs a no-GPU health stub when CHAT_PLATFORM != vllm)
   # ===========================================================================
 
   vllm-chat:
@@ -93,56 +55,38 @@ services:
     container_name: researchrag-vllm-chat
     ports:
       - "127.0.0.1:${VLLM_CHAT_PORT:-18001}:8000"
+    environment:
+      # Must be repeated here: '<<' merge does not combine environment maps.
+      VLLM_SERVER_DEV_MODE: "1"
+      CHAT_PLATFORM: ${CHAT_PLATFORM:-vllm}
+      VLLM_CHAT_MODEL: ${VLLM_CHAT_MODEL:-google/gemma-4-12B-it-qat-w4a16-ct}
+      VLLM_CHAT_SERVED_MODEL: ${VLLM_CHAT_SERVED_MODEL:-gemma4-12b}
+      VLLM_CHAT_MAX_MODEL_LEN: ${VLLM_CHAT_MAX_MODEL_LEN:-25000}
+      VLLM_CHAT_GPU_UTIL: ${VLLM_CHAT_GPU_UTIL:-0.75}
     command:
-      - ${VLLM_CHAT_MODEL:-google/gemma-4-12B-it-qat-w4a16-ct}
-
-      - --served-model-name
-      - ${CHAT_MODEL:-gemma4-12b}
-      - gemma4:12b
-
-      - --enable-sleep-mode
-
-      - --max-model-len
-      - "${VLLM_CHAT_MAX_MODEL_LEN:-25000}"
-
-      - --max-num-seqs
-      - "2"
-
-      - --max-num-batched-tokens
-      - "4096"
-
-      - --gpu-memory-utilization
-      - "${VLLM_CHAT_GPU_UTIL:-0.75}"
-
-      - --kv-cache-dtype
-      - fp8
-
-      - --enforce-eager
-
-      - --limit-mm-per-prompt
-      - '{"image":0,"audio":0}'
-
-      - --enable-auto-tool-choice
-
-      - --tool-call-parser
-      - gemma4
-
-      - --reasoning-parser
-      - gemma4
-
-      - --chat-template
-      - examples/tool_chat_template_gemma4.jinja
-
-
-  # ===========================================================================
-  # Sleep chat model before decision model starts
-  # ===========================================================================
+      - |
+        if [ "$$CHAT_PLATFORM" != "vllm" ]; then
+          echo "Chat platform is $$CHAT_PLATFORM; vLLM chat disabled (health stub)."
+          exec python3 /opt/health-stub.py
+        fi
+        echo "Chat platform is vllm; starting $$VLLM_CHAT_MODEL"
+        exec vllm serve "$$VLLM_CHAT_MODEL" \
+          --served-model-name "$$VLLM_CHAT_SERVED_MODEL" \
+          --enable-sleep-mode \
+          --max-model-len "$$VLLM_CHAT_MAX_MODEL_LEN" \
+          --max-num-seqs 2 \
+          --max-num-batched-tokens 4096 \
+          --gpu-memory-utilization "$$VLLM_CHAT_GPU_UTIL" \
+          --kv-cache-dtype fp8 \
+          --enforce-eager \
+          --limit-mm-per-prompt '{"image":0,"audio":0}' \
+          --enable-auto-tool-choice \
+          --tool-call-parser gemma4 \
+          --reasoning-parser gemma4 \
+          --chat-template examples/tool_chat_template_gemma4.jinja
 
   vllm-chat-sleep-init:
-    image: python:3.12-alpine
-    networks:
-      - backend
-    restart: "no"
+    <<: *sleep-init
     depends_on:
       vllm-chat:
         condition: service_healthy
@@ -151,60 +95,12 @@ services:
       - -c
       - |
         import urllib.request
-
-        req = urllib.request.Request(
-            "http://vllm-chat:8000/sleep?level=1",
-            data=b"",
-            method="POST",
-        )
-
-        with urllib.request.urlopen(req, timeout=120) as response:
-            print("Chat vLLM sleep:", response.status)
-
+        req = urllib.request.Request("http://vllm-chat:8000/sleep?level=1", data=b"", method="POST")
+        with urllib.request.urlopen(req, timeout=120) as r:
+            print("Chat vLLM sleep:", r.status)
 
   # ===========================================================================
-  # Wake chat model after all GPU services have initialized
-  # ===========================================================================
-
-  vllm-chat-wake-init:
-    image: python:3.12-alpine
-    networks:
-      - backend
-    restart: "no"
-
-    depends_on:
-      vllm-chat-sleep-init:
-        condition: service_completed_successfully
-
-      vllm-decision-sleep-init:
-        condition: service_completed_successfully
-
-      ollama:
-        condition: service_healthy
-
-      ollama-init:
-        condition: service_completed_successfully
-
-      reranker:
-        condition: service_healthy
-
-    command:
-      - python
-      - -c
-      - |
-        import urllib.request
-
-        req = urllib.request.Request(
-            "http://vllm-chat:8000/wake_up",
-            data=b"",
-            method="POST",
-        )
-
-        with urllib.request.urlopen(req, timeout=120) as response:
-            print("Chat vLLM wake:", response.status)
-
-  # ===========================================================================
-  # Decision model - vLLM
+  # Decision model - vLLM (health stub when DECISION_PLATFORM != vllm)
   # ===========================================================================
 
   vllm-decision:
@@ -212,41 +108,34 @@ services:
     container_name: researchrag-vllm-decision
     ports:
       - "127.0.0.1:${VLLM_DECISION_PORT:-18003}:8000"
+    environment:
+      VLLM_SERVER_DEV_MODE: "1"
+      DECISION_PLATFORM: ${DECISION_PLATFORM:-vllm}
+      VLLM_DECISION_MODEL: ${VLLM_DECISION_MODEL:-Cloudflare/clef-flash}
+      VLLM_DECISION_SERVED_MODEL: ${VLLM_DECISION_SERVED_MODEL:-clef-flash-vllm}
+      VLLM_DECISION_MAX_MODEL_LEN: ${VLLM_DECISION_MAX_MODEL_LEN:-4096}
+      VLLM_DECISION_GPU_UTIL: ${VLLM_DECISION_GPU_UTIL:-0.70}
     depends_on:
       vllm-chat-sleep-init:
         condition: service_completed_successfully
     command:
-      - ${VLLM_DECISION_MODEL:-Cloudflare/clef-flash}
-
-      - --served-model-name
-      - ${DECISION_MODEL:-clef-flash:9b}
-
-      - --runner
-      - pooling
-
-      - --max-model-len
-      - "${VLLM_DECISION_MAX_MODEL_LEN:-4096}"
-
-      - --gpu-memory-utilization
-      - "${VLLM_DECISION_GPU_UTIL:-0.90}"
-
-      - --quantization
-      - fp8_per_tensor
-
-      - --enforce-eager
-
-      - --enable-sleep-mode
-
-
-  # ===========================================================================
-  # Sleep decision model before persistent GPU services start
-  # ===========================================================================
+      - |
+        if [ "$$DECISION_PLATFORM" != "vllm" ]; then
+          echo "Decision platform is $$DECISION_PLATFORM; vLLM decision disabled (health stub)."
+          exec python3 /opt/health-stub.py
+        fi
+        echo "Decision platform is vllm; starting $$VLLM_DECISION_MODEL"
+        exec vllm serve "$$VLLM_DECISION_MODEL" \
+          --served-model-name "$$VLLM_DECISION_SERVED_MODEL" \
+          --runner pooling \
+          --max-model-len "$$VLLM_DECISION_MAX_MODEL_LEN" \
+          --gpu-memory-utilization "$$VLLM_DECISION_GPU_UTIL" \
+          --quantization fp8_per_tensor \
+          --enforce-eager \
+          --enable-sleep-mode
 
   vllm-decision-sleep-init:
-    image: python:3.12-alpine
-    networks:
-      - backend
-    restart: "no"
+    <<: *sleep-init
     depends_on:
       vllm-decision:
         condition: service_healthy
@@ -255,39 +144,68 @@ services:
       - -c
       - |
         import urllib.request
-
-        req = urllib.request.Request(
-            "http://vllm-decision:8000/sleep?level=1",
-            data=b"",
-            method="POST",
-        )
-
-        with urllib.request.urlopen(req, timeout=120) as response:
-            print("Decision vLLM sleep:", response.status)
-
+        req = urllib.request.Request("http://vllm-decision:8000/sleep?level=1", data=b"", method="POST")
+        with urllib.request.urlopen(req, timeout=120) as r:
+            print("Decision vLLM sleep:", r.status)
 
   # ===========================================================================
-  # Ollama - dense embedding only
+  # Ollama - embeddings always; chat/decision when platform=ollama
   # ===========================================================================
 
   ollama:
-    <<: *service-ollama
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
+    container_name: researchrag-ollama
+    networks:
+      - backend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ./ollama_storage:/root/.ollama
     environment:
       OLLAMA_KEEP_ALIVE: "-1"
-      OLLAMA_MAX_LOADED_MODELS: "1"
+      OLLAMA_MAX_LOADED_MODELS: "2"
+      # OpenAI-compatible requests cannot set num_ctx; this is the only knob.
+      OLLAMA_CONTEXT_LENGTH: ${OLLAMA_CONTEXT_LENGTH:-4096}
     gpus: all
+    healthcheck:
+      # Server up is enough; do not require a model to exist (fresh-volume deadlock).
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     depends_on:
       vllm-decision-sleep-init:
         condition: service_completed_successfully
 
-
   ollama-init:
-    <<: *init-ollama
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
+    container_name: researchrag-ollama-pull
+    networks:
+      - backend
     restart: "no"
+    entrypoint: ["/bin/sh", "-ec"]
+    environment:
+      OLLAMA_HOST: http://ollama:11434      # pull through the main server
+      CHAT_PLATFORM: ${CHAT_PLATFORM:-vllm}
+      DECISION_PLATFORM: ${DECISION_PLATFORM:-vllm}
+      DENSE_EMBED_PLATFORM: ${DENSE_EMBED_PLATFORM:-ollama}
+      DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL:-mxbai-embed-large:335m}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-gemma4:12b}
+      OLLAMA_DECISION_MODEL: ${OLLAMA_DECISION_MODEL:-clef-flash:9b}
+    command:
+      - |
+        for p in "$$CHAT_PLATFORM" "$$DECISION_PLATFORM"; do
+          case "$$p" in vllm|ollama) ;; *) echo "ERROR: platform '$$p' must be vllm or ollama" >&2; exit 1 ;; esac
+        done
+        [ "$$DENSE_EMBED_PLATFORM" = "ollama" ] && ollama pull "$$DENSE_EMBEDDING_MODEL"
+        [ "$$CHAT_PLATFORM" = "ollama" ] && ollama pull "$$OLLAMA_CHAT_MODEL"
+        [ "$$DECISION_PLATFORM" = "ollama" ] && ollama pull "$$OLLAMA_DECISION_MODEL"
+        echo "ollama-init done"
     depends_on:
       ollama:
         condition: service_healthy
-
 
   # ===========================================================================
   # Reranker - Hugging Face TEI
@@ -323,7 +241,6 @@ services:
       vllm-decision-sleep-init:
         condition: service_completed_successfully
 
-
   # ===========================================================================
   # Qdrant
   # ===========================================================================
@@ -349,7 +266,6 @@ services:
       timeout: 3s
       retries: 4
 
-
   qdrant-init:
     image: curlimages/curl:8.12.1
     networks:
@@ -364,7 +280,6 @@ services:
           echo "Waiting for Qdrant..."
           sleep 2
         done
-
         for collection in \
           "${QDRANT_COLLECTION}" \
           "${QDRANT_TEST_COLLECTION}"
@@ -373,17 +288,14 @@ services:
             echo "Collection $${collection} already exists"
           else
             echo "Creating collection $${collection}"
-
             curl -fsS \
               -X PUT \
               "http://qdrant:6333/collections/$${collection}" \
               -H "Content-Type: application/json" \
               -d '{"vectors":{"default":{"distance":"Cosine","size":${DENSE_EMBED_DIMENSION:-1024}}},"sparse_vectors":{"bm25":{"modifier":"idf"}}}'
-
             echo
           fi
         done
-
 
   # ===========================================================================
   # Neo4j
@@ -412,9 +324,8 @@ services:
       retries: 120
       start_period: 10s
 
-
   # ===========================================================================
-  # llama-swap - model routing and GPU swapping
+  # llama-swap - routing and GPU swapping
   # ===========================================================================
 
   llama-swap:
@@ -429,27 +340,52 @@ services:
       - ./llama-swap/config.yaml:/etc/llama-swap/config/config.yaml:ro
       - ./llama-swap/ollama-keeper.sh:/app/ollama-keeper.sh:ro
     environment:
+      # Read by config.yaml via ${env.NAME}
       OLLAMA_URL: http://ollama:11434
       VLLM_CHAT_URL: http://vllm-chat:8000
       VLLM_DECISION_URL: http://vllm-decision:8000
+      VLLM_CHAT_SERVED_MODEL: ${VLLM_CHAT_SERVED_MODEL:-gemma4-12b}
+      VLLM_DECISION_SERVED_MODEL: ${VLLM_DECISION_SERVED_MODEL:-clef-flash-vllm}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-gemma4:12b}
+      OLLAMA_DECISION_MODEL: ${OLLAMA_DECISION_MODEL:-clef-flash:9b}
+      DENSE_EMBEDDING_MODEL: ${DENSE_EMBEDDING_MODEL:-mxbai-embed-large:335m}
+      RERANK_MODEL: ${RERANK_MODEL:-BAAI/bge-reranker-v2-m3}
     depends_on:
       ollama:
         condition: service_healthy
-
       ollama-init:
         condition: service_completed_successfully
-
       vllm-chat-sleep-init:
         condition: service_completed_successfully
-      vllm-chat-wake-init:
-        condition: service_completed_successfully
-
       vllm-decision-sleep-init:
         condition: service_completed_successfully
-
       reranker:
         condition: service_healthy
 
+  # ===========================================================================
+  # Warm the chat model THROUGH llama-swap so it tracks the awake state
+  # (replaces vllm-chat-wake-init)
+  # ===========================================================================
+
+  llm-warmup:
+    image: curlimages/curl:8.12.1
+    networks:
+      - backend
+    restart: "no"
+    environment:
+      CHAT_MODEL: chat-${CHAT_PLATFORM:-vllm}
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        until curl -fsS http://llama-swap:8080/v1/models >/dev/null; do sleep 2; done
+        echo "Warming $$CHAT_MODEL via llama-swap"
+        curl -fsS --max-time 900 http://llama-swap:8080/v1/chat/completions \
+          -H "Content-Type: application/json" \
+          -d "{\"model\":\"$$CHAT_MODEL\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}],\"max_tokens\":1}" >/dev/null
+        echo "Chat model ready"
+    depends_on:
+      llama-swap:
+        condition: service_started
 
   # ===========================================================================
   # ResearchRAG application
@@ -463,7 +399,6 @@ services:
     networks:
       - backend
     restart: unless-stopped
-
     environment:
       # Dense retrieval
       DENSE_EMBEDDING_URL: ${DENSE_EMBEDDING_URL:-http://llama-swap:8080/v1/embeddings}
@@ -471,18 +406,20 @@ services:
       EMBED_API: ${EMBED_API:-openai}
       BM25_AVG_LEN: ${BM25_AVG_LEN:-70}
 
-      # Chat
+      # Chat - model ID derived from platform (llama-swap model ID)
+      CHAT_PLATFORM: ${CHAT_PLATFORM:-vllm}
+      CHAT_MODEL: chat-${CHAT_PLATFORM:-vllm}
       CHAT_URL: ${CHAT_URL:-http://llama-swap:8080/v1/chat/completions}
-      CHAT_MODEL: ${CHAT_MODEL:-gemma4-12b}
       CHAT_API: ${CHAT_API:-openai}
       CHAT_NUM_CTX: ${CHAT_NUM_CTX:-20000}
       CHAT_NUM_PREDICT: ${CHAT_NUM_PREDICT:-5000}
       CHAT_MAX_SOURCE_CHARS: ${CHAT_MAX_SOURCE_CHARS:-6000}
       ANSWER_GUARD_MODE: ${ANSWER_GUARD_MODE:-fallback}
 
-      # Decision
+      # Decision - model ID derived from platform (llama-swap model ID)
+      DECISION_PLATFORM: ${DECISION_PLATFORM:-vllm}
+      DECISION_MODEL: decision-${DECISION_PLATFORM:-vllm}
       DECISION_URL: ${DECISION_URL:-http://llama-swap:8080/v1/systemone}
-      DECISION_MODEL: ${DECISION_MODEL:-clef-flash:9b}
 
       # Reranker
       RERANK_URL: ${RERANK_URL:-http://llama-swap:8080/rerank}
@@ -509,16 +446,13 @@ services:
       PYTHONPATH: /app/src
       RAG_REPO_ROOT: /app
       RP_COLLECTION: ${RP_COLLECTION:-rp_chunks}
-
     volumes:
       - ./fastembed_cache:/cache/fastembed
       - ./src:/app/src
       - ./config:/app/config
       - ./data:/app/data
       - ./tests:/app/tests
-
     working_dir: /app
-
     command:
       [
         "python",
@@ -530,19 +464,14 @@ services:
         "--port",
         "8080"
       ]
-
     ports:
       - "127.0.0.1:${APP_PORT:-8080}:8080"
-
     depends_on:
       qdrant-init:
         condition: service_completed_successfully
-
       neo4j:
         condition: service_healthy
-
       llama-swap:
         condition: service_started
-
       reranker:
         condition: service_healthy

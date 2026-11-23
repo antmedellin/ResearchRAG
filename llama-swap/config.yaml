@@ -1,129 +1,129 @@
 healthCheckTimeout: 180
 logLevel: info
 
+# Model names come from the llama-swap container environment (set in
+# docker-compose.yaml from .env). ${env.X} fails loudly if X is unset.
 
 # =============================================================================
 # Startup
 # =============================================================================
-
 hooks:
   on_startup:
     preload:
-      - mxbai-embed
-
+      - embed            # must be a model ID or alias defined below
 
 # =============================================================================
 # Models
+# App selects with CHAT_MODEL=chat-<platform>, DECISION_MODEL=decision-<platform>
 # =============================================================================
-
 models:
 
   # ---------------------------------------------------------------------------
-  # Chat model
+  # Chat
   # ---------------------------------------------------------------------------
-
-  chat:
+  chat-vllm:
     name: "Chat Model (vLLM)"
     proxy: "http://127.0.0.1:${PORT}"
-
     cmd: >
       vllm-wrapper serve
-      --vllm-url http://vllm-chat:8000
+      --vllm-url ${env.VLLM_CHAT_URL}
       --listen :${PORT}
       --wait-timeout 600s
       -- /bin/sh -c "echo Chat vLLM daemon is externally managed; exit 1"
-
     cmdStop: >
       vllm-wrapper sleep
-      --vllm-url http://vllm-chat:8000
+      --vllm-url ${env.VLLM_CHAT_URL}
       --sleep-level 1
       --stop-pid ${PID}
-
     checkEndpoint: /health
+    useModelName: "${env.VLLM_CHAT_SERVED_MODEL}"
     ttl: 1800
     unloadTimeout: 60
 
-    aliases:
-      - "gemma4-12b"
-      - "gemma4:12b"
-
+  chat-ollama:
+    name: "Chat Model (Ollama)"
+    cmd: >
+      sh /app/ollama-keeper.sh
+      ${env.OLLAMA_CHAT_MODEL}
+      chat
+    proxy: http://ollama:11434
+    checkEndpoint: /api/tags
+    useModelName: "${env.OLLAMA_CHAT_MODEL}"
+    ttl: 1800
+    unloadTimeout: 60
 
   # ---------------------------------------------------------------------------
-  # Decision model
+  # Decision
   # ---------------------------------------------------------------------------
-
-  decision:
+  decision-vllm:
     name: "Decision Model (vLLM)"
     proxy: "http://127.0.0.1:${PORT}"
-
     cmd: >
       vllm-wrapper serve
-      --vllm-url http://vllm-decision:8000
+      --vllm-url ${env.VLLM_DECISION_URL}
       --listen :${PORT}
       --wait-timeout 600s
       -- /bin/sh -c "echo Decision vLLM daemon is externally managed; exit 1"
-
     cmdStop: >
       vllm-wrapper sleep
-      --vllm-url http://vllm-decision:8000
+      --vllm-url ${env.VLLM_DECISION_URL}
       --sleep-level 1
       --stop-pid ${PID}
-
     checkEndpoint: /health
+    useModelName: "${env.VLLM_DECISION_SERVED_MODEL}"
     ttl: 600
     unloadTimeout: 60
 
-    aliases:
-      - "clef-flash:9b"
-
-
-  # ---------------------------------------------------------------------------
-  # Dense embedding model
-  # ---------------------------------------------------------------------------
-
-  embed:
-    name: "Dense Embedding Model (Ollama)"
-
+  decision-ollama:
+    name: "Decision Model (Ollama)"
     cmd: >
       sh /app/ollama-keeper.sh
-      mxbai-embed-large:335m
-      embed
-
+      ${env.OLLAMA_DECISION_MODEL}
+      systemone
     proxy: http://ollama:11434
     checkEndpoint: /api/tags
-    useModelName: "mxbai-embed-large:335m"
+    useModelName: "${env.OLLAMA_DECISION_MODEL}"
+    ttl: 600
+    unloadTimeout: 60
 
+  # ---------------------------------------------------------------------------
+  # Dense embedding (Ollama, always resident)
+  # ---------------------------------------------------------------------------
+  embed:
+    name: "Dense Embedding Model (Ollama)"
+    cmd: >
+      sh /app/ollama-keeper.sh
+      ${env.DENSE_EMBEDDING_MODEL}
+      embed
+    proxy: http://ollama:11434
+    checkEndpoint: /api/tags
+    useModelName: "${env.DENSE_EMBEDDING_MODEL}"
     aliases:
-      - "mxbai-embed-large:335m"
-
+      - "${env.DENSE_EMBEDDING_MODEL}"
 
 # =============================================================================
 # External peers
 # =============================================================================
-
 peers:
-
   tei-reranker:
     proxy: http://reranker:80
     models:
-      - BAAI/bge-reranker-v2-m3
-
+      - "${env.RERANK_MODEL}"
 
 # =============================================================================
-# Resource groups
+# Groups
 # =============================================================================
-
 groups:
-
-  # Only one large GPU model may be awake at a time.
+  # Only one large model awake at a time, whichever platform it is on.
   gpu-swap:
     swap: true
     exclusive: false
     members:
-      - chat
-      - decision
+      - chat-vllm
+      - chat-ollama
+      - decision-vllm
+      - decision-ollama
 
-  # Embeddings remain resident in Ollama.
   embed-persistent:
     swap: false
     exclusive: false
