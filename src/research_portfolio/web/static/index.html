@@ -89,6 +89,21 @@ if(saveBtn) saveBtn.onclick=async()=>{
     $('#runState').textContent='Save failed: '+e.message;
   }
 };document.querySelectorAll('.view').forEach(b=>b.onclick=()=>chunk(b.dataset.id));document.querySelectorAll('.record-inspect').forEach(b=>b.onclick=()=>inspectRecord(b.dataset.record));document.querySelectorAll('.record-graph').forEach(b=>b.onclick=()=>openEntityInGraph(b.dataset.entity));bindRecordLinks($('#result'))}
+async function deleteSavedResearch(id){
+  if(!confirm('Are you sure you want to delete this saved research entry?')){
+    return;
+  }
+
+  try{
+    await api('/api/saved-research/'+encodeURIComponent(id),{
+      method:'DELETE'
+    });
+
+    await loadSavedResearch();
+  }catch(e){
+    alert('Could not delete saved research: '+e.message);
+  }
+}
 async function loadSavedResearch(){
   const host=$('#savedResearchList');
   host.innerHTML='<div class="empty-result">Loading saved research…</div>';
@@ -143,7 +158,7 @@ function bar(label,value){return `<div style="display:grid;grid-template-columns
 $('#matchRun').onclick=async()=>{const q=$('#matchQuery').value.trim();if(q.length<10)return $('#matchState').textContent='Enter a more detailed research need';try{$('#matchState').textContent='Scoring faculty and teams…';const p=new URLSearchParams({query:q,team_size:$('#teamSize').value,top_people:$('#candidatePool').value,top_teams:'6'});renderMatch(await api('/api/faculty-match?'+p));$('#matchState').textContent='Complete'}catch(e){$('#matchState').textContent=e.message}};
 async function refreshDepartments(force=false,reloadGraph=false){try{const rows=await api('/api/departments'+(force?'?refresh=true':''));const sig=r=>r.map(x=>x.slug+(x.validated?1:0)).join('|'),changed=sig(rows)!==sig(depts);depts=rows;const v=depts.filter(x=>x.validated);$('#health').textContent=`${v.length} validated organizations`;renderQDepts();if(!$('#dept').disabled){const old=$('#dept').value;$('#dept').innerHTML=o(depts,false);if([...$('#dept').options].some(x=>x.value===old))$('#dept').value=old}updateDept();if(changed||force){filters();years()}kgPost({type:'kg-refresh',reload:!!reloadGraph&&changed})}catch(e){console.error(e)}}
 function updateDept(){const d=depts.find(x=>x.slug===$('#dept').value);if(!d)return;$('#deptInfo').textContent=d.validated?'✓ Fully ingested and validated':d.configured?'Configured, not yet validated':'Configuration will be created automatically';$('#confirm').placeholder='APPLY '+d.slug}async function watch(){const d=await api('/api/jobs/'+job);$('#jobOut').textContent=d.log||'';$('#jobState').textContent=`${locked}: ${d.status}`;if(['succeeded','failed','cancelled'].includes(d.status)){clearInterval(poll);poll=null;$('#dept').disabled=false;$('#action').disabled=false;await refreshDepartments(true,true)}}$('#jobRun').onclick=async()=>{locked=$('#dept').value;try{$('#dept').disabled=true;$('#action').disabled=true;const d=await api('/api/jobs',{method:'POST',body:JSON.stringify({department:locked,action:$('#action').value,confirmation:$('#confirm').value||null})});job=d.job_id;poll=setInterval(watch,900);watch()}catch(e){$('#dept').disabled=false;$('#action').disabled=false;$('#jobOut').textContent=e.message}};
-$('#mode').onchange=resetForMode;$('#strategy').onchange=()=>$('#types').classList.toggle('hidden',$('#strategy').value!=='custom');$('#dept').onchange=updateDept;$('#action').onchange=()=>updateDept();$('#closeDrawer').onclick=close;$('#backdrop').onclick=close;document.querySelectorAll('.nav button').forEach(b=>b.onclick=async()=>{refreshDepartments();document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['query','matching','graph','departments','saved'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==b.dataset.tab));if(b.dataset.tab==='graph')showGraph()});(async()=>{await load();picker();years()})();
+$('#mode').onchange=resetForMode;$('#strategy').onchange=()=>$('#types').classList.toggle('hidden',$('#strategy').value!=='custom');$('#dept').onchange=updateDept;$('#action').onchange=()=>updateDept();$('#closeDrawer').onclick=close;$('#backdrop').onclick=close;document.querySelectorAll('.nav button').forEach(b=>b.onclick=async()=>{refreshDepartments();document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['query','matching','graph','departments','saved'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==b.dataset.tab));if(b.dataset.tab==='graph')showGraph();if(b.dataset.tab==='saved')loadSavedResearch();});(async()=>{await load();picker();years()})();
 </script>
 <!-- RAG_FIXES_V1 -->
 <style>
