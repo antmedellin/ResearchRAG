@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """UTRGV Research Portfolio web API v1.7."""
-import time,asyncio,json,os,re,sys,uuid
+import time,asyncio,json,os,re,sys,uuid,sqlite3
 from datetime import datetime,timezone
 from pathlib import Path
 from typing import Literal
@@ -8,7 +8,7 @@ import yaml
 from fastapi import FastAPI,HTTPException,Query
 from fastapi.responses import FileResponse
 from neo4j import GraphDatabase
-from pydantic import BaseModel,field_validator
+from pydantic import BaseModel,field_validator, Field
 from research_portfolio.matching.faculty_match import recommend as recommend_faculty_team
 from research_portfolio.common import fetch_json,dm_records,index_values
 from research_portfolio.retrieval import search as R
@@ -17,6 +17,26 @@ from research_portfolio.answer_guard import guard_query_sync, guard_query_async 
 ROOT=Path(os.getenv("RAG_REPO_ROOT","/app")).resolve();CONFIG_DIR=ROOT/"config"/"departments";DATA_DIR=ROOT/"data"/"departments";STATIC=Path(__file__).parent/"static"
 DM_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMList";PROFILE_URL="https://webapps.utrgv.edu/aa/dm/api/DMUser/GetDMuser?username=";SLUG=re.compile(r"^[a-z0-9][a-z0-9_-]{0,99}$")
 TYPES=("bio","interests","education","experience","award","license","publication","grant","presentation");JOBS={};CACHE={"rows":None};app=FastAPI(title="UTRGV Research Portfolio",version="1.7")
+
+# SAVED_RESEARCH_V1: shared research prompt and answer library
+SAVED_RESEARCH_DB = ROOT / "data" / "saved_research.db"
+
+
+def init_saved_research_db():
+    """Create the shared saved-research database if it does not exist."""
+    SAVED_RESEARCH_DB.parent.mkdir(parents=True, exist_ok=True)
+
+    with sqlite3.connect(SAVED_RESEARCH_DB) as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS saved_research (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                prompt TEXT NOT NULL,
+                answer TEXT NOT NULL,
+                sources TEXT NOT NULL DEFAULT '[]',
+                created_at TEXT NOT NULL
+            )
+        """)
+        conn.commit()
 
 # GRAPH_LR_V1: LightRAG-style knowledge graph (/graph-view, /api/kg/*)
 import importlib.util as _kg_ilu
@@ -166,6 +186,12 @@ class QueryRequest(BaseModel):
     def vt(cls,v):
         if set(v)-set(TYPES):raise ValueError("Invalid evidence type")
         return list(dict.fromkeys(v))
+
+class SavedResearchRequest(BaseModel):
+    prompt: str
+    answer: str
+    sources: list[dict] = Field(default_factory=list)
+
 class JobRequest(BaseModel):department:str;action:Literal["discover","fetch","build","dry_run","apply","validate","auto_ingest"];confirmation:str|None=None
 
 def jobcmd(r):
@@ -425,6 +451,76 @@ async def query(r: QueryRequest):
 def people_suggest(q: str):
     from research_portfolio.person_match import resolve_name
     return resolve_name(q, limit=8)["candidates"]
+@app.post("/api/saved-research")
+def save_research(r: SavedResearchRequest):
+    prompt = r.prompt.strip()
+    answer = r.answer.strip()
+
+    if not prompt:
+        raise HTTPException(400, "Research prompt cannot be empty")
+    if not answer:
+        raise HTTPException(400, "Research answer cannot be empty")
+
+    init_saved_research_db()
+
+    created_at = datetime.now(timezone.utc).isoformat()
+
+    with sqlite3.connect(SAVED_RESEARCH_DB) as conn:
+        cursor = conn.execute(
+            """
+            INSERT INTO saved_research (prompt, answer, sources, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (prompt, answer, json.dumps(r.sources), created_at)
+        )
+        saved_id = cursor.lastrowid
+
+    return {
+        "id": saved_id,
+        "prompt": prompt,
+        "answer": answer,
+        "sources": r.sources,
+        "created_at": created_at
+    }
+@app.get("/api/saved-research")
+def list_saved_research():
+    init_saved_research_db()
+
+    with sqlite3.connect(SAVED_RESEARCH_DB) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT id, prompt, answer, sources, created_at
+            FROM saved_research
+            ORDER BY created_at DESC, id DESC
+            """
+        ).fetchall()
+
+    items = []
+    for row in rows:
+        items.append({
+            "id": row["id"],
+            "prompt": row["prompt"],
+            "answer": row["answer"],
+            "sources": json.loads(row["sources"]),
+            "created_at": row["created_at"]
+        })
+
+    return {"items": items}
+@app.delete("/api/saved-research/{saved_id}")
+def delete_saved_research(saved_id: int):
+    init_saved_research_db()
+
+    with sqlite3.connect(SAVED_RESEARCH_DB) as conn:
+        cursor = conn.execute(
+            "DELETE FROM saved_research WHERE id = ?",
+            (saved_id,)
+        )
+
+        if cursor.rowcount == 0:
+            raise HTTPException(404, "Saved research entry not found")
+
+    return {"deleted": saved_id}
 @app.get("/api/chunks/{point_id}")
 def chunk(point_id:str):
     import requests
