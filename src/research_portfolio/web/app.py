@@ -136,45 +136,178 @@ def source(point,i,allowed=None):
     elif allowed is not None:
         ids=[k for k in ids if k in allowed]
     return {"citation":i,"point_id":str(point["id"]),"entity_id":p.get("entity_id"),"entity_type":p.get("entity_type"),"chunk_type":p.get("chunk_type"),"title":p.get("title") or p.get("display_name"),"text":p.get("text"),"year":p.get("year"),"status":p.get("status"),"sponsor":p.get("sponsor"),"amount":p.get("amount"),"people":names,"person_ids":ids,"outside_department_people":outside,"departments":p.get("department_slugs",[]),"rrf_score":point.get("score"),"rerank_score":point.get("rerank_score"),"payload":p}
-def query_one(q,depts,pid,types,mode,limit,since,grant_status,sponsor,investigator_role,publication_type,refereed,has_abstract):
+def _selected_overlap(point, selected_ids):
+    """Return the number of selected faculty explicitly attached to an evidence point."""
+    payload=point.get("payload",{}) or {}
+    contributor_ids={
+        c.get("person_id")
+        for c in (payload.get("contributors") or [])
+        if isinstance(c,dict) and c.get("person_id")
+    }
+    # Some chunks expose person_ids even when contributors is absent.
+    contributor_ids.update(payload.get("person_ids") or [])
+    return len(set(selected_ids) & contributor_ids)
+
+def _retrieve_query_points(q,depts,people,types,mode,limit,since,grant_status,sponsor,
+                           investigator_role,publication_type,refereed,has_abstract):
+    """One retrieval pipeline for zero, one, or multiple selected faculty.
+
+    The UI Result limit is the hard candidate maximum BEFORE reranking. Retrieval,
+    filtering, reranking, and entity collapsing never intentionally expand beyond it.
+    """
     depts=list(depts or []) or None
-    person_obj=R.resolve_person(pid) if pid else None
+    person_ids=[p["person_id"] for p in (people or [])]
+    selected_ids=set(person_ids)
     allowed=dept_member_ids(depts) if depts else None
     if depts and not allowed:
-        return {"kind":"evidence","answer":None,"sources":[],"scope_note":f"No validated roster members found for: {', '.join(depts)}."}
-    if person_obj and mode=="answer" and not types:
-        points=R.balanced_person_evidence(q,person_obj["person_id"],candidates=max(20,limit))
-        points=scope_points(points,None,since)
-    else:
-        flt=R.build_filter(types=types or None,depts=depts,since=since,people=[pid] if pid else None,funded_only=False)
-        must=list((flt or {"must":[]}).get("must",[]))
-        # strict scope: every chunk must involve at least one member of the selected department(s)
-        if allowed and not pid: must.append({"key":"person_ids","match":{"any":sorted(allowed)}})
-        if grant_status: must.append({"key":"status","match":{"value":grant_status}})
-        if sponsor: must.append({"key":"sponsor","match":{"value":sponsor}})
-        if publication_type: must.append({"key":"type","match":{"value":publication_type}})
-        if refereed is not None: must.append({"key":"refereed","match":{"value":refereed}})
-        flt={"must":must} if must else None
-        candidates=R.hybrid(q,k=max(40,limit),prefetch=100,flt=flt)
-        candidates=scope_points(candidates,allowed,since)
-        if investigator_role:
-            candidates=[x for x in candidates if any(c.get("role")==investigator_role and (allowed is None or c.get("person_id") in allowed or not c.get("person_id")) for c in x.get("payload",{}).get("contributors",[]))]
-        if has_abstract is not None:
-            candidates=[x for x in candidates if bool(x.get("payload",{}).get("abstract"))==has_abstract]
-        points=R.rerank(q,candidates,top_n=len(candidates) if mode=="faculty" else limit) if candidates else []
+        return [],allowed,{"scope_note":f"No validated roster members found for: {', '.join(depts)}."}
+
+    flt=R.build_filter(
+        types=types or None,
+        depts=depts,
+        since=since,
+        people=person_ids or None,
+        funded_only=False,
+    )
+    must=list((flt or {"must":[]}).get("must",[]))
+    if allowed and not person_ids:
+        must.append({"key":"person_ids","match":{"any":sorted(allowed)}})
+    if grant_status:
+        must.append({"key":"status","match":{"value":grant_status}})
+    if sponsor:
+        must.append({"key":"sponsor","match":{"value":sponsor}})
+    if publication_type:
+        must.append({"key":"type","match":{"value":publication_type}})
+    if refereed is not None:
+        must.append({"key":"refereed","match":{"value":refereed}})
+    flt={"must":must} if must else None
+
+    # Result limit is the candidate ceiling BEFORE reranking for every question type.
+    candidates=R.hybrid(q,k=limit,prefetch=limit,flt=flt)
+    candidates=scope_points(candidates,allowed,since)[:limit]
+
+    if investigator_role:
+        candidates=[
+            x for x in candidates
+            if any(
+                c.get("role")==investigator_role
+                and (
+                    not selected_ids
+                    or c.get("person_id") in selected_ids
+                    or (allowed is not None and c.get("person_id") in allowed)
+                    or not c.get("person_id")
+                )
+                for c in x.get("payload",{}).get("contributors",[])
+            )
+        ][:limit]
+    if has_abstract is not None:
+        candidates=[
+            x for x in candidates
+            if bool(x.get("payload",{}).get("abstract"))==has_abstract
+        ][:limit]
+
+    points=R.rerank(q,candidates,top_n=min(limit,len(candidates))) if candidates else []
+    points=R.collapse_by_entity(points,limit)
+
+    # For multiple faculty, deterministic collaboration evidence outranks otherwise
+    # similar evidence involving fewer selected faculty. Python's stable sort keeps
+    # reranker order for equal overlap counts.
+    if len(selected_ids)>1:
+        points=sorted(points,key=lambda x:_selected_overlap(x,selected_ids),reverse=True)
+
+    return points,allowed,{}
+
+def _multi_answer_question(q,people,points):
+    names=[p["display_name"] for p in people]
+    selected_ids={p["person_id"] for p in people}
+    overlap=[]
+    for i,point in enumerate(points,1):
+        payload=point.get("payload",{}) or {}
+        contributor_ids={
+            c.get("person_id")
+            for c in (payload.get("contributors") or [])
+            if isinstance(c,dict) and c.get("person_id")
+        }
+        contributor_ids.update(payload.get("person_ids") or [])
+        matched=[p["display_name"] for p in people if p["person_id"] in contributor_ids]
+        if matched:
+            overlap.append(
+                f"[{i}] explicitly includes selected faculty: {', '.join(matched)} "
+                f"({len(matched)}/{len(people)} selected)"
+            )
+    return (
+        f"{q}\n\n"
+        f"Selected faculty: {'; '.join(names)}.\n"
+        f"Verified selected-faculty overlap by source:\n"
+        f"{chr(10).join(overlap)}\n\n"
+        f"Answer as one combined analysis of the selected faculty.\n"
+        f"For collaboration questions, identify shared entities in the numbered evidence "
+        f"where two or more selected faculty are explicitly listed together.\n"
+        f"Prioritize entities containing the greatest number of selected faculty, while "
+        f"also mentioning relevant collaborations involving subsets.\n"
+        f"Use exact titles and details from the numbered evidence. Do not substitute, "
+        f"rename, or infer projects from model knowledge.\n"
+        f"Only claim collaboration when the numbered evidence explicitly supports it.\n"
+        f"Do not claim that no all-selected-faculty collaboration exists if any source is "
+        f"marked {len(people)}/{len(people)} selected.\n"
+        f"Cite the numbered source establishing each collaboration."
+    )
+
+def query_people(q,depts,people,types,mode,limit,since,grant_status,sponsor,
+                 investigator_role,publication_type,refereed,has_abstract):
+    """Execute evidence/faculty/answer modes using the shared retrieval pipeline."""
+    points,allowed,meta=_retrieve_query_points(
+        q,depts,people,types,mode,limit,since,grant_status,sponsor,
+        investigator_role,publication_type,refereed,has_abstract,
+    )
+    if meta.get("scope_note"):
+        return {"kind":"evidence","sources":[],**meta}
+
     if mode=="faculty":
         allowed_rank=allowed if allowed is not None else R.department_member_ids(depts)
         rows=R.rank_faculty(points,top=limit,allowed_person_ids=allowed_rank)
-        return {"kind":"faculty","faculty":[{"score":score,"person_id":fid,"name":name,"evidence":[source(x,i+1,allowed) for i,x in enumerate(ev)]} for score,fid,name,ev in rows]}
-    points=R.collapse_by_entity(points,limit)
+        return {
+            "kind":"faculty",
+            "faculty":[
+                {"score":score,"person_id":fid,"name":name,
+                 "evidence":[source(x,i+1,allowed) for i,x in enumerate(ev)]}
+                for score,fid,name,ev in rows
+            ],
+        }
+
+    # Evidence mode is terminal: never call an answer model.
+    if mode=="evidence":
+        return {
+            "kind":"evidence",
+            "sources":[source(x,i+1,allowed) for i,x in enumerate(points)],
+        }
+
+    if mode!="answer":
+        return {
+            "kind":"evidence",
+            "sources":[source(x,i+1,allowed) for i,x in enumerate(points)],
+        }
+
+    person_obj=R.resolve_person(people[0]["person_id"]) if len(people)==1 else None
     ask_q=q
-    if allowed and not person_obj:
+    if len(people)>1:
+        ask_q=_multi_answer_question(q,people,points)
+    elif allowed and not person_obj:
         names=dept_member_names(allowed)
-        ask_q=(f"{q}\n\n[Scope: department(s) {', '.join(depts)}. Only describe or name these faculty: "
-               f"{'; '.join(names)}. Other people in the sources are outside the selected department(s); "
-               f"mention them only as co-authors/co-investigators if necessary.]")
-    answer=R.ask(ask_q,points,person=person_obj) if mode=="answer" and points else None
-    return {"kind":"answer" if answer else "evidence","answer":answer,"sources":[source(x,i+1,allowed) for i,x in enumerate(points)]}
+        ask_q=(
+            f"{q}\n\n[Scope: department(s) {', '.join(depts)}. Only describe or name these faculty: "
+            f"{'; '.join(names)}. Other people in the sources are outside the selected department(s); "
+            f"mention them only as co-authors/co-investigators if necessary.]"
+        )
+
+    answer=R.ask(ask_q,points,person=person_obj) if points else None
+    if not answer:
+        return {"kind":"evidence","sources":[source(x,i+1,allowed) for i,x in enumerate(points)]}
+    return {
+        "kind":"answer",
+        "answer":answer,
+        "sources":[source(x,i+1,allowed) for i,x in enumerate(points)],
+    }
 
 class QueryRequest(BaseModel):
     mode:Literal["answer","faculty","evidence","publications","grants","collaborators","funding"]
@@ -434,12 +567,12 @@ async def _query__impl(r:QueryRequest):
         if not people: raise HTTPException(400,"Select at least one person")
         return structured_records(r.mode,people,r.since,r.limit,r.grant_status,r.sponsor,r.investigator_role,r.publication_type,r.refereed,r.has_abstract,depts)
     if not r.query:raise HTTPException(400,"Enter a question or topic")
-    args=(r.types,r.mode,r.limit,r.since,r.grant_status,r.sponsor,r.investigator_role,r.publication_type,r.refereed,r.has_abstract)
-    if len(people)>1:
-        people=sorted(people,key=lambda p:(p.get("display_name") or "").casefold())
-        return {"kind":"comparison","results":[{"person":p,"result":await asyncio.to_thread(query_one,r.query,depts,p["person_id"],*args)} for p in people]}
-    return await asyncio.to_thread(query_one,r.query,depts,people[0]["person_id"] if people else None,*args)
-
+    people=sorted(people,key=lambda p:(p.get("display_name") or "").casefold())
+    return await asyncio.to_thread(
+        query_people,
+        r.query,depts,people,r.types,r.mode,r.limit,r.since,r.grant_status,r.sponsor,
+        r.investigator_role,r.publication_type,r.refereed,r.has_abstract,
+    )
 
 # RAG_FIXES_V1: fuzzy names + cited-answer guard
 @app.post("/api/query")

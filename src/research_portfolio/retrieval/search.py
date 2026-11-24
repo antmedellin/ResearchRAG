@@ -48,6 +48,7 @@ NEO4J_PASSWORD = os.environ["NEO4J_PASSWORD"]
 
 PROFILE_TYPES = ["bio", "interests", "education", "experience", "award", "license"]
 RESEARCH_TYPES = ["publication", "grant", "presentation"]
+PROFILE_SET = set(PROFILE_TYPES)
 
 
 def neo4j_driver():
@@ -240,18 +241,29 @@ def point_score(point):
     return float(score if score is not None else point["score"])
 
 
+
+def entity_key(point):
+    """PROFILE_SPLIT_V1: profile chunks (bio, interests, award, ...) all share the
+    person's entity_id, so treat each one as its own record. Research chunks still
+    collapse to one per publication/grant/presentation."""
+    payload = point["payload"]
+    if payload.get("chunk_type") in PROFILE_SET:
+        return f"{payload.get('entity_id') or ''}#{point['id']}"
+    return payload.get("entity_id") or point["id"]
+
+
 def collapse_by_entity(points, limit=None):
     """Keep the best chunk per entity so multi-chunk records do not dominate."""
     best = {}
     for point in points:
-        entity_id = point["payload"].get("entity_id") or point["id"]
+        entity_id = entity_key(point)
         if entity_id not in best or point_score(point) > point_score(best[entity_id]):
             best[entity_id] = point
-    rows = sorted(best.values(), key=point_score, reverse=True)
-    return rows[:limit] if limit else rows
+    ranked = sorted(best.values(), key=point_score, reverse=True)
+    return ranked[:limit] if limit else ranked
 
 
-def balanced_person_evidence(question, person_id, profile_k=3, research_k=5, candidates=32):
+def balanced_person_evidence(question, person_id, profile_k=3, research_k=5, candidates=32, fill_to=None): 
     """Retrieve stated profile data and demonstrated research separately."""
     profile_filter = build_filter(types=PROFILE_TYPES, people=[person_id])
     research_filter = build_filter(types=RESEARCH_TYPES, people=[person_id])
@@ -267,9 +279,14 @@ def balanced_person_evidence(question, person_id, profile_k=3, research_k=5, can
         top_n=candidates,
     )
 
-    profile = collapse_by_entity(profile, profile_k)
-    research = collapse_by_entity(research, research_k)
-    return profile + research
+    # BALANCED_FILL_V1: guaranteed quotas first, then fill with best remaining evidence
+    profile_all = collapse_by_entity(profile)
+    research_all = collapse_by_entity(research)
+    picked = profile_all[:profile_k] + research_all[:research_k]
+    if fill_to and len(picked) < fill_to:
+        rest = sorted(profile_all[profile_k:] + research_all[research_k:], key=point_score, reverse=True)
+        picked += rest[: fill_to - len(picked)]
+    return picked
 
 
 def rank_faculty(points, top=10, per_person=3, allowed_person_ids=None):
@@ -350,6 +367,7 @@ def ask(question, points, person=None):
         post_chat(CHAT_URL,
             json={
                 "model": CHAT_MODEL,
+                "think": False,   # NO_THINK_V1: reasoning consumed the whole output, leaving content empty
                 "stream": False,
                 "options": {"temperature": 0.2, "num_ctx": 8192},
                 "messages": [

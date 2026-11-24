@@ -199,9 +199,18 @@ services:
         for p in "$$CHAT_PLATFORM" "$$DECISION_PLATFORM"; do
           case "$$p" in vllm|ollama) ;; *) echo "ERROR: platform '$$p' must be vllm or ollama" >&2; exit 1 ;; esac
         done
-        [ "$$DENSE_EMBED_PLATFORM" = "ollama" ] && ollama pull "$$DENSE_EMBEDDING_MODEL"
-        [ "$$CHAT_PLATFORM" = "ollama" ] && ollama pull "$$OLLAMA_CHAT_MODEL"
-        [ "$$DECISION_PLATFORM" = "ollama" ] && ollama pull "$$OLLAMA_DECISION_MODEL"
+        ensure_model() {
+          model="$$1"
+          if ollama list | awk 'NR>1 {print $$1}' | grep -Fxq "$$model"; then
+            echo "$$model already installed"
+          else
+            echo "Pulling $$model"
+            ollama pull "$$model"
+          fi
+        }
+        [ "$$DENSE_EMBED_PLATFORM" = "ollama" ] && ensure_model "$$DENSE_EMBEDDING_MODEL"
+        [ "$$CHAT_PLATFORM" = "ollama" ] && ensure_model "$$OLLAMA_CHAT_MODEL"
+        [ "$$DECISION_PLATFORM" = "ollama" ] && ensure_model "$$OLLAMA_DECISION_MODEL"
         echo "ollama-init done"
     depends_on:
       ollama:
@@ -339,6 +348,16 @@ services:
     volumes:
       - ./llama-swap/config.yaml:/etc/llama-swap/config/config.yaml:ro
       - ./llama-swap/ollama-keeper.sh:/app/ollama-keeper.sh:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://127.0.0.1:8080/v1/models >/dev/null || exit 1"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
     environment:
       # Read by config.yaml via ${env.NAME}
       OLLAMA_URL: http://ollama:11434
@@ -385,7 +404,7 @@ services:
         echo "Chat model ready"
     depends_on:
       llama-swap:
-        condition: service_started
+        condition: service_healthy
 
   # ===========================================================================
   # ResearchRAG application
@@ -471,7 +490,9 @@ services:
         condition: service_completed_successfully
       neo4j:
         condition: service_healthy
-      llama-swap:
-        condition: service_started
+      llm-warmup:
+        condition: service_completed_successfully
       reranker:
         condition: service_healthy
+      ollama-init:
+        condition: service_completed_successfully
