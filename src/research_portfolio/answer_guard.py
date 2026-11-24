@@ -231,7 +231,11 @@ def _post(result, info):
     if data is None:
         return result
     data["name_notes"] = info["notes"]
-    if "answer" in data and isinstance(data.get("sources"), list):
+    # Only answer responses may enter citation generation/repair. Evidence, faculty,
+    # funding, and structured-record modes must remain generation-free.
+    if data.get("kind") != "answer":
+        return data
+    if isinstance(data.get("sources"), list):
         ans = data.get("answer") or ""
         needs = MODE == "always" or not ans.strip() or not CITE_RE.search(ans)
         if needs and data["sources"]:
