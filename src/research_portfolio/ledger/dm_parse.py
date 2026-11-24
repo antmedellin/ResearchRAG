@@ -114,10 +114,22 @@ def contributors(items, roster, owner, role_key=None):
 def split_keywords(text):
     if not text:
         return []
+    #remove a leading "research interests:" label, if presents
+    text = re.sub(
+        r"^\s*Research\s+Interests\s*:\s*",
+        "",
+        text,
+        flags = re.IGNORECASE
+    )
     seen, out = set(), []
-    for p in (clean(x.strip(" .")) for x in re.split(r"[;,]", re.sub(r"\(.*?\)", "", text))):
+    #split the research-interest text into individual keywords
+    for p in (
+        clean(x.strip(" ."))
+         for x in re.split(r"[;,]", re.sub(r"\(.*?\)", "", text))
+    ):
         if p and 2 <= len(p) <= 60 and (k := norm_key(p)) not in seen:
-            seen.add(k); out.append(p)
+            seen.add(k)
+            out.append(p)
     return out
 
 # ---------------- person ----------------
