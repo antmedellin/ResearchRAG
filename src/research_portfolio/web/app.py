@@ -265,7 +265,7 @@ def query_people(q,depts,people,types,mode,limit,since,grant_status,sponsor,
 
     if mode=="faculty":
         allowed_rank=allowed if allowed is not None else R.department_member_ids(depts)
-        rows=R.rank_faculty(points,top=limit,allowed_person_ids=allowed_rank)
+        rows=R.rank_faculty(None,top=limit,allowed_person_ids=allowed_rank,query=q)        
         return {
             "kind":"faculty",
             "faculty":[
@@ -820,9 +820,9 @@ def graph_node(node_id:str):
     return dict(rows[0])
 
 @app.get("/api/faculty-match")
-def faculty_match(query:str,team_size:str="auto",top_people:int=15,top_teams:int=6):
-    if team_size!="auto" and (not team_size.isdigit() or not 2<=int(team_size)<=6):raise HTTPException(400,"team_size must be auto or 2-6")
-    return recommend_faculty_team(query,None,team_size,min(max(top_people,8),20),min(max(top_teams,2),6))
+def faculty_match(query:str,team_size:str="auto",top_people:int=50,top_teams:int=2):
+    if team_size!="auto" and (not team_size.isdigit() or not 1<=int(team_size)<=6):raise HTTPException(400,"team_size must be auto or 1-6")
+    return recommend_faculty_team(query,None,team_size,min(max(top_people,1),50),min(max(top_teams,1),5))
 
 @app.post("/api/jobs")
 async def jobs(r:JobRequest):

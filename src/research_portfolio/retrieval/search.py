@@ -289,51 +289,52 @@ def balanced_person_evidence(question, person_id, profile_k=3, research_k=5, can
     return picked
 
 
-def rank_faculty(points, top=10, per_person=3, allowed_person_ids=None):
-    """Rank faculty using their best distinct publications/grants/profile entities."""
-    names = {}
-    hits = defaultdict(dict)
+def rank_faculty(points, top=10, per_person=3, allowed_person_ids=None, query=""):
+    """
+    Rank faculty using the shared 0-1 faculty scoring algorithm.
 
-    for point in points:
-        payload = point["payload"]
-        entity_id = payload.get("entity_id") or point["id"]
-        score = point_score(point)
+    per_person is retained only for backward compatibility.
+    """
+    from research_portfolio.matching.faculty_match import score_faculty
 
-        if payload.get("entity_type") == "person":
-            pid = payload.get("person_id")
-            if pid and (allowed_person_ids is None or pid in allowed_person_ids):
-                names[pid] = payload.get("display_name", pid)
-                previous = hits[pid].get(entity_id)
-                if previous is None or score > previous[0]:
-                    hits[pid][entity_id] = (score, point)
-            continue
+    rows = score_faculty(
+        query=query,
+        top_n=min(max(1, int(top)), 20),
+        points=points,
+        allowed_person_ids=allowed_person_ids,
+    )
 
-        for contributor in payload.get("contributors", []):
-            pid = contributor.get("person_id")
-            if pid and contributor.get("name"):
-                names.setdefault(pid, contributor["name"])
+    ranked = []
 
-        for pid in payload.get("person_ids", []):
-            if allowed_person_ids is not None and pid not in allowed_person_ids:
-                continue
-            previous = hits[pid].get(entity_id)
-            if previous is None or score > previous[0]:
-                hits[pid][entity_id] = (score, point)
+    for row in rows:
+        evidence = []
 
-    scored = []
-    for pid, entities in hits.items():
-        evidence = sorted(entities.values(), key=lambda row: row[0], reverse=True)[:per_person]
-        scored.append(
-            (
-                sum(row[0] for row in evidence),
-                pid,
-                names.get(pid, pid),
-                [row[1] for row in evidence],
-            )
-        )
-    scored.sort(reverse=True)
-    return scored[:top]
+        for item in row.get("evidence", []):
+            evidence.append({
+                "id": item.get("point_id"),
+                "score": item.get("score", 0.0),
+                "rerank_score": item.get("score", 0.0),
+                "payload": {
+                    "entity_id": item.get("entity_id"),
+                    "chunk_type": item.get("chunk_type"),
+                    "title": item.get("title"),
+                    "year": item.get("year"),
+                    "status": item.get("status"),
+                    "sponsor": item.get("sponsor"),
+                    "text": item.get("text"),
+                    "department_slugs": item.get("departments", []),
+                    "person_ids": [row["person_id"]],
+                },
+            })
 
+        ranked.append((
+            row["score"],
+            row["person_id"],
+            row["name"],
+            evidence,
+        ))
+
+    return ranked
 
 def label(payload):
     chunk_type = payload["chunk_type"]
